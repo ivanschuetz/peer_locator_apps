@@ -14,7 +14,7 @@ class HomeViewModel: ObservableObject {
 
         cancellable = central.publisher
             .sink(receiveCompletion: { completion in }) { value in
-                self.labelValue = value
+                self.labelValue = "Bluetooth: \(value)"
         }
     }
 }

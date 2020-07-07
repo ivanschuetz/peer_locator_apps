@@ -20,10 +20,24 @@ class BleCentralImpl: NSObject, BleCentral {
 
 extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        publisher.send("\(central.state)")
+        publisher.send("\(central.state.asString())")
     }
 }
 
 class BleCentralNoop: NSObject, BleCentral {
     let publisher = PassthroughSubject<String, Never>()
+}
+
+private extension CBManagerState {
+    func asString() -> String {
+        switch self {
+        case .unknown: return ".unknown"
+        case .resetting: return ".resetting"
+        case .unsupported: return ".unsupported"
+        case .unauthorized: return ".unauthorized"
+        case .poweredOff: return ".poweredOff"
+        case .poweredOn: return ".poweredOn"
+        @unknown default: return "unexpected (new) bluetooth state: \(self)"
+        }
+    }
 }
