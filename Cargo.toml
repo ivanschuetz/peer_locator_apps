@@ -1,0 +1,24 @@
+[package]
+name = "rust_android_ios"
+version = "0.0.1"
+authors = ["Ivan Schuetz <ivanhp978@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "core"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+log = "0.4.6"
+log-panics = "2.0"
+
+[target.'cfg(target_os="android")'.dependencies]
+jni = { version = "0.16", default-features = false }
+android_logger = "0.8"
+
+[target.'cfg(target_os = "ios")'.dependencies]
+libc = "0.2"
+core-foundation = "0.6.2"
+
+[build-dependencies]
+env_logger = "0.6"

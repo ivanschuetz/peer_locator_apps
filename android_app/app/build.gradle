@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+    defaultConfig {
+        applicationId "com.match.android"
+        minSdkVersion 23
+        targetSdkVersion 29
+        versionCode 1
+        versionName "0.0.1"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets {
+        main {
+            jni.srcDirs = []
+            jniLibs.srcDir 'src/main/libs'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+def rustBasePath = "../.."
+def archTriplets = [
+    'armeabi-v7a': 'arm-linux-androideabi',
+    'arm64-v8a': 'aarch64-linux-android',
+    'x86_64': 'x86_64-linux-android',
+    'x86': 'i686-linux-android'
+]
+
+// TODO: only pass --release if buildType is release
+archTriplets.each { arch, target ->
+
+    // Build Rust lib
+    tasks.create(name: "cargo-build-$arch", type: Exec, description: "Building core for $arch") {
+            workingDir rustBasePath
+            executable "cargo"
+            args = ["ndk", "--platform", "29", "--target", target, "build", "--verbose"]
+    }
+
+    // Copy Rust lib into this app's libs directory
+    tasks.create(name: "rust-deploy-$arch", type: Copy, dependsOn: "cargo-build-$arch",
+            description: "Copy rust libs for ($arch) to libs") {
+
+        from "$rustBasePath/target/$target/debug"
+        include "*.so"
+        into "$rustBasePath/android_app/app/src/main/libs/$arch"
+    }
+
+    // Hook up tasks to execute before building java
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn "rust-deploy-$arch"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
