@@ -2,7 +2,11 @@ import Foundation
 import CoreBluetooth
 import Combine
 
-class BleCentral: NSObject {
+protocol BleCentral {
+    var publisher: PassthroughSubject<String, Never> { get }
+}
+
+class BleCentralImpl: NSObject, BleCentral {
 
     let publisher = PassthroughSubject<String, Never>()
 
@@ -14,8 +18,12 @@ class BleCentral: NSObject {
     }
 }
 
-extension BleCentral: CBCentralManagerDelegate {
+extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         publisher.send("\(central.state)")
     }
+}
+
+class BleCentralNoop: NSObject, BleCentral {
+    let publisher = PassthroughSubject<String, Never>()
 }
