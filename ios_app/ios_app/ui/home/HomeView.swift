@@ -11,7 +11,14 @@ struct HomeView: View {
     }
 
     var body: some View {
-        Text(viewModel.labelValue)
+        VStack {
+            Text(viewModel.labelValue)
+            Divider()
+            Text("Discovered ids:")
+            List(viewModel.detectedDevices) { bleId in
+                Text(bleId.bleId.str())
+            }
+        }
     }
 }
 

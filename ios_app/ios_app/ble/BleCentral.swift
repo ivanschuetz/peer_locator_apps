@@ -3,12 +3,14 @@ import CoreBluetooth
 import Combine
 
 protocol BleCentral {
-    var publisher: PassthroughSubject<String, Never> { get }
+    var status: PassthroughSubject<String, Never> { get }
+    var discovered: PassthroughSubject<BleId, Never> { get }
 }
 
 class BleCentralImpl: NSObject, BleCentral {
 
-    let publisher = PassthroughSubject<String, Never>()
+    let status = PassthroughSubject<String, Never>()
+    let discovered = PassthroughSubject<BleId, Never>()
 
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
@@ -21,7 +23,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
 extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        publisher.send("\(central.state.asString())")
+        status.send("\(central.state.asString())")
 
         switch central.state {
         case .poweredOn:
@@ -75,6 +77,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
                 // Unwrap: We write a BleId, so we should always read a BleId
                 let id = BleId(data: value)!
                 print("Received id: \(id)")
+                discovered.send(id)
             } else {
                 print("Characteristic had no value")
             }
@@ -85,7 +88,8 @@ extension BleCentralImpl: CBPeripheralDelegate {
 }
 
 class BleCentralNoop: NSObject, BleCentral {
-    let publisher = PassthroughSubject<String, Never>()
+    let status = PassthroughSubject<String, Never>()
+    let discovered = PassthroughSubject<BleId, Never>()
 }
 
 private extension CBManagerState {
