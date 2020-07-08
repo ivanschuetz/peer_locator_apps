@@ -21,6 +21,8 @@
 		84DC105D24B4CCC70064DEBE /* Dip in Frameworks */ = {isa = PBXBuildFile; productRef = 84DC105C24B4CCC70064DEBE /* Dip */; };
 		84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105F24B4CCE80064DEBE /* Dependencies.swift */; };
 		84DC106224B4CDE10064DEBE /* RootWireFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106124B4CDE10064DEBE /* RootWireFrame.swift */; };
+		84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106324B502690064DEBE /* BlePeripheral.swift */; };
+		84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106524B503CA0064DEBE /* BleUuids.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +76,8 @@
 		84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		84DC105F24B4CCE80064DEBE /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		84DC106124B4CDE10064DEBE /* RootWireFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootWireFrame.swift; sourceTree = "<group>"; };
+		84DC106324B502690064DEBE /* BlePeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlePeripheral.swift; sourceTree = "<group>"; };
+		84DC106524B503CA0064DEBE /* BleUuids.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleUuids.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +194,8 @@
 			isa = PBXGroup;
 			children = (
 				84DC105424B4A5AE0064DEBE /* BleCentral.swift */,
+				84DC106324B502690064DEBE /* BlePeripheral.swift */,
+				84DC106524B503CA0064DEBE /* BleUuids.swift */,
 			);
 			path = ble;
 			sourceTree = "<group>";
@@ -338,6 +344,8 @@
 				84DC106224B4CDE10064DEBE /* RootWireFrame.swift in Sources */,
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
 				84DC104824B49E340064DEBE /* HomeView.swift in Sources */,
+				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
+				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
 			);
