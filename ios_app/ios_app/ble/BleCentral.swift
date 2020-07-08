@@ -87,11 +87,6 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 }
 
-class BleCentralNoop: NSObject, BleCentral {
-    let status = PassthroughSubject<String, Never>()
-    let discovered = PassthroughSubject<BleId, Never>()
-}
-
 private extension CBManagerState {
     func asString() -> String {
         switch self {
@@ -104,4 +99,9 @@ private extension CBManagerState {
         @unknown default: return "unexpected (new) bluetooth state: \(self)"
         }
     }
+}
+
+class BleCentralNoop: NSObject, BleCentral {
+    let status = PassthroughSubject<String, Never>()
+    let discovered = PassthroughSubject<BleId, Never>()
 }

@@ -12,7 +12,11 @@ struct HomeView: View {
 
     var body: some View {
         VStack {
+            Text("Ble Status:")
             Text(viewModel.labelValue)
+            Divider()
+            Text("My id:")
+            Text(viewModel.myId)
             Divider()
             Text("Discovered ids:")
             List(viewModel.detectedDevices) { bleId in
@@ -24,6 +28,6 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(viewModel: HomeViewModel(central: BleCentralNoop()))
+        HomeView(viewModel: HomeViewModel(central: BleCentralNoop(), peripheral: BlePeripheralNoop()))
     }
 }

@@ -2,11 +2,17 @@ import Foundation
 import CoreBluetooth
 import Combine
 
-protocol BlePeripheral {}
+protocol BlePeripheral {
+    var myId: PassthroughSubject<BleId, Never> { get }
+}
 
 class BlePeripheralImpl: NSObject, BlePeripheral {
     private var peripheralManager: CBPeripheralManager?
+
+    // Updated when read (note that it's generated on demand / first read)
     private let idService: BleIdService
+
+    let myId = PassthroughSubject<BleId, Never>()
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -40,7 +46,9 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         if request.characteristic.uuid == CBUUID.characteristicCBUUID { // TODO do we really need this check?
-            request.value = idService.id().data
+            let myId = idService.id()
+            self.myId.send(myId)
+            request.value = myId.data
             peripheral.respond(to: request, withResult: .success)
         } else {
             NSLog("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)")
@@ -64,4 +72,8 @@ private func createCharacteristic() -> CBCharacteristic {
         value: nil,
         permissions: [.readable]
     )
+}
+
+class BlePeripheralNoop: NSObject, BlePeripheral {
+    let myId = PassthroughSubject<BleId, Never>()
 }
