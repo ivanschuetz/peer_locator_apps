@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		8466613B24B3794400E5FBF9 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
+		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
+		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
 		84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0672222F9B3FE006DDC18 /* AppDelegate.swift */; };
 		84B0672522F9B3FE006DDC18 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0672422F9B3FE006DDC18 /* HomeViewController.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
@@ -58,6 +60,8 @@
 /* Begin PBXFileReference section */
 		8466613624B3789200E5FBF9 /* mobileapp-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mobileapp-ios.h"; sourceTree = "<group>"; };
 		8466613A24B3794400E5FBF9 /* libcore */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcore; sourceTree = "<group>"; };
+		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
+		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B0672222F9B3FE006DDC18 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		84B0672422F9B3FE006DDC18 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
@@ -109,6 +113,22 @@
 			path = core;
 			sourceTree = "<group>";
 		};
+		84993A1624B5C05F0044AA27 /* system */ = {
+			isa = PBXGroup;
+			children = (
+				84993A1724B5C0730044AA27 /* Preferences.swift */,
+			);
+			path = system;
+			sourceTree = "<group>";
+		};
+		84993A1924B5C1250044AA27 /* services */ = {
+			isa = PBXGroup;
+			children = (
+				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
+			);
+			path = services;
+			sourceTree = "<group>";
+		};
 		84B0671622F9B3FE006DDC18 = {
 			isa = PBXGroup;
 			children = (
@@ -134,6 +154,8 @@
 		84B0672122F9B3FE006DDC18 /* ios_app */ = {
 			isa = PBXGroup;
 			children = (
+				84993A1924B5C1250044AA27 /* services */,
+				84993A1624B5C05F0044AA27 /* system */,
 				84DC105E24B4CCDB0064DEBE /* dependencies */,
 				84DC105324B4A5800064DEBE /* ble */,
 				84DC104B24B4A2ED0064DEBE /* ui */,
@@ -339,6 +361,7 @@
 			files = (
 				84DC104E24B4A3000064DEBE /* UIView+Convenience.swift in Sources */,
 				84DC105124B4A3580064DEBE /* UIViewController+Convenience.swift in Sources */,
+				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* HomeViewModel.swift in Sources */,
 				84B0672522F9B3FE006DDC18 /* HomeViewController.swift in Sources */,
 				84DC106224B4CDE10064DEBE /* RootWireFrame.swift in Sources */,
@@ -348,6 +371,7 @@
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
+				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

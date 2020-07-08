@@ -72,8 +72,9 @@ extension BleCentralImpl: CBPeripheralDelegate {
         switch characteristic.uuid {
         case CBUUID.characteristicCBUUID:
             if let value = characteristic.value {
-                let str = String(data: value, encoding: .utf8)
-                print("Received value: \(String(describing: str))")
+                // Unwrap: We write a BleId, so we should always read a BleId
+                let id = BleId(data: value)!
+                print("Received id: \(id)")
             } else {
                 print("Characteristic had no value")
             }

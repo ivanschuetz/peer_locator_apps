@@ -6,8 +6,10 @@ protocol BlePeripheral {}
 
 class BlePeripheralImpl: NSObject, BlePeripheral {
     private var peripheralManager: CBPeripheralManager?
+    private let idService: BleIdService
 
-    override init() {
+    init(idService: BleIdService) {
+        self.idService = idService
         super.init()
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
@@ -38,7 +40,7 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         if request.characteristic.uuid == CBUUID.characteristicCBUUID { // TODO do we really need this check?
-            request.value = "Hello!".data(using: .utf8)
+            request.value = idService.id().data
             peripheral.respond(to: request, withResult: .success)
         } else {
             NSLog("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)")
