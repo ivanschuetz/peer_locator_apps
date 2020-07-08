@@ -3,6 +3,7 @@
     package="com.match.android">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher"
