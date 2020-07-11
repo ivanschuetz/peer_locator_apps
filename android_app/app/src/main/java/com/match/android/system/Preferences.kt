@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 
 enum class PreferencesKey {
+    BleId
 }
 
 interface Preferences {

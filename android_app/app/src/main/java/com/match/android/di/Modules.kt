@@ -5,6 +5,20 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.match.android.NotReferencedDependenciesActivator
+import com.match.android.ble.BleEnabler
+import com.match.android.ble.BleEnablerImpl
+import com.match.android.ble.BleManager
+import com.match.android.ble.BleManagerImpl
+import com.match.android.ble.BlePermissionsManager
+import com.match.android.ble.BlePermissionsManagerImpl
+import com.match.android.ble.BlePreconditions
+import com.match.android.ble.BlePreconditionsNotifier
+import com.match.android.ble.BlePreconditionsNotifierImpl
+import com.match.android.ble.BleServiceManager
+import com.match.android.ble.BleServiceManagerImpl
+import com.match.android.services.BleIdService
+import com.match.android.services.BleIdServiceImpl
 import com.match.android.system.EnvInfos
 import com.match.android.system.EnvInfosImpl
 import com.match.android.system.Preferences
@@ -26,17 +40,29 @@ val systemModule = module {
     single { Resources(androidApplication()) }
     single<EnvInfos> { EnvInfosImpl() }
     single { provideGson() }
+    single { NotReferencedDependenciesActivator(get()) }
 }
 
 val uiModule = module {
     single { MainNav() }
 }
 
+val bleModule = module {
+    single<BlePermissionsManager> { BlePermissionsManagerImpl() }
+    single<BleEnabler> { BleEnablerImpl() }
+    single { BlePreconditions(get(), get(), get()) }
+    single<BlePreconditionsNotifier> { BlePreconditionsNotifierImpl() }
+    single<BleServiceManager> { BleServiceManagerImpl(get()) }
+    single<BleManager> { BleManagerImpl(get(), androidApplication(), get()) }
+    single<BleIdService> { BleIdServiceImpl(get()) }
+}
+
 @ExperimentalUnsignedTypes
 val appModule = listOf(
     viewModelModule,
     systemModule,
-    uiModule
+    uiModule,
+    bleModule
 )
 
 fun getSharedPrefs(androidApplication: Application): SharedPreferences =

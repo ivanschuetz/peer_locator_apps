@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">Rust demo</string>
+
+    <!-- General -->
+    <string name="no">No</string>
+    <string name="ok">Ok</string>
+
+    <!-- Permissions general -->
+    <string name="dont_allow">Don\'t Allow</string>
+
+    <!-- Bluetooth permissions -->
+    <string name="bluetooth_info_title">Match needs Bluetooth and location access</string>
+    <string name="bluetooth_info_message">Bluetooth is required to be able to detect contacts. The Android OS requires the location permission for Bluetooth.</string>
+    <string name="bluetooth_permission_info_title">Enable background access</string>
+    <!-- TODO think about this permission and message: we should show these only when user activates in the app. We shouldn't
+      be very insistent (beyond explaining once) about activating bg access, as it's just an optional feature
+      if rationale check doesn't work like this, we should tune it with e.g. a preference
+      (needsToShowRationale && preference...)
+      -->
+    <string name="bluetooth_permission_info_message">If you don\'t allow background access, you
+        need to actively be using the app to detect contacts.
+        When background access is active, you\'ll always see a notification in the OS and the app.
+        You also can turn it off anytime.</string>
+
 </resources>

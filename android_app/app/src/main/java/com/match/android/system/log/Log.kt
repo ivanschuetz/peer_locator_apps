@@ -9,6 +9,7 @@ val log: Log = CompositeLog(
 // To filter logcat by multiple tags, use regex, e.g. (tag1)|(tag2)
 enum class LogTag {
     BLE,  // General BLE (can't be assigned to peripheral or central)
+    PERM
 }
 
 interface Log {

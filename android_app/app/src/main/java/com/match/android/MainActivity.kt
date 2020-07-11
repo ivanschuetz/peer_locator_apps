@@ -1,37 +1,42 @@
 package com.match.android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.match.android.R.layout.activity_main
+import com.match.android.ble.BlePreconditions
+import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
+    private val blePreconditions: BlePreconditions by inject()
+    private val nonReferencedDependenciesActivator: NotReferencedDependenciesActivator by inject()
+
+    init {
+        nonReferencedDependenciesActivator.activate()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(activity_main)
 
-        val jniApi = JniApi()
+        blePreconditions.onActivityCreated(this)
+    }
 
-        jniApi.initLogger()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        blePreconditions.onActivityResult(requestCode, resultCode, data)
+    }
 
-        val greetResult = jniApi.greet("MyName")
-        println("JNI greetResult: $greetResult")
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        blePreconditions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
 
-        val addResult = jniApi.add(1, 2)
-        println("JNI addResult: $addResult")
-
-        val passClassResult = jniApi.passObject(Dummy("foo", 1))
-        println("JNI passClassResult: $passClassResult")
-
-        val returnClassResult = jniApi.returnObject()
-        println("JNI returnClassResult: $returnClassResult")
-
-        val myCallback = object: Callback {
-            override fun call(string: String) {
-                println("JNI callback called: $string")
-            }
-        }
-
-        jniApi.registerCallback(myCallback)
+    override fun onDestroy() {
+        super.onDestroy()
+        blePreconditions.onActivityDestroy(this)
     }
 }
