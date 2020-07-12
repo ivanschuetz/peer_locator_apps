@@ -57,11 +57,17 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         self.peripheral = peripheral
         peripheral.delegate = self
 
-
         if let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey]
             as? [CBUUID : Data],
             let serviceData = advertisementDataServiceData[.serviceCBUUID] {
             print("Service data: \(serviceData)")
+            if let id = BleId(data: serviceData) {
+                // TODO: Android should send max possible bytes. Currently 17.
+                print("Ble id: \(id)")
+                discovered.send(id)
+            } else {
+                print("Service data is not a valid id")
+            }
 
             peripheralsToWriteTCNTo.insert(peripheral)
         }
