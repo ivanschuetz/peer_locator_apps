@@ -1,32 +1,19 @@
 package com.match.android.system.log
 
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.withLatestFrom
-import io.reactivex.subjects.BehaviorSubject.createDefault
-import io.reactivex.subjects.PublishSubject
 import com.match.android.system.log.LogLevel.D
 import com.match.android.system.log.LogLevel.E
 import com.match.android.system.log.LogLevel.I
 import com.match.android.system.log.LogLevel.V
 import com.match.android.system.log.LogLevel.W
 import com.match.android.ui.common.LimitedSizeQueue
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
 import java.util.Date
 
 class CachingLog : Log {
-    val logs = createDefault<LimitedSizeQueue<LogMessage>>(
+    val logs = ConflatedBroadcastChannel<LimitedSizeQueue<LogMessage>>(
         LimitedSizeQueue(1000)
     )
-
-    private val addLogTrigger: PublishSubject<LogMessage> = PublishSubject.create()
-    private val disposables = CompositeDisposable()
-
-    init {
-        disposables += addLogTrigger.withLatestFrom(logs)
-            .subscribe { (logMessage, logs) ->
-                this.logs.onNext(logs.apply { add(logMessage) })
-            }
-    }
 
     override fun setup() {}
 
@@ -51,7 +38,7 @@ class CachingLog : Log {
     }
 
     private fun log(message: LogMessage) {
-        addLogTrigger.onNext(message)
+        logs.sendBlocking(logs.value.apply { add(message) })
     }
 
     private fun addTag(tag: LogTag?, message: String) =

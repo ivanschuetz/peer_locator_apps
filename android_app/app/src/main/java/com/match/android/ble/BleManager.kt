@@ -2,19 +2,19 @@ package com.match.android.ble
 
 import android.app.Application
 import com.match.android.services.BleId
-import com.match.android.system.log.LogTag
 import com.match.android.system.log.LogTag.PERM
 import com.match.android.system.log.log
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.PublishSubject.create
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 
 interface BleManager {
-    val advertiserObservable: Observable<BleId>
-    val scannerObservable: Observable<BleId>
+    val advertiserObservable: BroadcastChannel<BleId>
+    val scannerObservable: BroadcastChannel<BleId>
 }
 
 class BleManagerImpl(
@@ -23,32 +23,30 @@ class BleManagerImpl(
     private val bleServiceManager: BleServiceManager
 ) : BleManager, BleServiceManagerObserver {
 
-    override val advertiserObservable: PublishSubject<BleId> = create()
-    override val scannerObservable: PublishSubject<BleId> = create()
-
-    private val disposables = CompositeDisposable()
+    override val advertiserObservable: BroadcastChannel<BleId> = BroadcastChannel(1)
+    override val scannerObservable: BroadcastChannel<BleId> = BroadcastChannel(1)
 
     init {
         bleServiceManager.register(this)
-        startBleWhenEnabled()
+        GlobalScope.launch {
+            startBleWhenEnabled()
+        }
     }
 
-    private fun startBleWhenEnabled() {
-        disposables += blePreconditions.bleEnabled
+    private suspend fun startBleWhenEnabled() {
+        blePreconditions.bleEnabled.asFlow()
             .take(1)
-            .subscribeBy(onNext = {
+            .collect {
                 log.i("BlePreconditions met - starting BLE", PERM)
                 bleServiceManager.startService(app)
-            }, onError = {
-                log.i("Error enabling bluetooth: $it", PERM)
-            })
+            }
     }
 
     override fun onAdvertised(bleId: BleId) {
-        advertiserObservable.onNext(bleId)
+        advertiserObservable.sendBlocking(bleId)
     }
 
     override fun onDiscovered(bleId: BleId) {
-        scannerObservable.onNext(bleId)
+        scannerObservable.sendBlocking(bleId)
     }
 }

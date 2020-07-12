@@ -1,12 +1,12 @@
 package com.match.android.ui.navigation
 
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.PublishSubject.create
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
 
 class MainNav {
-    val navigationCommands: PublishSubject<NavigationCommand> = create()
+    val navigationCommands: BroadcastChannel<NavigationCommand> = BroadcastChannel(1)
 
     fun navigate(command: NavigationCommand) {
-        navigationCommands.onNext(command)
+        navigationCommands.sendBlocking(command)
     }
 }

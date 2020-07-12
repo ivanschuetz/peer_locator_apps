@@ -9,12 +9,12 @@ import com.match.RequestCodes
 import com.match.android.ble.extensions.bluetoothManager
 import com.match.android.system.log.LogTag.PERM
 import com.match.android.system.log.log
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.PublishSubject.create
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.runBlocking
 
 interface BleEnabler {
-    val observable: Observable<Boolean>
+    val observable: BroadcastChannel<Boolean>
 
     fun enable(activity: Activity)
     fun notifyWillNotBeEnabled()
@@ -24,7 +24,7 @@ interface BleEnabler {
 class BleEnablerImpl : BleEnabler {
     private val requestCode = RequestCodes.enableBluetooth
 
-    override val observable: PublishSubject<Boolean> = create()
+    override val observable: BroadcastChannel<Boolean> = BroadcastChannel(1)
 
     override fun enable(activity: Activity) {
         val adapter = activity.bluetoothManager?.adapter
@@ -32,7 +32,8 @@ class BleEnablerImpl : BleEnabler {
         if (adapter != null) {
             if (adapter.isEnabled) {
                 log.d("Bluetooth is enabled", PERM)
-                observable.onNext(true)
+                observable.sendBlocking(true)
+
             } else {
                 log.d("Bluetooth not enabled. Requesting...", PERM)
                 val enableBluetoothIntent = Intent(ACTION_REQUEST_ENABLE)
@@ -40,7 +41,7 @@ class BleEnablerImpl : BleEnabler {
             }
         } else {
             // No BT adapter
-            observable.onNext(false)
+            observable.sendBlocking(false)
         }
     }
 
@@ -49,14 +50,14 @@ class BleEnablerImpl : BleEnabler {
      * Currently when required permissions are not granted.
      */
     override fun notifyWillNotBeEnabled() {
-        observable.onNext(false)
+        runBlocking { observable.send(false) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == requestCode) {
             when (resultCode) {
-                RESULT_OK -> observable.onNext(true)
-                RESULT_CANCELED -> observable.onNext(false)
+                RESULT_OK -> observable.offer(true)
+                RESULT_CANCELED -> observable.sendBlocking(false)
                 else -> throw Exception("Unexpected result code: $resultCode")
             }
         }

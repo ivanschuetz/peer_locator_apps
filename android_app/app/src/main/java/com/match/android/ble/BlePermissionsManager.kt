@@ -20,31 +20,31 @@ import com.match.android.R.string.bluetooth_permission_info_message
 import com.match.android.R.string.bluetooth_permission_info_title
 import com.match.android.R.string.dont_allow
 import com.match.android.R.string.ok
+import com.match.android.ble.BlePermissionsManagerImpl.RationaleType.BASIC
+import com.match.android.ble.BlePermissionsManagerImpl.RationaleType.BG
 import com.match.android.ble.GrantedPermissions.ALL
 import com.match.android.ble.GrantedPermissions.NONE
 import com.match.android.ble.GrantedPermissions.ONLY_FOREGROUND
-import com.match.android.ble.BlePermissionsManagerImpl.RationaleType.BASIC
-import com.match.android.ble.BlePermissionsManagerImpl.RationaleType.BG
 import com.match.android.system.log.LogTag.PERM
 import com.match.android.system.log.log
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.PublishSubject.create
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.runBlocking
 
 // Final permission state, after possible rationale dialogs.
 enum class GrantedPermissions { ALL, ONLY_FOREGROUND, NONE }
 
 interface BlePermissionsManager {
-    val observable: Observable<GrantedPermissions>
+    val observable: BroadcastChannel<GrantedPermissions>
 
     fun requestPermissionsIfNeeded(activity: Activity)
 
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                                   grantResults: IntArray, activity: Activity)
+                                           grantResults: IntArray, activity: Activity)
 }
 
 class BlePermissionsManagerImpl : BlePermissionsManager {
-    override val observable: PublishSubject<GrantedPermissions> = create()
+    override val observable: BroadcastChannel<GrantedPermissions> = BroadcastChannel(1)
 
     private val requestCode = RequestCodes.onboardingPermissions
 
@@ -58,7 +58,7 @@ class BlePermissionsManagerImpl : BlePermissionsManager {
         if (hasAllPermissions(activity)) {
             // User already granted permissions
             log.d("User already granted all start permissions", PERM)
-            observable.onNext(ALL)
+            observable.sendBlocking(ALL)
         } else {
             val rationaleType = rationaleType(activity)
             if (rationaleType != null) {
@@ -73,11 +73,13 @@ class BlePermissionsManagerImpl : BlePermissionsManager {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                                   grantResults: IntArray, activity: Activity) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>,
+        grantResults: IntArray, activity: Activity
+    ) {
         if (requestCode != this.requestCode) return
         when {
-            grantResults.all { it == PERMISSION_GRANTED } -> observable.onNext(ALL).also {
+            grantResults.all { it == PERMISSION_GRANTED } -> observable.sendBlocking(ALL).also {
                 log.i("Onboarding permissions granted", PERM)
             }
             grantResults.any { it == PERMISSION_DENIED } -> handlePermissionsDenied(activity)
@@ -102,11 +104,17 @@ class BlePermissionsManagerImpl : BlePermissionsManager {
     private fun updateStateOnPermissionsConfirmedlyDenied(activity: Activity) {
         val hasBasicPermissions = hasBasicPermissions(activity)
         val hasBgPermissions = hasBgPermissions(activity)
-        when {
-            hasBasicPermissions && !hasBgPermissions -> observable.onNext(ONLY_FOREGROUND)
-            !hasBasicPermissions && !hasBgPermissions -> observable.onNext(NONE)
-            else -> error("To be in this funtion, a permission must have been denied and " +
-                    "user can't allow only background permissions.")
+        // Blocking: permission events can be executed normally. Coroutines expect us to
+        // use BroadcastChannel.send
+        runBlocking {
+            when {
+                hasBasicPermissions && !hasBgPermissions -> observable.send(ONLY_FOREGROUND)
+                !hasBasicPermissions && !hasBgPermissions -> observable.send(NONE)
+                else -> error(
+                    "To be in this funtion, a permission must have been denied and " +
+                            "user can't allow only background permissions."
+                )
+            }
         }
     }
 
@@ -114,15 +122,24 @@ class BlePermissionsManagerImpl : BlePermissionsManager {
     private fun rationaleType(activity: Activity): RationaleType? =
         when {
             // User selected "deny"
-            basicPermissions.any { shouldShowRequestPermissionRationale(activity, it) } -> BASIC.also {
-                log.d("Permissions were denied but we can ask again. Showing rationale.",
-                    PERM)
+            basicPermissions.any {
+                shouldShowRequestPermissionRationale(
+                    activity,
+                    it
+                )
+            } -> BASIC.also {
+                log.d(
+                    "Permissions were denied but we can ask again. Showing rationale.",
+                    PERM
+                )
             }
 
             // User selected "only while app is in foreground" (Android Q+)
             bgPermissions.any { shouldShowRequestPermissionRationale(activity, it) } -> BG.also {
-                log.d("Running in background was denied but we can ask again. " +
-                        "Showing rationale.", PERM)
+                log.d(
+                    "Running in background was denied but we can ask again. " +
+                            "Showing rationale.", PERM
+                )
             }
 
             // No rationale:
@@ -132,7 +149,7 @@ class BlePermissionsManagerImpl : BlePermissionsManager {
             else -> null
         }
 
-    private fun hasAllPermissions(activity: Activity): Boolean =  permissions.all {
+    private fun hasAllPermissions(activity: Activity): Boolean = permissions.all {
         checkSelfPermission(activity, it) == PERMISSION_GRANTED
     }
 

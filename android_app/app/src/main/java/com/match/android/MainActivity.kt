@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.match.android.R.layout.activity_main
 import com.match.android.ble.BlePreconditions
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
@@ -14,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(activity_main)
 
-        blePreconditions.onActivityCreated(this)
+        blePreconditions.onActivityCreated(this@MainActivity)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -28,10 +30,5 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         blePreconditions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        blePreconditions.onActivityDestroy(this)
     }
 }

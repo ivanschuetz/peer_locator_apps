@@ -4,8 +4,8 @@ import com.match.android.services.BleIdSerializer.fromString
 import com.match.android.services.BleIdSerializer.toString
 import com.match.android.system.Preferences
 import com.match.android.system.PreferencesKey
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
 import java.nio.charset.Charset
 import java.nio.charset.Charset.forName
 import java.util.UUID.randomUUID
@@ -40,13 +40,13 @@ object BleIdSerializer {
 }
 
 interface BleIdService {
-    val myId: Observable<BleId>
+    val myId: BroadcastChannel<BleId>
 
     fun bleId(): BleId
 }
 
 class BleIdServiceImpl(private val preferences: Preferences) : BleIdService {
-    override val myId: PublishSubject<BleId> = PublishSubject.create()
+    override val myId: BroadcastChannel<BleId> = BroadcastChannel(1)
 
     override fun bleId(): BleId =
         preferences.getString(PreferencesKey.BleId)?.let {
@@ -55,6 +55,6 @@ class BleIdServiceImpl(private val preferences: Preferences) : BleIdService {
             preferences.putString(PreferencesKey.BleId, toString(it))
         }.also {
             // Assumption: bleId() will be advertised
-            myId.onNext(it)
+            myId.sendBlocking(it)
         }
 }

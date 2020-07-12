@@ -1,20 +1,19 @@
 package com.match.android.ble
 
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.BehaviorSubject.create
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
 
 interface BlePreconditionsNotifier {
-    val bleEnabled: Observable<Unit>
+    val bleEnabled: BroadcastChannel<Unit>
 
     fun notifyBleEnabled()
 }
 
 class BlePreconditionsNotifierImpl: BlePreconditionsNotifier {
 
-    override val bleEnabled: BehaviorSubject<Unit> = create()
+    override val bleEnabled: BroadcastChannel<Unit> = BroadcastChannel(1)
 
     override fun notifyBleEnabled() {
-        bleEnabled.onNext(Unit)
+        bleEnabled.sendBlocking(Unit)
     }
 }

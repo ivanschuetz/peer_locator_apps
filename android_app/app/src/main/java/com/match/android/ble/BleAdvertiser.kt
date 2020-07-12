@@ -12,14 +12,8 @@ import com.match.android.ble.BleUuids.SERVICE_UUID
 import com.match.android.services.BleId
 import com.match.android.system.log.LogTag.BLE
 import com.match.android.system.log.log
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.PublishSubject.create
-import java.nio.ByteBuffer
-import java.util.UUID
 
 interface BleAdvertiser  {
-    val myId: Observable<BleId>
     fun start(bleId: BleId): Boolean
     fun stop()
 
@@ -31,8 +25,6 @@ interface BleAdvertiserObserver {
 }
 
 class BleAdvertiserImpl : BleAdvertiser {
-    override val myId: PublishSubject<BleId> = create()
-
     private var advertiser: BluetoothLeAdvertiser? = null
 
     private var observer: BleAdvertiserObserver? = null

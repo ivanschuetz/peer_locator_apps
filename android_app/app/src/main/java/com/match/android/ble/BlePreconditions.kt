@@ -7,26 +7,25 @@ import com.match.android.ble.GrantedPermissions.NONE
 import com.match.android.ble.GrantedPermissions.ONLY_FOREGROUND
 import com.match.android.system.log.LogTag.PERM
 import com.match.android.system.log.log
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 
 class BlePreconditions(
     private val startPermissionsChecker: BlePermissionsManager,
     private val blePreconditionsNotifier: BlePreconditionsNotifier,
     private val bleEnabler: BleEnabler
 ) {
-    private val disposables = CompositeDisposable()
 
     fun onActivityCreated(activity: Activity) {
-        observeBleEnabled()
-        showEnableBleAfterPermissions(activity)
+        GlobalScope.launch {
+            observeBleEnabled()
+        }
+        GlobalScope.launch {
+            showEnableBleAfterPermissions(activity)
+        }
         // Temporarily here. It should be on demand.
         startPermissionsChecker.requestPermissionsIfNeeded(activity)
-    }
-
-    fun onActivityDestroy(activity: Activity) {
-        disposables.clear()
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -34,13 +33,13 @@ class BlePreconditions(
     }
 
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                                   grantResults: IntArray, activity: Activity) {
+                                           grantResults: IntArray, activity: Activity) {
         startPermissionsChecker.onRequestPermissionsResult(requestCode, permissions, grantResults,
             activity)
     }
 
-    private fun showEnableBleAfterPermissions(activity: Activity) {
-        disposables += startPermissionsChecker.observable.subscribe { permissions: GrantedPermissions ->
+    private suspend fun showEnableBleAfterPermissions(activity: Activity) {
+        startPermissionsChecker.observable.consumeEach { permissions: GrantedPermissions ->
             log.i("Handling permissions result: $permissions", PERM)
             when (permissions) {
                 ALL, ONLY_FOREGROUND -> bleEnabler.enable(activity)
@@ -49,8 +48,8 @@ class BlePreconditions(
         }
     }
 
-    private fun observeBleEnabled() {
-        disposables += bleEnabler.observable.subscribeBy { bleEnabled ->
+    private suspend fun observeBleEnabled() {
+        bleEnabler.observable.consumeEach { bleEnabled ->
             if (bleEnabled) {
                 blePreconditionsNotifier.notifyBleEnabled()
             } else {
