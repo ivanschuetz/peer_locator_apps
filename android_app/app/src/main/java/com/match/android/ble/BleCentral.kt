@@ -3,7 +3,9 @@ package com.match.android.ble
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ
+import android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE
 import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ
+import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothGattService.SERVICE_TYPE_PRIMARY
@@ -25,6 +27,8 @@ import com.match.android.ble.BleUuids.CHARACTERISTIC_UUID
 import com.match.android.ble.BleUuids.SERVICE_UUID
 import com.match.android.ble.extensions.openGattServerForWrites
 import com.match.android.services.BleId
+import com.match.android.system.log.LogTag
+import com.match.android.system.log.LogTag.BLE
 import com.match.android.system.log.log
 
 interface BleCentral {
@@ -39,7 +43,10 @@ interface BleCentralObserver {
 }
 
 class BleCentralImpl(private val context: Context) : BleCentral {
+
+    // This is actually not related with central, but leaving it here for now.
     private var bluetoothGattServer: BluetoothGattServer? = null
+
     private var scanner: BluetoothLeScanner? = null
 
     private var observer: BleCentralObserver? = null
@@ -99,7 +106,9 @@ class BleCentralImpl(private val context: Context) : BleCentral {
             : BluetoothGattServer =
         bluetoothManager.openGattServerForWrites(context, onValue = {
             // iOS wrote an identifier
-            observer?.onDiscovered(BleId(it))
+            val id = BleId(it)
+            log.d("Ble id was written: $id", BLE)
+            observer?.onDiscovered(id)
         }).apply {
             clearServices()
             addService(service)
@@ -109,8 +118,9 @@ class BleCentralImpl(private val context: Context) : BleCentral {
         BluetoothGattService(SERVICE_UUID, SERVICE_TYPE_PRIMARY).apply {
             addCharacteristic(
                 BluetoothGattCharacteristic(
-                    CHARACTERISTIC_UUID, PROPERTY_READ,
-                    PERMISSION_READ
+                    CHARACTERISTIC_UUID,
+                    PROPERTY_READ or PROPERTY_WRITE,
+                    PERMISSION_READ or PERMISSION_WRITE
                 )
             )
         }

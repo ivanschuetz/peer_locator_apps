@@ -10,10 +10,13 @@ import android.bluetooth.le.BluetoothLeAdvertiser
 import android.os.ParcelUuid
 import com.match.android.ble.BleUuids.SERVICE_UUID
 import com.match.android.services.BleId
+import com.match.android.system.log.LogTag.BLE
 import com.match.android.system.log.log
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.PublishSubject.create
+import java.nio.ByteBuffer
+import java.util.UUID
 
 interface BleAdvertiser  {
     val myId: Observable<BleId>
@@ -68,7 +71,8 @@ class BleAdvertiserImpl : BleAdvertiser {
     private fun advertisingData(bleId: BleId): AdvertiseData = AdvertiseData.Builder()
         .setIncludeDeviceName(false)
         .addServiceUuid(ParcelUuid(SERVICE_UUID))
-        .addServiceData(ParcelUuid(SERVICE_UUID), bleId.data)
+        // TODO max length?
+        .addServiceData(ParcelUuid(SERVICE_UUID), bleId.data.sliceArray(0..16))
         .build()
 
     private fun advertisingSettings(): AdvertiseSettings = AdvertiseSettings.Builder()
@@ -78,14 +82,15 @@ class BleAdvertiserImpl : BleAdvertiser {
         .setTimeout(0)
         .build()
 
-
     private val advertisingCallback: AdvertiseCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
             super.onStartSuccess(settingsInEffect)
+            log.i("Start advertising success: $settingsInEffect", BLE)
         }
 
         override fun onStartFailure(errorCode: Int) {
             super.onStartFailure(errorCode)
+            log.i("Start advertising failure: $errorCode", BLE)
         }
     }
 

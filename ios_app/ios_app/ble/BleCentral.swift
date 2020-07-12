@@ -5,6 +5,8 @@ import Combine
 protocol BleCentral {
     var status: PassthroughSubject<String, Never> { get }
     var discovered: PassthroughSubject<BleId, Never> { get }
+
+    func stop()
 }
 
 class BleCentralImpl: NSObject, BleCentral {
@@ -12,12 +14,28 @@ class BleCentralImpl: NSObject, BleCentral {
     let status = PassthroughSubject<String, Never>()
     let discovered = PassthroughSubject<BleId, Never>()
 
+    private let idService: BleIdService
+
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
 
-    override init() {
+    private var peripheralsToWriteTCNTo = Set<CBPeripheral>()
+
+    init(idService: BleIdService) {
+        self.idService = idService
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
+    }
+
+    func stop() {
+        peripheralsToWriteTCNTo.removeAll()
+        if centralManager?.isScanning ?? false {
+            centralManager?.stopScan()
+        }
+    }
+
+    private func flush(_ peripheral: CBPeripheral) {
+        self.peripheralsToWriteTCNTo.remove(peripheral)
     }
 }
 
@@ -37,13 +55,26 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         self.peripheral = peripheral
         peripheral.delegate = self
 
-        centralManager.stopScan()
+
+        if let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey]
+            as? [CBUUID : Data],
+            let serviceData = advertisementDataServiceData[.serviceCBUUID] {
+            print("Service data: \(serviceData)")
+
+            peripheralsToWriteTCNTo.insert(peripheral)
+        }
+
+        // TODO connection count limit?
         centralManager.connect(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         NSLog("Did connect to peripheral")
         peripheral.discoverServices([CBUUID.serviceCBUUID])
+    }
+
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        peripheralsToWriteTCNTo.remove(peripheral)
     }
 }
 
@@ -59,14 +90,28 @@ extension BleCentralImpl: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else { return }
 
+        // Debugging
         for characteristic in characteristics {
           print(characteristic)
-
             if characteristic.properties.contains(.read) {
               print("\(characteristic.uuid): properties contains .read")
             }
+        }
 
-            peripheral.readValue(for: characteristic)
+        if let characteristic = service.characteristics?.first(where: {
+            $0.uuid == .characteristicCBUUID
+        }) {
+            if peripheralsToWriteTCNTo.contains(peripheral) {
+                let bleId = idService.id()
+                print("Writing bldId: \(bleId) to: \(peripheral)")
+                peripheral.writeValue(
+                    bleId.data,
+                    for: characteristic,
+                    type: .withResponse
+                )
+            } else {
+                peripheral.readValue(for: characteristic)
+            }
         }
     }
 
@@ -74,7 +119,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
         switch characteristic.uuid {
         case CBUUID.characteristicCBUUID:
             if let value = characteristic.value {
-                // Unwrap: We write a BleId, so we should always read a BleId
+                // Unwrap: We send BleId, so we always expect BleId
                 let id = BleId(data: value)!
                 print("Received id: \(id)")
                 discovered.send(id)
@@ -104,4 +149,5 @@ private extension CBManagerState {
 class BleCentralNoop: NSObject, BleCentral {
     let status = PassthroughSubject<String, Never>()
     let discovered = PassthroughSubject<BleId, Never>()
+    func stop() {}
 }
