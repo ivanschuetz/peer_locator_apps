@@ -1,10 +1,11 @@
 package com.match.android.ble
 
-import android.bluetooth.BluetoothAdapter
-import android.content.Context
 import com.match.android.services.BleId
+import io.reactivex.Observable
 
 interface BleCoordinator {
+    val myId: Observable<BleId>
+
     fun start(bleId: BleId)
     fun stop()
 }
@@ -13,6 +14,7 @@ class BleCoordinatorImpl(
     private val central: BleCentral,
     private val advertiser: BleAdvertiser
 ) : BleCoordinator {
+    override val myId: Observable<BleId> = advertiser.myId
 
     override fun start(bleId: BleId) {
         central.start()
@@ -24,26 +26,3 @@ class BleCoordinatorImpl(
         advertiser.stop()
     }
 }
-
-interface BleManagerFactory {
-    fun create(context: Context): BleCoordinator?
-}
-
-class BleManagerFactoryImpl: BleManagerFactory {
-    override fun create(context: Context): BleCoordinator? {
-        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if (!bluetoothAdapter.supportsAdvertising()) return null
-
-        val systemScanner = bluetoothAdapter.bluetoothLeScanner ?: return null
-        val systemAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
-            ?: return null
-
-        val central = BleCentralImpl(context, systemScanner)
-        val advertiser = BleAdvertiserImpl(systemAdvertiser)
-
-        return BleCoordinatorImpl(central, advertiser)
-    }
-}
-
-private fun BluetoothAdapter.supportsAdvertising() =
-    isMultipleAdvertisementSupported && bluetoothLeAdvertiser != null

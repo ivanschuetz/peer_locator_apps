@@ -9,11 +9,6 @@ import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
     private val blePreconditions: BlePreconditions by inject()
-    private val nonReferencedDependenciesActivator: NotReferencedDependenciesActivator by inject()
-
-    init {
-        nonReferencedDependenciesActivator.activate()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

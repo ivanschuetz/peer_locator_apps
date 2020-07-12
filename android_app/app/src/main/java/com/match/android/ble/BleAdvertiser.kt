@@ -1,5 +1,6 @@
 package com.match.android.ble
 
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
@@ -9,22 +10,59 @@ import android.bluetooth.le.BluetoothLeAdvertiser
 import android.os.ParcelUuid
 import com.match.android.ble.BleUuids.SERVICE_UUID
 import com.match.android.services.BleId
+import com.match.android.system.log.log
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.PublishSubject.create
 
 interface BleAdvertiser  {
-    fun start(bleId: BleId)
+    val myId: Observable<BleId>
+    fun start(bleId: BleId): Boolean
     fun stop()
+
+    fun register(observer: BleAdvertiserObserver)
 }
 
-class BleAdvertiserImpl(
-    private val advertiser: BluetoothLeAdvertiser
-) : BleAdvertiser {
-    override fun start(bleId: BleId) {
-        advertiser.startAdvertising(advertisingSettings(), advertisingData(bleId),
+interface BleAdvertiserObserver {
+    fun onAdvertised(bleId: BleId)
+}
+
+class BleAdvertiserImpl : BleAdvertiser {
+    override val myId: PublishSubject<BleId> = create()
+
+    private var advertiser: BluetoothLeAdvertiser? = null
+
+    private var observer: BleAdvertiserObserver? = null
+
+    override fun start(bleId: BleId): Boolean {
+        val adapter = BluetoothAdapter.getDefaultAdapter() ?: return false
+        if (!adapter.supportsAdvertising()) return false
+        if (!initAdvertiserIfNeeded(adapter)) return false
+
+        advertiser?.startAdvertising(advertisingSettings(), advertisingData(bleId),
             advertisingCallback)
+
+        observer?.onAdvertised(bleId)
+
+        return true
+    }
+
+    private fun initAdvertiserIfNeeded(adapter: BluetoothAdapter): Boolean {
+        if (advertiser == null) {
+            advertiser = adapter.bluetoothLeAdvertiser.also {
+                if (it == null) {
+                    log.e("Couldn't initialize advertiser")
+                    return false
+                }
+            }
+            return true
+        } else {
+            return true
+        }
     }
 
     override fun stop() {
-        advertiser.stopAdvertising(advertisingCallback)
+        advertiser?.stopAdvertising(advertisingCallback)
     }
 
     private fun advertisingData(bleId: BleId): AdvertiseData = AdvertiseData.Builder()
@@ -50,4 +88,11 @@ class BleAdvertiserImpl(
             super.onStartFailure(errorCode)
         }
     }
+
+    override fun register(observer: BleAdvertiserObserver) {
+        this.observer = observer
+    }
 }
+
+private fun BluetoothAdapter.supportsAdvertising() =
+    isMultipleAdvertisementSupported && bluetoothLeAdvertiser != null

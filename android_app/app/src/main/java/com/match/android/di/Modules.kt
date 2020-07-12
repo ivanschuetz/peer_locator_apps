@@ -5,7 +5,6 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.match.android.NotReferencedDependenciesActivator
 import com.match.android.ble.BleEnabler
 import com.match.android.ble.BleEnablerImpl
 import com.match.android.ble.BleManager
@@ -17,6 +16,10 @@ import com.match.android.ble.BlePreconditionsNotifier
 import com.match.android.ble.BlePreconditionsNotifierImpl
 import com.match.android.ble.BleServiceManager
 import com.match.android.ble.BleServiceManagerImpl
+import com.match.android.notifications.AppNotificationChannels
+import com.match.android.notifications.NotificationChannelsCreator
+import com.match.android.notifications.NotificationShower
+import com.match.android.notifications.NotificationsShowerImpl
 import com.match.android.services.BleIdService
 import com.match.android.services.BleIdServiceImpl
 import com.match.android.system.EnvInfos
@@ -31,7 +34,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
 }
 
 val systemModule = module {
@@ -40,7 +43,9 @@ val systemModule = module {
     single { Resources(androidApplication()) }
     single<EnvInfos> { EnvInfosImpl() }
     single { provideGson() }
-    single { NotReferencedDependenciesActivator(get()) }
+    single { NotificationChannelsCreator(androidApplication()) }
+    single(createdAtStart = true) { AppNotificationChannels(get(), get()) }
+    single<NotificationShower> { NotificationsShowerImpl(get()) }
 }
 
 val uiModule = module {
@@ -52,8 +57,8 @@ val bleModule = module {
     single<BleEnabler> { BleEnablerImpl() }
     single { BlePreconditions(get(), get(), get()) }
     single<BlePreconditionsNotifier> { BlePreconditionsNotifierImpl() }
-    single<BleServiceManager> { BleServiceManagerImpl(get()) }
-    single<BleManager> { BleManagerImpl(get(), androidApplication(), get()) }
+    single<BleServiceManager> { BleServiceManagerImpl(get(), get(), get()) }
+    single<BleManager>(createdAtStart = true) { BleManagerImpl(get(), androidApplication(), get()) }
     single<BleIdService> { BleIdServiceImpl(get()) }
 }
 

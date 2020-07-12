@@ -4,6 +4,8 @@ import com.match.android.services.BleIdSerializer.fromString
 import com.match.android.services.BleIdSerializer.toString
 import com.match.android.system.Preferences
 import com.match.android.system.PreferencesKey
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import java.nio.charset.Charset
 import java.nio.charset.Charset.forName
 import java.util.UUID.randomUUID
@@ -38,14 +40,21 @@ object BleIdSerializer {
 }
 
 interface BleIdService {
+    val myId: Observable<BleId>
+
     fun bleId(): BleId
 }
 
 class BleIdServiceImpl(private val preferences: Preferences) : BleIdService {
+    override val myId: PublishSubject<BleId> = PublishSubject.create()
+
     override fun bleId(): BleId =
         preferences.getString(PreferencesKey.BleId)?.let {
             fromString(it)
         } ?: BleIdSerializer.randomValidStringBasedBleId().also {
             preferences.putString(PreferencesKey.BleId, toString(it))
+        }.also {
+            // Assumption: bleId() will be advertised
+            myId.onNext(it)
         }
 }

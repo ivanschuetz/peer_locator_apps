@@ -1,5 +1,6 @@
 package com.match.android.ble
 
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ
 import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ
@@ -25,36 +26,62 @@ import com.match.android.ble.BleUuids.SERVICE_UUID
 import com.match.android.ble.extensions.openGattServerForWrites
 import com.match.android.services.BleId
 import com.match.android.system.log.log
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.PublishSubject.create
 
 interface BleCentral {
-    fun start()
+    fun start(): Boolean
     fun stop()
+
+    fun register(observer: BleCentralObserver)
 }
 
-class BleCentralImpl(
-    private val context: Context,
-    private val scanner: BluetoothLeScanner
-) : BleCentral {
+interface BleCentralObserver {
+    fun onDiscovered(bleId: BleId)
+}
+
+class BleCentralImpl(private val context: Context) : BleCentral {
     private var bluetoothGattServer: BluetoothGattServer? = null
+    private var scanner: BluetoothLeScanner? = null
 
-    private val discovered: PublishSubject<BleId> = create()
+    private var observer: BleCentralObserver? = null
 
-    override fun start() {
+    /**
+     * @return true if start success
+     */
+    override fun start(): Boolean {
+        if (!initScannerIfNeeded()) return false
+
         bluetoothGattServer = createGattServer(
             (context.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager),
             createService()
         )
         startScan()
+        return true
+    }
+
+    private fun initScannerIfNeeded(): Boolean {
+        if (scanner == null) {
+            scanner = BluetoothAdapter.getDefaultAdapter()?.bluetoothLeScanner.also {
+                if (it == null) {
+                    log.e("Couldn't initialize scanner")
+                    return false
+                }
+            }
+            return true
+        } else {
+            return true
+        }
     }
 
     override fun stop() {
-        scanner.stopScan(scanCallback)
+        scanner?.stopScan(scanCallback)
+    }
+
+    override fun register(observer: BleCentralObserver) {
+        this.observer = observer
     }
 
     private fun startScan() {
-        scanner.startScan(
+        scanner?.startScan(
             listOf(
                 ScanFilter.Builder().setServiceUuid(ParcelUuid(SERVICE_UUID)).build()
             ), scanSettings(), scanCallback
@@ -72,7 +99,7 @@ class BleCentralImpl(
             : BluetoothGattServer =
         bluetoothManager.openGattServerForWrites(context, onValue = {
             // iOS wrote an identifier
-            discovered.onNext(BleId(it))
+            observer?.onDiscovered(BleId(it))
         }).apply {
             clearServices()
             addService(service)
@@ -102,7 +129,7 @@ class BleCentralImpl(
             val bleId = result?.scanRecord?.extractBleId()
             if (bleId != null) {
                 // We detected an Android identifier
-                discovered.onNext(bleId)
+                observer?.onDiscovered(bleId)
             }
         }
     }
