@@ -4,6 +4,7 @@ import Combine
 
 protocol BleCentral {
     var status: PassthroughSubject<String, Never> { get }
+    var writtenMyId: PassthroughSubject<BleId, Never> { get }
     var discovered: PassthroughSubject<BleId, Never> { get }
 
     func stop()
@@ -12,6 +13,7 @@ protocol BleCentral {
 class BleCentralImpl: NSObject, BleCentral {
 
     let status = PassthroughSubject<String, Never>()
+    let writtenMyId = PassthroughSubject<BleId, Never>()
     let discovered = PassthroughSubject<BleId, Never>()
 
     private let idService: BleIdService
@@ -103,7 +105,10 @@ extension BleCentralImpl: CBPeripheralDelegate {
         }) {
             if peripheralsToWriteTCNTo.contains(peripheral) {
                 let bleId = idService.id()
+                writtenMyId.send(bleId)
+
                 print("Writing bldId: \(bleId) to: \(peripheral)")
+
                 peripheral.writeValue(
                     bleId.data,
                     for: characteristic,
@@ -148,6 +153,7 @@ private extension CBManagerState {
 
 class BleCentralNoop: NSObject, BleCentral {
     let status = PassthroughSubject<String, Never>()
+    let writtenMyId = PassthroughSubject<BleId, Never>()
     let discovered = PassthroughSubject<BleId, Never>()
     func stop() {}
 }

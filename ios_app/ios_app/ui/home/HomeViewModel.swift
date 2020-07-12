@@ -23,7 +23,7 @@ class HomeViewModel: ObservableObject {
                 self?.labelValue = "\(status)"
         }
 
-        myIdCancellable = peripheral.myId
+        myIdCancellable = peripheral.readMyId.merge(with: central.writtenMyId)
             .sink(receiveCompletion: { completion in }) { [weak self] myId in
                 self?.myId = myId.str()
         }

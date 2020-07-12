@@ -3,7 +3,7 @@ import CoreBluetooth
 import Combine
 
 protocol BlePeripheral {
-    var myId: PassthroughSubject<BleId, Never> { get }
+    var readMyId: PassthroughSubject<BleId, Never> { get }
 }
 
 class BlePeripheralImpl: NSObject, BlePeripheral {
@@ -12,7 +12,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     // Updated when read (note that it's generated on demand / first read)
     private let idService: BleIdService
 
-    let myId = PassthroughSubject<BleId, Never>()
+    let readMyId = PassthroughSubject<BleId, Never>()
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -47,7 +47,7 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         if request.characteristic.uuid == CBUUID.characteristicCBUUID { // TODO do we really need this check?
             let myId = idService.id()
-            self.myId.send(myId)
+            self.readMyId.send(myId)
             request.value = myId.data
             peripheral.respond(to: request, withResult: .success)
         } else {
@@ -75,5 +75,5 @@ private func createCharacteristic() -> CBCharacteristic {
 }
 
 class BlePeripheralNoop: NSObject, BlePeripheral {
-    let myId = PassthroughSubject<BleId, Never>()
+    let readMyId = PassthroughSubject<BleId, Never>()
 }
