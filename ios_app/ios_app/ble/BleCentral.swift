@@ -5,7 +5,7 @@ import Combine
 protocol BleCentral {
     var status: PassthroughSubject<String, Never> { get }
     var writtenMyId: PassthroughSubject<BleId, Never> { get }
-    var discovered: PassthroughSubject<BleId, Never> { get }
+    var discovered: PassthroughSubject<(BleId, Double), Never> { get }
 
     func stop()
 }
@@ -14,7 +14,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
     let status = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
-    let discovered = PassthroughSubject<BleId, Never>()
+    let discovered = PassthroughSubject<(BleId, Double), Never>()
 
     private let idService: BleIdService
 
@@ -57,14 +57,17 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         self.peripheral = peripheral
         peripheral.delegate = self
 
+        print("RSSI: \(RSSI)")
+
         if let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey]
             as? [CBUUID : Data],
             let serviceData = advertisementDataServiceData[.serviceCBUUID] {
             print("Service data: \(serviceData)")
             if let id = BleId(data: serviceData) {
                 // TODO: Android should send max possible bytes. Currently 17.
-                print("Ble id: \(id)")
-                discovered.send(id)
+                let distance = estimateDistance(RSSI: RSSI.doubleValue)
+                print("Ble id: \(id), distance: \(estimateDistance(RSSI: RSSI.doubleValue))")
+                discovered.send((id, distance))
             } else {
                 print("Service data is not a valid id")
             }
@@ -133,7 +136,8 @@ extension BleCentralImpl: CBPeripheralDelegate {
                 // Unwrap: We send BleId, so we always expect BleId
                 let id = BleId(data: value)!
                 print("Received id: \(id)")
-                discovered.send(id)
+                // Did read id (from iOS, Android can broadcast it in advertisement, so it doesn't expose characteristic to read)
+                discovered.send((id, -1)) // TODO distance
             } else {
                 print("Characteristic had no value")
             }
@@ -160,6 +164,11 @@ private extension CBManagerState {
 class BleCentralNoop: NSObject, BleCentral {
     let status = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
-    let discovered = PassthroughSubject<BleId, Never>()
+    let discovered = PassthroughSubject<(BleId, Double), Never>()
     func stop() {}
+}
+
+func estimateDistance(RSSI: Double) -> Double {
+    // Just to get something moving on the screen
+    (abs(RSSI) / 3) * 100
 }

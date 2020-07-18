@@ -1,8 +1,12 @@
 import Foundation
 
-struct BleId: CustomDebugStringConvertible {
+struct BleId: CustomDebugStringConvertible, Hashable {
     let data: Data
 
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(data)
+    }
+    
     private let encoding: String.Encoding = .utf8
 
     var debugDescription: String {

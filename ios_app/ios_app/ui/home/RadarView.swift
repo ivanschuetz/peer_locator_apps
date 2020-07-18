@@ -9,7 +9,7 @@ struct RadarView: View {
         self.viewModel = viewModel
     }
 
-    @State var radar: Radar = Radar(items: [])
+    @State var items: [RadarForViewItem] = []
 
     var body: some View {
         GeometryReader { geometry in
@@ -19,7 +19,7 @@ struct RadarView: View {
                         .fill(Color.gray)
                         .frame(width: geometry.size.width, height: geometry.size.height)
 
-                    ForEach(radar.items, id: \.id) { item in
+                    ForEach(items, id: \.id) { item in
                         Circle()
                             .fill(Color.green)
                             .frame(width: 10, height: 10)
@@ -28,9 +28,9 @@ struct RadarView: View {
                                 y: item.loc.y
                             )
                     }
-                }.frame(width: geometry.size.width, height: 400).onReceive(viewModel.$radar) { radar in
+                }.frame(width: 300, height: 400).onReceive(viewModel.$radarViewItems) { items in
                     withAnimation(.easeInOut(duration: 0.3)) {
-                        self.radar = radar
+                        self.items = items
                     }
                 }
             }.frame(width: geometry.size.width, height: geometry.size.height)
@@ -38,11 +38,11 @@ struct RadarView: View {
     }
 }
 
-struct RadarItem: Identifiable {
-    var id: UUID
+struct RadarForViewItem: Identifiable {
+    var id: BleId
     let loc: CGPoint
 }
 
-struct Radar {
-    let items: [RadarItem]
+struct RadarForView {
+    let items: [RadarForViewItem]
 }
