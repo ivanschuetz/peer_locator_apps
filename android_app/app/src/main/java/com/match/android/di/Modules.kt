@@ -3,8 +3,17 @@ package com.match.android.di
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.security.keystore.KeyProperties.PURPOSE_DECRYPT
+import android.security.keystore.KeyProperties.PURPOSE_ENCRYPT
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKey.DEFAULT_MASTER_KEY_ALIAS
+import androidx.security.crypto.MasterKeys
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.match.android.MainActivity
 import com.match.android.ble.BleEnabler
 import com.match.android.ble.BleEnablerImpl
 import com.match.android.ble.BleManager
@@ -27,6 +36,8 @@ import com.match.android.system.EnvInfosImpl
 import com.match.android.system.Preferences
 import com.match.android.system.PreferencesImpl
 import com.match.android.system.Resources
+import com.match.android.system.SecurePreferences
+import com.match.android.system.SecurePreferencesImpl
 import com.match.android.ui.home.HomeViewModel
 import com.match.android.ui.navigation.MainNav
 import org.koin.android.ext.koin.androidApplication
@@ -40,6 +51,7 @@ val viewModelModule = module {
 val systemModule = module {
     single { getSharedPrefs(androidApplication()) }
     single<Preferences> { PreferencesImpl(get(), get()) }
+    single<SecurePreferences> { SecurePreferencesImpl(androidApplication()) }
     single { Resources(androidApplication()) }
     single<EnvInfos> { EnvInfosImpl() }
     single { provideGson() }
