@@ -11,18 +11,22 @@ struct HomeView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Ble Status:")
-            Text(viewModel.labelValue)
-            Divider()
-            Text("My id:")
-            Text(viewModel.myId)
-            Divider()
-            Text("Discovered ids:")
-            List(viewModel.detectedDevices) { bleId in
-                Text(bleId.bleId.str())
+        GeometryReader { geometry in
+            VStack {
+                RadarView().frame(width: geometry.size.width, height: 450)
+                Text("Ble Status:")
+                Text(viewModel.labelValue)
+                Divider()
+                Text("My id:")
+                Text(viewModel.myId)
+                Divider()
+                Text("Discovered ids:")
+                List(viewModel.detectedDevices) { bleId in
+                    Text(bleId.bleId.str())
+                }
             }
         }
+
     }
 }
 
