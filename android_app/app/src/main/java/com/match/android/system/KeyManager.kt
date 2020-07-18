@@ -12,13 +12,11 @@ class KeyManager(private val preferences: SecurePreferences) {
         val privateKey = preferences.getString(PrivateKey)
         val publicKey = preferences.getString(PublicKey)
 
-        when {
-            privateKey == null && publicKey == null -> generateAndStoreKeyPair()
-            privateKey != null && publicKey != null ->
-                KeyPair(PublicKey(publicKey), privateKey)
-
-
-        }
+//        when {
+//            privateKey == null && publicKey == null -> generateAndStoreKeyPair()
+//            privateKey != null && publicKey != null ->
+//                KeyPair(PublicKey(publicKey), privateKey)
+//        }
 
         val keyPair = generateAndStoreKeyPair()
 
