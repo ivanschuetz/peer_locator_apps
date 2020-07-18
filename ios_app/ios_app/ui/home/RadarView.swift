@@ -3,11 +3,13 @@ import SwiftUI
 
 struct RadarView: View {
 
-    @State var position: CGFloat = 10
-    @State var radar: Radar = Radar(items: [
-        RadarItem(id: 1, loc: CGPoint(x: 10, y: 200)),
-        RadarItem(id: 2, loc: CGPoint(x: 100, y: 200)),
-    ])
+    @ObservedObject private var viewModel: HomeViewModel
+
+    init(viewModel: HomeViewModel) {
+        self.viewModel = viewModel
+    }
+
+    @State var radar: Radar = Radar(items: [])
 
     var body: some View {
         GeometryReader { geometry in
@@ -26,15 +28,9 @@ struct RadarView: View {
                                 y: item.loc.y
                             )
                     }
-                }.frame(width: geometry.size.width, height: 400)
-
-                Button("Animate") {
-                    withAnimation(.easeInOut(duration: 2)) {
-                        radar = Radar(items: [
-                            RadarItem(id: 1, loc: CGPoint(x: 110, y: 200)),
-                            RadarItem(id: 2, loc: CGPoint(x: 200, y: 200)),
-                            RadarItem(id: 3, loc: CGPoint(x: 300, y: 300))
-                        ])
+                }.frame(width: geometry.size.width, height: 400).onReceive(viewModel.$radar) { radar in
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.radar = radar
                     }
                 }
             }.frame(width: geometry.size.width, height: geometry.size.height)
@@ -42,15 +38,8 @@ struct RadarView: View {
     }
 }
 
-struct RadarView_Previews: PreviewProvider {
-    static var previews: some View {
-        RadarView()
-    }
-}
-
 struct RadarItem: Identifiable {
-    var id: Int
-
+    var id: UUID
     let loc: CGPoint
 }
 
