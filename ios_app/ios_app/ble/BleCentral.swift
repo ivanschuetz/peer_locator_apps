@@ -62,14 +62,16 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         if let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey]
             as? [CBUUID : Data],
             let serviceData = advertisementDataServiceData[.serviceCBUUID] {
-            print("Service data: \(serviceData)")
+            print("Service data: \(serviceData), length: \(serviceData.count), device: \(peripheral.identifier)")
+
+
             if let id = BleId(data: serviceData) {
                 // TODO: Android should send max possible bytes. Currently 17.
                 let distance = estimateDistance(RSSI: RSSI.doubleValue)
                 print("Ble id: \(id), distance: \(estimateDistance(RSSI: RSSI.doubleValue))")
                 discovered.send((id, distance))
             } else {
-                print("Service data is not a valid id")
+                print("Service data is not a valid id: \(serviceData), length: \(serviceData.count)")
             }
 
             peripheralsToWriteTCNTo.insert(peripheral)
