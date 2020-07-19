@@ -44,7 +44,7 @@ class HomeViewModel: ObservableObject {
         let radar = central.discovered
             .scan(Dictionary<BleId, RadarItem>(), { acc, bleId in
                 var dict: Dictionary<BleId, RadarItem> = acc
-                dict[bleId.0] = RadarItem(id: bleId.0, loc: CGPoint(x: bleId.1, y: bleId.1))
+                dict[bleId.0] = RadarItem(id: bleId.0, loc: CGPoint(x: bleId.1, y: bleId.1), distance: Float(bleId.1))
                 return dict
             })
 
@@ -64,6 +64,7 @@ struct BleIdRow: Identifiable {
 struct RadarItem: Identifiable, Hashable {
     var id: BleId
     let loc: CGPoint
+    let distance: Float
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -78,7 +79,8 @@ extension RadarItem {
         let multiplier = viewRadius / maxRadius
         return RadarForViewItem(
             id: id,
-            loc: CGPoint(x: loc.x * multiplier, y: loc.y * multiplier)
+            loc: CGPoint(x: loc.x * multiplier, y: loc.y * multiplier),
+            text: "\(distance)"
         )
     }
 }

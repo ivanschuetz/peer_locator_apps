@@ -20,6 +20,13 @@ struct RadarView: View {
                         .frame(width: geometry.size.width, height: geometry.size.height)
 
                     ForEach(items, id: \.id) { item in
+                        Text(item.text)
+                            .position(
+                                x: item.loc.x,
+                                y: item.loc.y - 20
+                            )
+                    }
+                    ForEach(items, id: \.id) { item in
                         Circle()
                             .fill(Color.green)
                             .frame(width: 10, height: 10)
@@ -27,6 +34,7 @@ struct RadarView: View {
                                 x: item.loc.x,
                                 y: item.loc.y
                             )
+
                     }
                 }.frame(width: 300, height: 400).onReceive(viewModel.$radarViewItems) { items in
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -41,5 +49,5 @@ struct RadarView: View {
 struct RadarForViewItem: Identifiable {
     var id: BleId
     let loc: CGPoint
+    let text: String
 }
-
