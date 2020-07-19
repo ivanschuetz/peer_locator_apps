@@ -47,7 +47,9 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
         switch central.state {
         case .poweredOn:
-            centralManager.scanForPeripherals(withServices: [.serviceCBUUID])
+            centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
+                CBCentralManagerScanOptionAllowDuplicatesKey : NSNumber(booleanLiteral: true)
+            ])
         default: break
         }
     }
