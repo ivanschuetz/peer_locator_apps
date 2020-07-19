@@ -12,9 +12,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
+data class ObservedDevice(val id: BleId, val distance: Float)
+
 interface BleManager {
     val advertiserObservable: BroadcastChannel<BleId>
-    val scannerObservable: BroadcastChannel<BleId>
+    val scannerObservable: BroadcastChannel<ObservedDevice>
 }
 
 class BleManagerImpl(
@@ -24,7 +26,7 @@ class BleManagerImpl(
 ) : BleManager, BleServiceManagerObserver {
 
     override val advertiserObservable: BroadcastChannel<BleId> = BroadcastChannel(1)
-    override val scannerObservable: BroadcastChannel<BleId> = BroadcastChannel(1)
+    override val scannerObservable: BroadcastChannel<ObservedDevice> = BroadcastChannel(1)
 
     init {
         bleServiceManager.register(this)
@@ -46,7 +48,7 @@ class BleManagerImpl(
         advertiserObservable.sendBlocking(bleId)
     }
 
-    override fun onDiscovered(bleId: BleId) {
+    override fun onDiscovered(bleId: ObservedDevice) {
         scannerObservable.sendBlocking(bleId)
     }
 }

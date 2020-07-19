@@ -43,6 +43,3 @@ struct RadarForViewItem: Identifiable {
     let loc: CGPoint
 }
 
-struct RadarForView {
-    let items: [RadarForViewItem]
-}

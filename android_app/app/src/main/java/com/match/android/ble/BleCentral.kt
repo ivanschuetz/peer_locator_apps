@@ -39,7 +39,7 @@ interface BleCentral {
 }
 
 interface BleCentralObserver {
-    fun onDiscovered(bleId: BleId)
+    fun onDiscovered(bleId: ObservedDevice)
 }
 
 class BleCentralImpl(private val context: Context) : BleCentral {
@@ -108,7 +108,8 @@ class BleCentralImpl(private val context: Context) : BleCentral {
             // iOS wrote an identifier
             val id = BleId(it)
             log.d("Ble id was written: $id", BLE)
-            observer?.onDiscovered(id)
+            // TODO RSSI
+            observer?.onDiscovered(ObservedDevice(id, 12f))
         }).apply {
             clearServices()
             addService(service)
@@ -139,7 +140,8 @@ class BleCentralImpl(private val context: Context) : BleCentral {
             val bleId = result?.scanRecord?.extractBleId()
             if (bleId != null) {
                 // We detected an Android identifier
-                observer?.onDiscovered(bleId)
+                // TODO RSSI
+                observer?.onDiscovered(ObservedDevice(bleId, 12f))
             }
         }
     }

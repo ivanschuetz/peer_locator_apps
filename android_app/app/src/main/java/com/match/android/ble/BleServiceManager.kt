@@ -29,7 +29,7 @@ interface BleServiceManager {
 
 interface BleServiceManagerObserver {
     fun onAdvertised(bleId: BleId)
-    fun onDiscovered(bleId: BleId)
+    fun onDiscovered(bleId: ObservedDevice)
 }
 
 class BleServiceManagerImpl(
@@ -95,7 +95,7 @@ class BleServiceManagerImpl(
         observer?.onAdvertised(bleId)
     }
 
-    override fun onDiscovered(bleId: BleId) {
+    override fun onDiscovered(bleId: ObservedDevice) {
         observer?.onDiscovered(bleId)
     }
 }
