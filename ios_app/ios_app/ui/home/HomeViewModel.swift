@@ -36,6 +36,9 @@ class HomeViewModel: ObservableObject {
         }
 
         discoveredCancellable = central.discovered
+            .removeDuplicates(by: { t1, t2 in
+                t1.0.data == t2.0.data
+            })
             .scan([], { acc, bleId in acc + [bleId.0] })
             .sink(receiveCompletion: { completion in }) { [weak self] ids in
                 self?.detectedDevices = ids.map { BleIdRow(id: UUID(), bleId: $0) }
@@ -78,10 +81,17 @@ let viewRadius: CGFloat = 150 // TODO: ensure same as in RadarView
 extension RadarItem {
     func toRadarForViewItem() -> RadarForViewItem {
         let multiplier = viewRadius / maxRadius
+
+        let screenLoc = CGPoint(x: loc.x * multiplier + viewRadius, y: -loc.y * multiplier + viewRadius)
+
+        // Temporary: as we're using distance as coordinates
+        let distance = String(format: "%.0f", loc.x)
+        let screenDistance = String(format: "%.0f", screenLoc.x)
+
         return RadarForViewItem(
             id: id,
-            loc: CGPoint(x: loc.x * multiplier + viewRadius, y: -loc.y * multiplier + viewRadius),
-            text: "\(distance)+\(CGPoint(x: loc.x * multiplier + viewRadius, y: loc.y * multiplier + viewRadius))"
+            loc: screenLoc,
+            text: "\(distance)->\(screenDistance)"
         )
     }
 }
