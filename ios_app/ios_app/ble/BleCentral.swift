@@ -55,22 +55,22 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
-                        advertisementData: [String : Any], rssi RSSI: NSNumber) {
+                        advertisementData: [String : Any], rssi: NSNumber) {
         self.peripheral = peripheral
         peripheral.delegate = self
 
-        print("RSSI: \(RSSI)")
-
-        if let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey]
-            as? [CBUUID : Data],
+        if
+            let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID : Data],
             let serviceData = advertisementDataServiceData[.serviceCBUUID] {
-            print("Service data: \(serviceData), length: \(serviceData.count), device: \(peripheral.identifier)")
-
 
             if let id = BleId(data: serviceData) {
+
+                let txPowerLevel: Int? = (advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber)?.intValue
                 // TODO: Android should send max possible bytes. Currently 17.
-                let distance = estimateDistance(RSSI: RSSI.doubleValue)
-                print("Ble id: \(id), distance: \(estimateDistance(RSSI: RSSI.doubleValue))")
+                let distance = estimateDistance(rssi: rssi.doubleValue, txPowerLevelMaybe: txPowerLevel)
+
+                print("Ble id: \(id), rssi: \(rssi), txPowerLevel: \(String(describing: txPowerLevel)), distance: \(distance), device: \(peripheral.identifier)")
+
                 discovered.send((id, distance))
             } else {
                 print("Service data is not a valid id: \(serviceData), length: \(serviceData.count)")
@@ -172,7 +172,32 @@ class BleCentralNoop: NSObject, BleCentral {
     func stop() {}
 }
 
-func estimateDistance(RSSI: Double) -> Double {
-    // Just to get something moving on the screen
-    (abs(RSSI) / 3) * 100
+func estimateDistance(rssi: Double, txPowerLevelMaybe: Int?) -> Double {
+    estimatedDistance(
+        rssi: rssi,
+        measuredRSSIAtOneMeter: rssiAtOneMeter(txPowerLevelMaybe: txPowerLevelMaybe)
+    ) * 100 // cm
+}
+
+func rssiAtOneMeter(txPowerLevelMaybe: Int?) -> Double {
+    // It seems we have to hardcode this, at least for Android
+    // TODO do we have to differentiate between device brands? maybe we need a "handshake" where device
+    // communicates it's power level via custom advertisement or gatt?
+    return txPowerLevelMaybe.map { Double($0) } ?? -80 // measured with Android (pixel 3)
+}
+
+func estimatedDistance(
+    rssi: Double,
+    measuredRSSIAtOneMeter: Double) -> Double {
+
+    guard rssi == 0 else {
+        return -1
+    }
+
+    let ratio = rssi / measuredRSSIAtOneMeter;
+    if (ratio < 1.0) {
+      return pow(ratio, 10)
+    } else {
+      return 0.89976 * pow(ratio, 7.7095) + 0.111
+    }
 }

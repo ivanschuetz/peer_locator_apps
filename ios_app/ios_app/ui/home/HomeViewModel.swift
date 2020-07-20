@@ -79,7 +79,7 @@ extension RadarItem {
         let multiplier = viewRadius / maxRadius
         return RadarForViewItem(
             id: id,
-            loc: CGPoint(x: loc.x * multiplier, y: loc.y * multiplier),
+            loc: CGPoint(x: loc.x * multiplier + viewRadius, y: loc.y * multiplier + viewRadius),
             text: "\(distance)"
         )
     }
