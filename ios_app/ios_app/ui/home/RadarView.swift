@@ -36,7 +36,7 @@ struct RadarView: View {
                             )
 
                     }
-                }.frame(width: 300, height: 400).onReceive(viewModel.$radarViewItems) { items in
+                }.frame(width: geometry.size.width, height: geometry.size.height).onReceive(viewModel.$radarViewItems) { items in
                     withAnimation(.easeInOut(duration: 0.3)) {
                         self.items = items
                     }

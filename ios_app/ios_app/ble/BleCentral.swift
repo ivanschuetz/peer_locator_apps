@@ -186,11 +186,8 @@ func rssiAtOneMeter(txPowerLevelMaybe: Int?) -> Double {
     return txPowerLevelMaybe.map { Double($0) } ?? -80 // measured with Android (pixel 3)
 }
 
-func estimatedDistance(
-    rssi: Double,
-    measuredRSSIAtOneMeter: Double) -> Double {
-
-    guard rssi == 0 else {
+func estimatedDistance(rssi: Double, measuredRSSIAtOneMeter: Double) -> Double {
+    guard rssi != 0 else {
         return -1
     }
 

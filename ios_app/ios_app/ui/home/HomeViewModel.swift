@@ -71,16 +71,17 @@ struct RadarItem: Identifiable, Hashable {
     }
 }
 
-let maxRadius: CGFloat = 6000
-let viewRadius: CGFloat = 300 // TODO: ensure same as in RadarView
+//let maxRadius: CGFloat = 6000
+let maxRadius: CGFloat = 120 // 1m 20cm (for easier testing)
+let viewRadius: CGFloat = 150 // TODO: ensure same as in RadarView
 
 extension RadarItem {
     func toRadarForViewItem() -> RadarForViewItem {
         let multiplier = viewRadius / maxRadius
         return RadarForViewItem(
             id: id,
-            loc: CGPoint(x: loc.x * multiplier + viewRadius, y: loc.y * multiplier + viewRadius),
-            text: "\(distance)"
+            loc: CGPoint(x: loc.x * multiplier + viewRadius, y: -loc.y * multiplier + viewRadius),
+            text: "\(distance)+\(CGPoint(x: loc.x * multiplier + viewRadius, y: loc.y * multiplier + viewRadius))"
         )
     }
 }

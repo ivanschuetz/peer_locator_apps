@@ -13,7 +13,7 @@ struct HomeView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                RadarView(viewModel: viewModel).frame(width: geometry.size.width, height: 450)
+                RadarView(viewModel: viewModel).frame(width: 300, height: 300)
                 Text("Ble Status:")
                 Text(viewModel.labelValue)
                 Divider()
