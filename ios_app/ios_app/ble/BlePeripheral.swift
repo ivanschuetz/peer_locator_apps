@@ -36,12 +36,13 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-        NSLog("Peripheral added service: \(service)")
+        log.d("Peripheral added service: \(service)", .ble)
         startAdvertising()
     }
 
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
-        NSLog("Peripheral started advertising. Error?: \(String(describing: error))")
+        let errorStr = error.map { " Error: \($0)" } ?? ""
+        log.v("Peripheral started advertising.\(errorStr)", .ble)
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
@@ -51,7 +52,7 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
             request.value = myId.data
             peripheral.respond(to: request, withResult: .success)
         } else {
-            NSLog("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)")
+            log.e("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)", .ble)
         }
     }
 }

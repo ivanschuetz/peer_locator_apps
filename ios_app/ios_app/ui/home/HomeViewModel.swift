@@ -53,7 +53,7 @@ class HomeViewModel: ObservableObject {
 
         radarCancellable = radar.sink { [weak self] radarItems in
             let viewItems = radarItems.map { $0.value.toRadarForViewItem() }
-            print("received radarItems: \(radarItems), mapped to: \(viewItems)")
+            log.d("received radarItems: \(radarItems), mapped to: \(viewItems)", .ui)
             self?.radarViewItems = viewItems
         }
     }

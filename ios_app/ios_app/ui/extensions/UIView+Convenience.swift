@@ -36,7 +36,7 @@ extension UIView {
 
     private var requireSuperview: UIView? {
          guard let superview = self.superview else {
-            print("Error! `superview` was nil. Ensure view is in the hierarchy.")
+            log.e("Error! `superview` was nil. Ensure view is in the hierarchy.", .ui)
             return nil
         }
         return superview

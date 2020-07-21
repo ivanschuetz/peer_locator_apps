@@ -69,11 +69,12 @@ extension BleCentralImpl: CBCentralManagerDelegate {
                 // TODO: Android should send max possible bytes. Currently 17.
                 let distance = estimateDistance(rssi: rssi.doubleValue, txPowerLevelMaybe: txPowerLevel)
 
-                print("Ble id: \(id), rssi: \(rssi), txPowerLevel: \(String(describing: txPowerLevel)), distance: \(distance), device: \(peripheral.identifier)")
-
+                log.d("Ble id: \(id), rssi: \(rssi), txPowerLevel: \(String(describing: txPowerLevel)), " +
+                      "distance: \(distance), device: \(peripheral.identifier)", .ble)
                 discovered.send((id, distance))
+
             } else {
-                print("Service data is not a valid id: \(serviceData), length: \(serviceData.count)")
+                log.e("Service data is not a valid id: \(serviceData), length: \(serviceData.count)", .ble)
             }
 
             peripheralsToWriteTCNTo.insert(peripheral)
@@ -84,7 +85,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        NSLog("Did connect to peripheral")
+        log.v("Did connect to peripheral", .ble)
         peripheral.discoverServices([CBUUID.serviceCBUUID])
     }
 
@@ -97,21 +98,20 @@ extension BleCentralImpl: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
         for service in services {
-            NSLog("Did discover service: \(service)")
+            log.v("Did discover service: \(service)", .ble)
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        guard let characteristics = service.characteristics else { return }
-
-        // Debugging
-        for characteristic in characteristics {
-          print(characteristic)
-            if characteristic.properties.contains(.read) {
-              print("\(characteristic.uuid): properties contains .read")
-            }
-        }
+//        // Debugging
+//        guard let characteristics = service.characteristics else { return }
+//        for characteristic in characteristics {
+//            log.v("Did read  characteristic: \(characteristic)", .ble)
+//            if characteristic.properties.contains(.read) {
+//                log.v("\(characteristic.uuid): properties contains .read", .ble)
+//            }
+//        }
 
         if let characteristic = service.characteristics?.first(where: {
             $0.uuid == .characteristicCBUUID
@@ -120,7 +120,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
                 let bleId = idService.id()
                 writtenMyId.send(bleId)
 
-                print("Writing bldId: \(bleId) to: \(peripheral)")
+                log.d("Writing bldId: \(bleId) to: \(peripheral)", .ble)
 
                 peripheral.writeValue(
                     bleId.data,
@@ -139,14 +139,14 @@ extension BleCentralImpl: CBPeripheralDelegate {
             if let value = characteristic.value {
                 // Unwrap: We send BleId, so we always expect BleId
                 let id = BleId(data: value)!
-                print("Received id: \(id)")
+                log.d("Received id: \(id)", .ble)
                 // Did read id (from iOS, Android can broadcast it in advertisement, so it doesn't expose characteristic to read)
                 discovered.send((id, -1)) // TODO distance
             } else {
-                print("Characteristic had no value")
+                log.w("Characteristic had no value", .ble)
             }
           default:
-            print("Unexpected characteristic UUID: \(characteristic.uuid)")
+            log.w("Unexpected characteristic UUID: \(characteristic.uuid)", .ble)
         }
     }
 }
