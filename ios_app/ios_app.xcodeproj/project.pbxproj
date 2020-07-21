@@ -30,7 +30,11 @@
 		84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7B24C6F64300E2F175 /* CompositeLog.swift */; };
 		84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */; };
 		84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7D24C6F64300E2F175 /* CachingLog.swift */; };
-		84E9ACA924C4C3D700DAEBA1 /* Data+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E9ACA824C4C3D700DAEBA1 /* Data+Convenience.swift */; };
+		84E3DC8524C6F9E900E2F175 /* TokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC8324C6F9E900E2F175 /* TokenService.swift */; };
+		84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC8424C6F9E900E2F175 /* Nearby.swift */; };
+		84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC8724C723AC00E2F175 /* PeerService.swift */; };
+		84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC8A24C7262000E2F175 /* RadarUIService.swift */; };
+		84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,7 +97,11 @@
 		84E3DC7B24C6F64300E2F175 /* CompositeLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompositeLog.swift; sourceTree = "<group>"; };
 		84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConsoleLog.swift; sourceTree = "<group>"; };
 		84E3DC7D24C6F64300E2F175 /* CachingLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CachingLog.swift; sourceTree = "<group>"; };
-		84E9ACA824C4C3D700DAEBA1 /* Data+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Convenience.swift"; sourceTree = "<group>"; };
+		84E3DC8324C6F9E900E2F175 /* TokenService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenService.swift; sourceTree = "<group>"; };
+		84E3DC8424C6F9E900E2F175 /* Nearby.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Nearby.swift; sourceTree = "<group>"; };
+		84E3DC8724C723AC00E2F175 /* PeerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerService.swift; sourceTree = "<group>"; };
+		84E3DC8A24C7262000E2F175 /* RadarUIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarUIService.swift; sourceTree = "<group>"; };
+		84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+hex.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
+				84E3DC8724C723AC00E2F175 /* PeerService.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -166,6 +175,7 @@
 		84B0672122F9B3FE006DDC18 /* ios_app */ = {
 			isa = PBXGroup;
 			children = (
+				84E3DC8224C6F9A100E2F175 /* nearby */,
 				84E3DC7924C6F64300E2F175 /* logs */,
 				84E9ACA724C4C3CA00DAEBA1 /* extensions */,
 				84993A1924B5C1250044AA27 /* services */,
@@ -201,6 +211,7 @@
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				84E3DC8924C7261500E2F175 /* services */,
 				84DC105224B4A3BD0064DEBE /* home */,
 				84DC104C24B4A2F20064DEBE /* extensions */,
 			);
@@ -256,10 +267,27 @@
 			path = logs;
 			sourceTree = "<group>";
 		};
+		84E3DC8224C6F9A100E2F175 /* nearby */ = {
+			isa = PBXGroup;
+			children = (
+				84E3DC8424C6F9E900E2F175 /* Nearby.swift */,
+				84E3DC8324C6F9E900E2F175 /* TokenService.swift */,
+			);
+			path = nearby;
+			sourceTree = "<group>";
+		};
+		84E3DC8924C7261500E2F175 /* services */ = {
+			isa = PBXGroup;
+			children = (
+				84E3DC8A24C7262000E2F175 /* RadarUIService.swift */,
+			);
+			path = services;
+			sourceTree = "<group>";
+		};
 		84E9ACA724C4C3CA00DAEBA1 /* extensions */ = {
 			isa = PBXGroup;
 			children = (
-				84E9ACA824C4C3D700DAEBA1 /* Data+Convenience.swift */,
+				84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -393,7 +421,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84E9ACA924C4C3D700DAEBA1 /* Data+Convenience.swift in Sources */,
+				84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */,
 				84DC104E24B4A3000064DEBE /* UIView+Convenience.swift in Sources */,
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
 				84DC105124B4A3580064DEBE /* UIViewController+Convenience.swift in Sources */,
@@ -407,11 +435,15 @@
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
 				84DC104824B49E340064DEBE /* HomeView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
+				84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */,
 				849A851024C3208A00EDFE5F /* RadarView.swift in Sources */,
+				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
+				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
 				84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
+				84E3DC8524C6F9E900E2F175 /* TokenService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,7 +605,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				INFOPLIST_FILE = ios_app/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -598,7 +630,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				INFOPLIST_FILE = ios_app/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

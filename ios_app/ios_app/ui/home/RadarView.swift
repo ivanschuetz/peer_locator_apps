@@ -9,7 +9,7 @@ struct RadarView: View {
         self.viewModel = viewModel
     }
 
-    @State var items: [RadarForViewItem] = []
+    @State var items: [RadarItem] = []
 
     var body: some View {
         GeometryReader { geometry in
@@ -36,7 +36,7 @@ struct RadarView: View {
                             )
 
                     }
-                }.frame(width: geometry.size.width, height: geometry.size.height).onReceive(viewModel.$radarViewItems) { items in
+                }.frame(width: geometry.size.width, height: geometry.size.height).onReceive(viewModel.$radarItems) { items in
                     withAnimation(.easeInOut(duration: 0.3)) {
                         self.items = items
                     }
@@ -46,8 +46,3 @@ struct RadarView: View {
     }
 }
 
-struct RadarForViewItem: Identifiable {
-    var id: BleId
-    let loc: CGPoint
-    let text: String
-}
