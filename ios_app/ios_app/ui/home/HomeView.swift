@@ -26,7 +26,6 @@ struct HomeView: View {
                 }
             }
         }
-
     }
 }
 
@@ -34,6 +33,7 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(viewModel: HomeViewModel(central: BleCentralNoop(),
                                           peripheral: BlePeripheralNoop(),
-                                          radarService: RadarUIServiceNoop()))
+                                          radarService: RadarUIServiceNoop(),
+                                          notificationPermission: NotificationPermissionImpl()))
     }
 }

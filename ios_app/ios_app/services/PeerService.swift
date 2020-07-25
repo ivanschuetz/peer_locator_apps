@@ -32,6 +32,7 @@ class PeerServiceImpl: PeerService {
             .handleEvents(receiveOutput: { peers in
                 log.d("Updated peers: \(peers)", .nearby)
             })
+            .share()
             .eraseToAnyPublisher()
     }
 }

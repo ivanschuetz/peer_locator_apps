@@ -19,9 +19,12 @@ class HomeViewModel: ObservableObject {
     private var myIdCancellable: AnyCancellable?
     private var discoveredCancellable: AnyCancellable?
 
-    init(central: BleCentral, peripheral: BlePeripheral, radarService: RadarUIService) {
+    init(central: BleCentral, peripheral: BlePeripheral, radarService: RadarUIService,
+         notificationPermission: NotificationPermission) {
         self.central = central
         self.peripheral = peripheral
+
+        notificationPermission.request()
 
         statusCancellable = central.status
             .sink(receiveCompletion: { completion in }) { [weak self] status in

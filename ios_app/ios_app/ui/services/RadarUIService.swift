@@ -25,7 +25,6 @@ class RadarUIServiceImpl: RadarUIService {
 
         radar = peerService.peers.map { peers in
             let viewItems = peers.compactMap { $0.toRadarItem() }
-            log.d("Received peers: \(peers), mapped to: \(viewItems)", .ui)
             return viewItems
         }.eraseToAnyPublisher()
     }
@@ -34,7 +33,10 @@ class RadarUIServiceImpl: RadarUIService {
 extension Peer {
     func toRadarItem() -> RadarItem? {
         // Items may not have direction / loc. Don't show radar items for these.
-        guard let loc = loc else { return  nil }
+        guard
+            let loc = loc,
+            let dist = dist
+        else { return  nil }
 
         let multiplier = viewRadius / maxRadius
 
@@ -44,7 +46,7 @@ extension Peer {
         )
 
         // Temporary: as we're using distance as coordinates
-        let distance = String(format: "%.0f", loc.x)
+        let distance = String(format: "%.0f", dist)
         let screenDistance = String(format: "%.0f", screenLoc.x)
 
         return RadarItem(
