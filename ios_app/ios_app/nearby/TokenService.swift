@@ -6,6 +6,13 @@ protocol TokenServiceDelegate {
     func receivedToken(token: Data)
 }
 
+// TODO do we really want multipeer framework?
+// we need Android <-> iOS for level 1 detection: multipeer doesn't work with Android
+// so since we need BLE for that anyway, we could use BLE too to interchange nearby tokens?
+// level 1 requires authentication, so we'd have an already authenticated channel,
+// which we don't have here. We'd have to implement authentication here too -> 2x code.
+// conclusion: move this to BLE
+
 class TokenService: NSObject {
     private let myPeerId = MCPeerID(displayName: UIDevice.current.name)
 
@@ -18,7 +25,7 @@ class TokenService: NSObject {
     var delegate: TokenServiceDelegate?
 
     lazy var session : MCSession = {
-        let session = MCSession(peer: self.myPeerId, securityIdentity: nil, encryptionPreference: .required)
+        let session = MCSession(peer: myPeerId, securityIdentity: nil, encryptionPreference: .required)
         session.delegate = self
         log.v("Created MC session", .peer)
         return session
@@ -35,7 +42,6 @@ class TokenService: NSObject {
         serviceBrowser.delegate = self
     }
 
-    // Note working!
     func start() {
         log.d("Starting MC advertiser and browser", .peer)
         serviceAdvertiser.startAdvertisingPeer()
