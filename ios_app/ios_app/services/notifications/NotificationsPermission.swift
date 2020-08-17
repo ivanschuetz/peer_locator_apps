@@ -1,4 +1,4 @@
-import UIKit
+import UserNotifications
 
 protocol NotificationPermission {
     func request()

@@ -14,6 +14,7 @@
 		8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
 		8489BAE924EAF453006D1CD3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* Session.swift */; };
 		8489BAEC24EB1591006D1CD3 /* TabsContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAEB24EB1591006D1CD3 /* TabsContainerView.swift */; };
+		8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAED24EB1761006D1CD3 /* matchApp.swift */; };
 		848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4924CCA4FF00F2D80B /* NotificationService.swift */; };
 		848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4C24CCA7AF00F2D80B /* AppBadgeUpdater.swift */; };
 		848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */; };
@@ -22,19 +23,14 @@
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
 		849A851024C3208A00EDFE5F /* RadarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849A850F24C3208A00EDFE5F /* RadarView.swift */; };
-		84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0672222F9B3FE006DDC18 /* AppDelegate.swift */; };
-		84B0672522F9B3FE006DDC18 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0672422F9B3FE006DDC18 /* HomeViewController.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
 		84B0672D22F9B3FF006DDC18 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */; };
 		84B0673822F9B400006DDC18 /* ios_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0673722F9B400006DDC18 /* ios_appTests.swift */; };
 		84DC104824B49E340064DEBE /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC104724B49E340064DEBE /* HomeView.swift */; };
-		84DC104E24B4A3000064DEBE /* UIView+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC104D24B4A3000064DEBE /* UIView+Convenience.swift */; };
-		84DC105124B4A3580064DEBE /* UIViewController+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105024B4A3580064DEBE /* UIViewController+Convenience.swift */; };
 		84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105424B4A5AE0064DEBE /* BleCentral.swift */; };
 		84DC105724B4B3EB0064DEBE /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */; };
 		84DC105D24B4CCC70064DEBE /* Dip in Frameworks */ = {isa = PBXBuildFile; productRef = 84DC105C24B4CCC70064DEBE /* Dip */; };
 		84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105F24B4CCE80064DEBE /* Dependencies.swift */; };
-		84DC106224B4CDE10064DEBE /* RootWireFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106124B4CDE10064DEBE /* RootWireFrame.swift */; };
 		84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106324B502690064DEBE /* BlePeripheral.swift */; };
 		84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106524B503CA0064DEBE /* BleUuids.swift */; };
 		84E3DC7E24C6F64300E2F175 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7A24C6F64300E2F175 /* Log.swift */; };
@@ -87,6 +83,7 @@
 		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
 		8489BAE824EAF453006D1CD3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		8489BAEB24EB1591006D1CD3 /* TabsContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsContainerView.swift; sourceTree = "<group>"; };
+		8489BAED24EB1761006D1CD3 /* matchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchApp.swift; sourceTree = "<group>"; };
 		848D5F4924CCA4FF00F2D80B /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		848D5F4C24CCA7AF00F2D80B /* AppBadgeUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppBadgeUpdater.swift; sourceTree = "<group>"; };
 		848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsDelegate.swift; sourceTree = "<group>"; };
@@ -96,8 +93,6 @@
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
 		849A850F24C3208A00EDFE5F /* RadarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarView.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		84B0672222F9B3FE006DDC18 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		84B0672422F9B3FE006DDC18 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		84B0672922F9B3FF006DDC18 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		84B0672C22F9B3FF006DDC18 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		84B0672E22F9B3FF006DDC18 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -107,12 +102,9 @@
 		84B0675022F9E3C7006DDC18 /* Rust-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Rust-Bridging-Header.h"; sourceTree = "<group>"; };
 		84B0675122F9E4DF006DDC18 /* build-rust-xcode.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "build-rust-xcode.sh"; sourceTree = "<group>"; };
 		84DC104724B49E340064DEBE /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		84DC104D24B4A3000064DEBE /* UIView+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Convenience.swift"; sourceTree = "<group>"; };
-		84DC105024B4A3580064DEBE /* UIViewController+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Convenience.swift"; sourceTree = "<group>"; };
 		84DC105424B4A5AE0064DEBE /* BleCentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleCentral.swift; sourceTree = "<group>"; };
 		84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		84DC105F24B4CCE80064DEBE /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
-		84DC106124B4CDE10064DEBE /* RootWireFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootWireFrame.swift; sourceTree = "<group>"; };
 		84DC106324B502690064DEBE /* BlePeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlePeripheral.swift; sourceTree = "<group>"; };
 		84DC106524B503CA0064DEBE /* BleUuids.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleUuids.swift; sourceTree = "<group>"; };
 		84E3DC7A24C6F64300E2F175 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
@@ -215,6 +207,7 @@
 		84B0671622F9B3FE006DDC18 = {
 			isa = PBXGroup;
 			children = (
+				8489BAED24EB1761006D1CD3 /* matchApp.swift */,
 				8466613424B3789200E5FBF9 /* core */,
 				84B0675022F9E3C7006DDC18 /* Rust-Bridging-Header.h */,
 				84B0675122F9E4DF006DDC18 /* build-rust-xcode.sh */,
@@ -246,11 +239,9 @@
 				84DC105E24B4CCDB0064DEBE /* dependencies */,
 				84DC105324B4A5800064DEBE /* ble */,
 				84DC104B24B4A2ED0064DEBE /* ui */,
-				84B0672222F9B3FE006DDC18 /* AppDelegate.swift */,
 				84B0672922F9B3FF006DDC18 /* Assets.xcassets */,
 				84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */,
 				84B0672E22F9B3FF006DDC18 /* Info.plist */,
-				84DC106124B4CDE10064DEBE /* RootWireFrame.swift */,
 			);
 			path = ios_app;
 			sourceTree = "<group>";
@@ -286,8 +277,6 @@
 		84DC104C24B4A2F20064DEBE /* extensions */ = {
 			isa = PBXGroup;
 			children = (
-				84DC104D24B4A3000064DEBE /* UIView+Convenience.swift */,
-				84DC105024B4A3580064DEBE /* UIViewController+Convenience.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -296,7 +285,6 @@
 			isa = PBXGroup;
 			children = (
 				84DC104724B49E340064DEBE /* HomeView.swift */,
-				84B0672422F9B3FE006DDC18 /* HomeViewController.swift */,
 				84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */,
 				849A850F24C3208A00EDFE5F /* RadarView.swift */,
 			);
@@ -490,20 +478,16 @@
 				84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */,
 				84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */,
 				848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */,
-				84DC104E24B4A3000064DEBE /* UIView+Convenience.swift in Sources */,
 				848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */,
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
-				84DC105124B4A3580064DEBE /* UIViewController+Convenience.swift in Sources */,
 				848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */,
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* HomeViewModel.swift in Sources */,
-				84B0672522F9B3FE006DDC18 /* HomeViewController.swift in Sources */,
 				848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */,
 				8489BAEC24EB1591006D1CD3 /* TabsContainerView.swift in Sources */,
 				84E3DC7E24C6F64300E2F175 /* Log.swift in Sources */,
 				84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */,
-				84DC106224B4CDE10064DEBE /* RootWireFrame.swift in Sources */,
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
 				84DC104824B49E340064DEBE /* HomeView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
@@ -513,10 +497,10 @@
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
-				84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
 				8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */,
 				8489BAE924EAF453006D1CD3 /* Session.swift in Sources */,
+				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* TokenService.swift in Sources */,

@@ -1,4 +1,4 @@
-import UIKit
+import UserNotifications
 
 protocol NotificationService {
     func showNotification(data: NotificationData)
