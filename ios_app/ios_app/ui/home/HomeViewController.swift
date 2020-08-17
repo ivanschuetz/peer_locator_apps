@@ -4,9 +4,11 @@ import SwiftUI
 class HomeViewController: UIViewController {
 
     private let viewModel: HomeViewModel
+    private let sessionViewModel: SessionViewModel
 
-    init(viewModel: HomeViewModel) {
+    init(viewModel: HomeViewModel, sessionViewModel: SessionViewModel) {
         self.viewModel = viewModel
+        self.sessionViewModel = sessionViewModel
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -16,6 +18,6 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setRootSwiftUIView(view: HomeView(viewModel: viewModel))
+        setRootSwiftUIView(view: HomeView(viewModel: viewModel, sessionViewModel: sessionViewModel))
     }
 }

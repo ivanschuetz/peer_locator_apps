@@ -7,7 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
+		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
 		8466613B24B3794400E5FBF9 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
+		8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
+		8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
+		8489BAE924EAF453006D1CD3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* Session.swift */; };
 		848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4924CCA4FF00F2D80B /* NotificationService.swift */; };
 		848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4C24CCA7AF00F2D80B /* AppBadgeUpdater.swift */; };
 		848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */; };
@@ -73,8 +78,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		84094EF724EACC3C0028BBDF /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
+		84094EF924EACC4E0028BBDF /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
 		8466613624B3789200E5FBF9 /* mobileapp-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mobileapp-ios.h"; sourceTree = "<group>"; };
 		8466613A24B3794400E5FBF9 /* libcore */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcore; sourceTree = "<group>"; };
+		8489BAE324EAD4A8006D1CD3 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
+		8489BAE824EAF453006D1CD3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		848D5F4924CCA4FF00F2D80B /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		848D5F4C24CCA7AF00F2D80B /* AppBadgeUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppBadgeUpdater.swift; sourceTree = "<group>"; };
 		848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsDelegate.swift; sourceTree = "<group>"; };
@@ -134,13 +144,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		84094EF624EACAAC0028BBDF /* session */ = {
+			isa = PBXGroup;
+			children = (
+				84094EF724EACC3C0028BBDF /* SessionView.swift */,
+				84094EF924EACC4E0028BBDF /* SessionViewModel.swift */,
+			);
+			path = session;
+			sourceTree = "<group>";
+		};
 		8466613424B3789200E5FBF9 /* core */ = {
 			isa = PBXGroup;
 			children = (
 				8466613A24B3794400E5FBF9 /* libcore */,
 				8466613624B3789200E5FBF9 /* mobileapp-ios.h */,
+				8489BAE324EAD4A8006D1CD3 /* Core.swift */,
 			);
 			path = core;
+			sourceTree = "<group>";
+		};
+		8489BAE524EAF42F006D1CD3 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				8489BAE624EAF439006D1CD3 /* ServicesError.swift */,
+				8489BAE824EAF453006D1CD3 /* Session.swift */,
+			);
+			path = common;
 			sourceTree = "<group>";
 		};
 		848D5F4B24CCA75800F2D80B /* notifications */ = {
@@ -198,6 +227,7 @@
 		84B0672122F9B3FE006DDC18 /* ios_app */ = {
 			isa = PBXGroup;
 			children = (
+				8489BAE524EAF42F006D1CD3 /* common */,
 				84E3DC8224C6F9A100E2F175 /* nearby */,
 				84E3DC7924C6F64300E2F175 /* logs */,
 				84E9ACA724C4C3CA00DAEBA1 /* extensions */,
@@ -234,6 +264,7 @@
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				84094EF624EACAAC0028BBDF /* session */,
 				84E3DC8924C7261500E2F175 /* services */,
 				84DC105224B4A3BD0064DEBE /* home */,
 				84DC104C24B4A2F20064DEBE /* extensions */,
@@ -445,6 +476,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */,
+				84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */,
+				84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */,
 				848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */,
 				84DC104E24B4A3000064DEBE /* UIView+Convenience.swift in Sources */,
 				848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */,
@@ -464,11 +497,14 @@
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
 				84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */,
 				849A851024C3208A00EDFE5F /* RadarView.swift in Sources */,
+				8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */,
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
 				84B0672322F9B3FE006DDC18 /* AppDelegate.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
+				8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */,
+				8489BAE924EAF453006D1CD3 /* Session.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* TokenService.swift in Sources */,

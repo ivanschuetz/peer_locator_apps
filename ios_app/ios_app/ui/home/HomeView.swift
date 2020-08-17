@@ -5,9 +5,11 @@ import Combine
 struct HomeView: View {
 
     @ObservedObject private var viewModel: HomeViewModel
+    @ObservedObject private var sessionViewModel: SessionViewModel
 
-    init(viewModel: HomeViewModel) {
+    init(viewModel: HomeViewModel, sessionViewModel: SessionViewModel) {
         self.viewModel = viewModel
+        self.sessionViewModel = sessionViewModel
     }
 
     var body: some View {
@@ -24,6 +26,7 @@ struct HomeView: View {
                 List(viewModel.detectedDevices) { bleId in
                     Text(bleId.bleId.str())
                 }
+                SessionView(viewModel: sessionViewModel)
             }
         }
     }
@@ -34,6 +37,7 @@ struct HomeView_Previews: PreviewProvider {
         HomeView(viewModel: HomeViewModel(central: BleCentralNoop(),
                                           peripheral: BlePeripheralNoop(),
                                           radarService: RadarUIServiceNoop(),
-                                          notificationPermission: NotificationPermissionImpl()))
+                                          notificationPermission: NotificationPermissionImpl()),
+                 sessionViewModel: SessionViewModel(sessionApi: NoopSessionApi()))
     }
 }

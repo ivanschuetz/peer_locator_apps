@@ -1,9 +1,33 @@
-//
-//  Session.swift
-//  Match
-//
-//  Created by Ivan Schuetz on 17.08.20.
-//  Copyright © 2020 com.schuetz. All rights reserved.
-//
+import SwiftUI
+import UIKit
+import Combine
 
-import Foundation
+struct SessionView: View {
+
+    @ObservedObject private var viewModel: SessionViewModel
+
+    init(viewModel: SessionViewModel) {
+        self.viewModel = viewModel
+    }
+
+    var body: some View {
+        VStack {
+            Button("Create session", action: {
+                viewModel.createSession()
+            })
+            Text(viewModel.sessionLink)
+        }
+    }
+}
+
+struct SessionView_Previews: PreviewProvider {
+    static var previews: some View {
+        SessionView(viewModel: SessionViewModel(sessionApi: NoopSessionApi()))
+    }
+}
+
+class NoopSessionApi: SessionApi {
+    func createSession() -> Result<Session, ServicesError> {
+        .success(Session(id: "123", keys: []))
+    }
+}
