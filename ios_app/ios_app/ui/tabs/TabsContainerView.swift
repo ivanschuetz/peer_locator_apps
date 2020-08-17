@@ -21,7 +21,7 @@ struct TabsContainerView: View {
             SessionView(viewModel: sessionViewModel)
                 .tabItem {
 //                    Image(systemName: "")
-                    Text("Order")
+                    Text("Session")
                 }
         }
     }
