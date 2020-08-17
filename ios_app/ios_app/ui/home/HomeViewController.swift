@@ -2,12 +2,11 @@ import UIKit
 import SwiftUI
 
 class HomeViewController: UIViewController {
-
-    private let viewModel: HomeViewModel
+    private let homeViewModel: HomeViewModel
     private let sessionViewModel: SessionViewModel
 
-    init(viewModel: HomeViewModel, sessionViewModel: SessionViewModel) {
-        self.viewModel = viewModel
+    init(homeViewModel: HomeViewModel, sessionViewModel: SessionViewModel) {
+        self.homeViewModel = homeViewModel
         self.sessionViewModel = sessionViewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -18,6 +17,7 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setRootSwiftUIView(view: HomeView(viewModel: viewModel, sessionViewModel: sessionViewModel))
+        setRootSwiftUIView(view: TabsContainerView(homeViewModel: homeViewModel,
+                                                   sessionViewModel: sessionViewModel))
     }
 }

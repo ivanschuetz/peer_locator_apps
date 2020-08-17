@@ -12,7 +12,7 @@ class RootWireFrame {
         let homeViewModel: HomeViewModel = try! container.resolve()
         let sessionViewModel: SessionViewModel = try! container.resolve()
 
-        let homeViewController = HomeViewController(viewModel: homeViewModel,
+        let homeViewController = HomeViewController(homeViewModel: homeViewModel,
                                                     sessionViewModel: sessionViewModel)
         window.rootViewController = homeViewController
         window.makeKeyAndVisible()
