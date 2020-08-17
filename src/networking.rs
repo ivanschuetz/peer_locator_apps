@@ -25,6 +25,12 @@ pub struct SessionKey {
     pub key: PublicKey,
 }
 
+#[derive(Debug, Serialize)]
+pub struct Session {
+    pub id: String,
+    pub keys: Vec<PublicKey>,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 pub struct PublicKey {
     pub str: String,
@@ -38,10 +44,10 @@ struct JoinSessionResult {
 
 #[derive(Debug)]
 pub enum ServicesError {
-    General(String),
+    // General(String),
     Networking(NetworkingError),
-    Error(Error),
-    NotFound,
+    // Error(Error),
+    // NotFound,
 }
 
 impl From<NetworkingError> for ServicesError {
@@ -50,11 +56,21 @@ impl From<NetworkingError> for ServicesError {
     }
 }
 
+pub trait VecExt<T> {
+    fn map_now<U>(self, f: impl FnMut(T) -> U) -> Vec<U>;
+}
+
+impl<T> VecExt<T> for Vec<T> {
+    fn map_now<U>(self, f: impl FnMut(T) -> U) -> Vec<U> {
+        self.into_iter().map(f).collect()
+    }
+}
+
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 pub trait RemoteSessionApi {
-    fn join_session(&self, session_key: SessionKey) -> Result<Vec<PublicKey>, NetworkingError>;
+    fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError>;
 }
 
 pub struct RemoteSessionApiImpl {}
@@ -68,11 +84,11 @@ impl RemoteSessionApiImpl {
 }
 
 impl RemoteSessionApi for RemoteSessionApiImpl {
-    fn join_session(&self, session_key: SessionKey) -> Result<Vec<PublicKey>, NetworkingError> {
+    fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError> {
         info!("Joining session, key: {:?}", session_key);
 
         let params = SessionKeyRequestParams {
-            session_id: session_key.session_id,
+            session_id: session_key.session_id.clone(),
             key: session_key.key.str,
         };
 
@@ -90,7 +106,10 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         info!("Retrieved keys, networking result: {:?}", res);
 
         match res.status {
-            1 => Ok(res.keys),
+            1 => Ok(Session {
+                id: session_key.session_id,
+                keys: res.keys,
+            }),
             _ => Err(NetworkingError {
                 http_status: UNKNOWN_HTTP_STATUS,
                 message: format!("Http internal error code: {}", res.status),
@@ -148,9 +167,10 @@ mod tests {
 
         assert!(res.is_ok());
 
-        let keys = res.unwrap();
-        assert_eq!(keys.len(), 1);
-        assert_eq!(keys[0].str, "2");
+        let session = res.unwrap();
+        assert_eq!(session.id, "1");
+        assert_eq!(session.keys.len(), 1);
+        assert_eq!(session.keys[0].str, "2");
     }
 
     #[test]
@@ -166,9 +186,10 @@ mod tests {
 
         assert!(res1.is_ok());
 
-        let keys1 = res1.unwrap();
-        assert_eq!(keys1.len(), 1);
-        assert_eq!(keys1[0].str, "2");
+        let session1 = res1.unwrap();
+        assert_eq!(session1.id, "1");
+        assert_eq!(session1.keys.len(), 1);
+        assert_eq!(session1.keys[0].str, "2");
 
         let res2 = api.join_session(SessionKey {
             session_id: "1".to_owned(),
@@ -177,10 +198,10 @@ mod tests {
             },
         });
 
-        let keys2 = res2.unwrap();
-        assert_eq!(keys2.len(), 2);
-        assert_eq!(keys2[0].str, "2");
-        assert_eq!(keys2[1].str, "3");
+        let session2 = res2.unwrap();
+        assert_eq!(session2.keys.len(), 2);
+        assert_eq!(session2.keys[0].str, "2");
+        assert_eq!(session2.keys[1].str, "3");
     }
 
     #[test]
@@ -196,9 +217,9 @@ mod tests {
 
         assert!(res1.is_ok());
 
-        let keys1 = res1.unwrap();
-        assert_eq!(keys1.len(), 1);
-        assert_eq!(keys1[0].str, "2");
+        let session1 = res1.unwrap();
+        assert_eq!(session1.keys.len(), 1);
+        assert_eq!(session1.keys[0].str, "2");
 
         let res2 = api.join_session(SessionKey {
             session_id: "100".to_owned(),
@@ -207,8 +228,8 @@ mod tests {
             },
         });
 
-        let keys2 = res2.unwrap();
-        assert_eq!(keys2.len(), 1);
-        assert_eq!(keys2[0].str, "3");
+        let session2 = res2.unwrap();
+        assert_eq!(session2.keys.len(), 1);
+        assert_eq!(session2.keys[0].str, "3");
     }
 }

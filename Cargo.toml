@@ -13,8 +13,7 @@ log = "0.4.6"
 log-panics = "2.0"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-# libc = "0.2"
-# core-foundation = "0.6.2"
+uuid = { version = "0.8.1", features = ["v4"] }
 
 [dependencies.reqwest]
 default-features = false # do not include the default features, and optionally

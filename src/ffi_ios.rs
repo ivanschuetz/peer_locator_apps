@@ -1,4 +1,5 @@
 use crate::join_session_with_id;
+use crate::{networking::VecExt, start_session};
 use core_foundation::{
     base::TCFType,
     string::{CFString, CFStringRef},
@@ -6,43 +7,89 @@ use core_foundation::{
 use libc::c_char;
 use log::*;
 use mpsc::Receiver;
+use serde::Serialize;
 use std::{
     sync::mpsc::{self, Sender},
     thread,
 };
 
 #[repr(C)]
-pub struct FFIJoinSessionResult {
+pub struct FFISessionResult {
     status: i32, // 1 -> success, 0 -> unknown error
-    keys_str: CFStringRef,
+    session_json: CFStringRef,
+}
+#[derive(Debug, Serialize)]
+pub struct FFISession {
+    id: String,
+    keys: Vec<String>,
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn join_session(session_id: *const c_char) -> FFIJoinSessionResult {
+pub unsafe extern "C" fn create_session() -> FFISessionResult {
+    let res = start_session();
+
+    match res {
+        Ok(session) => {
+            let ffi_session = FFISession {
+                id: session.id,
+                keys: session.keys.map_now(|k| k.str),
+            };
+            let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
+            let session_cf_string = CFString::new(&session_str.to_owned());
+            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
+            ::std::mem::forget(session_cf_string);
+
+            FFISessionResult {
+                status: 1,
+                session_json: cf_string_ref,
+            }
+        }
+        Err(e) => {
+            println!("Error creating session: {:?}", e);
+            let session_str = "";
+            let session_cf_string = CFString::new(&session_str.to_owned());
+            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
+            ::std::mem::forget(session_cf_string);
+
+            FFISessionResult {
+                status: 0,
+                session_json: cf_string_ref,
+            }
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn join_session(session_id: *const c_char) -> FFISessionResult {
     let str: String = cstring_to_str(&session_id).into();
     let res = join_session_with_id(str);
 
     match res {
-        Ok(keys) => {
-            let keys_str = serde_json::to_string(&keys).expect("Couldn't serialize keys");
-            let keys_cf_string = CFString::new(&keys_str.to_owned());
-            let cf_string_ref = keys_cf_string.as_concrete_TypeRef();
-            ::std::mem::forget(keys_cf_string);
+        Ok(session) => {
+            let ffi_session = FFISession {
+                id: session.id,
+                keys: session.keys.map_now(|k| k.str),
+            };
+            let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
+            let session_cf_string = CFString::new(&session_str.to_owned());
+            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
+            ::std::mem::forget(session_cf_string);
 
-            FFIJoinSessionResult {
+            FFISessionResult {
                 status: 1,
-                keys_str: cf_string_ref,
+                session_json: cf_string_ref,
             }
         }
         Err(e) => {
-            let keys_str = "";
-            let keys_cf_string = CFString::new(&keys_str.to_owned());
-            let cf_string_ref = keys_cf_string.as_concrete_TypeRef();
-            ::std::mem::forget(keys_cf_string);
+            println!("Error creating session: {:?}", e);
+            let session_str = "";
+            let session_cf_string = CFString::new(&session_str.to_owned());
+            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
+            ::std::mem::forget(session_cf_string);
 
-            FFIJoinSessionResult {
+            FFISessionResult {
                 status: 0,
-                keys_str: cf_string_ref,
+                session_json: cf_string_ref,
             }
         }
     }
