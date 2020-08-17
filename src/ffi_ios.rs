@@ -1,3 +1,4 @@
+use crate::join_session_with_id;
 use core_foundation::{
     base::TCFType,
     string::{CFString, CFStringRef},
@@ -10,6 +11,43 @@ use std::{
     thread,
 };
 
+#[repr(C)]
+pub struct FFIJoinSessionResult {
+    status: i32, // 1 -> success, 0 -> unknown error
+    keys_str: CFStringRef,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn join_session(session_id: *const c_char) -> FFIJoinSessionResult {
+    let str: String = cstring_to_str(&session_id).into();
+    let res = join_session_with_id(str);
+
+    match res {
+        Ok(keys) => {
+            let keys_str = serde_json::to_string(&keys).expect("Couldn't serialize keys");
+            let keys_cf_string = CFString::new(&keys_str.to_owned());
+            let cf_string_ref = keys_cf_string.as_concrete_TypeRef();
+            ::std::mem::forget(keys_cf_string);
+
+            FFIJoinSessionResult {
+                status: 1,
+                keys_str: cf_string_ref,
+            }
+        }
+        Err(e) => {
+            let keys_str = "";
+            let keys_cf_string = CFString::new(&keys_str.to_owned());
+            let cf_string_ref = keys_cf_string.as_concrete_TypeRef();
+            ::std::mem::forget(keys_cf_string);
+
+            FFIJoinSessionResult {
+                status: 0,
+                keys_str: cf_string_ref,
+            }
+        }
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn greet(who: *const c_char) -> CFStringRef {
     let str: String = cstring_to_str(&who).into();
@@ -17,33 +55,28 @@ pub unsafe extern "C" fn greet(who: *const c_char) -> CFStringRef {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn add_values(
-    value1: i32,
-    value2: i32,
-) -> i32 {
+pub unsafe extern "C" fn add_values(value1: i32, value2: i32) -> i32 {
     info!("Passed value1: {}, value2: {}", value1, value2);
     value1 + value2
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn pass_struct(
-    object: *const ParamStruct,
-) {
+pub unsafe extern "C" fn pass_struct(object: *const ParamStruct) {
     info!("Received struct from iOS: {:?}", object);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn return_struct(
-) -> ReturnStruct {
-    ReturnStruct { string: to_cf_str("my string parameter".to_owned()), int: 123 }
+pub unsafe extern "C" fn return_struct() -> ReturnStruct {
+    ReturnStruct {
+        string: to_cf_str("my string parameter".to_owned()),
+        int: 123,
+    }
 }
 
 pub static mut CALLBACK_SENDER: Option<Sender<String>> = None;
 
 #[no_mangle]
-pub unsafe extern "C" fn register_callback(
-    callback: unsafe extern "C" fn(CFStringRef),
-) {
+pub unsafe extern "C" fn register_callback(callback: unsafe extern "C" fn(CFStringRef)) {
     register_callback_internal(Box::new(callback));
 
     // Let's send a message immediately, to test it
@@ -117,11 +150,11 @@ impl MyCallback for unsafe extern "C" fn(CFStringRef) {
 #[derive(Debug)]
 pub struct ParamStruct {
     string: *const c_char,
-    int: i32
+    int: i32,
 }
 #[repr(C)]
 #[derive(Debug)]
 pub struct ReturnStruct {
     string: CFStringRef,
-    int: i32
+    int: i32,
 }

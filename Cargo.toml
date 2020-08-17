@@ -1,5 +1,5 @@
 [package]
-name = "rust_android_ios"
+name = "libcore"
 version = "0.0.1"
 authors = ["Ivan Schuetz <ivanhp978@gmail.com>"]
 edition = "2018"
@@ -11,6 +11,15 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 log = "0.4.6"
 log-panics = "2.0"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+# libc = "0.2"
+# core-foundation = "0.6.2"
+
+[dependencies.reqwest]
+default-features = false # do not include the default features, and optionally
+version = "0.10.2"
+features = ["blocking", "json", "rustls-tls"]
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.16", default-features = false }
