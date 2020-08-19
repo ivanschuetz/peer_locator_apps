@@ -1,3 +1,4 @@
+use crate::ack;
 use crate::join_session_with_id;
 use crate::{networking::VecExt, start_session};
 use core_foundation::{
@@ -24,8 +25,13 @@ pub struct FFISession {
     keys: Vec<String>,
 }
 
+#[repr(C)]
+pub struct FFIAckResult {
+    status: i32, // 1 -> success, 0 -> unknown error
+}
+
 #[no_mangle]
-pub unsafe extern "C" fn create_session() -> FFISessionResult {
+pub unsafe extern "C" fn ffi_create_session() -> FFISessionResult {
     let res = start_session();
 
     match res {
@@ -60,7 +66,7 @@ pub unsafe extern "C" fn create_session() -> FFISessionResult {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn join_session(session_id: *const c_char) -> FFISessionResult {
+pub unsafe extern "C" fn ffi_join_session(session_id: *const c_char) -> FFISessionResult {
     let str: String = cstring_to_str(&session_id).into();
     let res = join_session_with_id(str);
 
@@ -91,6 +97,20 @@ pub unsafe extern "C" fn join_session(session_id: *const c_char) -> FFISessionRe
                 status: 0,
                 session_json: cf_string_ref,
             }
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ffi_ack(uuid: *const c_char, stored_participants: i32) -> FFIAckResult {
+    let uuid_str: String = cstring_to_str(&uuid).into();
+    let res = ack(uuid_str, stored_participants);
+
+    match res {
+        Ok(_) => FFIAckResult { status: 1 },
+        Err(e) => {
+            println!("Error acking: {:?}", e);
+            FFIAckResult { status: 0 }
         }
     }
 }

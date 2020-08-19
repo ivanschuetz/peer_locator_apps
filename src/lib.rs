@@ -28,3 +28,10 @@ fn join_session_with_id(id: String) -> Result<Session, ServicesError> {
     })
     .map_err(ServicesError::from)
 }
+
+fn ack(uuid: String, stored_participants: i32) -> Result<(), ServicesError> {
+    let api = RemoteSessionApiImpl {};
+    let uuid = Uuid::parse_str(uuid.as_ref())?;
+    api.ack(uuid, stored_participants)
+        .map_err(ServicesError::from)
+}

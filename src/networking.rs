@@ -4,8 +4,11 @@ use reqwest::{blocking::Client, Error};
 use serde::Deserialize;
 use serde::Serialize;
 use std::error;
+use uuid::Uuid;
 
+// static BASE_URL: &str = "http://192.168.0.2:8000/";
 static BASE_URL: &str = "http://127.0.0.1:8000/";
+// static BASE_URL: &str = "http://localhost.charlesproxy.com:8000/";
 
 static UNKNOWN_HTTP_STATUS: u16 = 520;
 
@@ -17,6 +20,12 @@ static UNKNOWN_HTTP_STATUS: u16 = 520;
 pub struct SessionKeyRequestParams {
     pub session_id: String,
     pub key: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AckRequestParams {
+    pub uuid: String,
+    pub accepted: i32,
 }
 
 #[derive(Debug)]
@@ -42,9 +51,20 @@ struct JoinSessionResult {
     keys: Vec<PublicKey>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct AckResult {
+    status: i32,
+}
+
+impl From<uuid::Error> for ServicesError {
+    fn from(error: uuid::Error) -> Self {
+        ServicesError::General(format!("{}", error))
+    }
+}
+
 #[derive(Debug)]
 pub enum ServicesError {
-    // General(String),
+    General(String),
     Networking(NetworkingError),
     // Error(Error),
     // NotFound,
@@ -71,14 +91,20 @@ impl<T> VecExt<T> for Vec<T> {
 
 pub trait RemoteSessionApi {
     fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError>;
+    fn ack(&self, uuid: Uuid, count: i32) -> Result<(), NetworkingError>;
 }
 
 pub struct RemoteSessionApiImpl {}
 
 impl RemoteSessionApiImpl {
+    // TODO is it bad to create a new client per request? should we cache it?
     fn create_client() -> Result<Client, Error> {
         reqwest::blocking::Client::builder()
             // .proxy(reqwest::Proxy::https("http://localhost:8888")?) // Charles proxy
+            // .proxy(reqwest::Proxy::https("http://192.168.0.2:8888")?) // Charles proxy
+            // .proxy(reqwest::Proxy::https(
+            //     "http://localhost.charlesproxy.com:8888",
+            // )?) // Charles proxy
             .build()
     }
 }
@@ -110,6 +136,39 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
                 id: session_key.session_id,
                 keys: res.keys,
             }),
+            _ => Err(NetworkingError {
+                http_status: UNKNOWN_HTTP_STATUS,
+                message: format!("Http internal error code: {}", res.status),
+            }),
+        }
+    }
+
+    fn ack(&self, uuid: Uuid, stored_participants: i32) -> Result<(), NetworkingError> {
+        info!(
+            "ACK-ing session for: {:?}, participants: {:?}",
+            uuid, stored_participants
+        );
+
+        let params = AckRequestParams {
+            uuid: uuid.to_string(),
+            accepted: stored_participants,
+        };
+
+        let url: &str = &format!("{}ready", BASE_URL.to_owned())[..];
+        let params_str = serde_json::to_string(&params).unwrap();
+
+        let client = Self::create_client()?;
+        let response = client
+            .post(url)
+            .header("Content-Type", "application/json")
+            .body(params_str)
+            .send()?;
+
+        let res = response.json::<AckResult>()?;
+        println!("Ack-ed, networking result: {:?}", res);
+
+        match res.status {
+            1 => Ok(()),
             _ => Err(NetworkingError {
                 http_status: UNKNOWN_HTTP_STATUS,
                 message: format!("Http internal error code: {}", res.status),
@@ -231,5 +290,15 @@ mod tests {
         let session2 = res2.unwrap();
         assert_eq!(session2.keys.len(), 1);
         assert_eq!(session2.keys[0].str, "3");
+    }
+
+    #[test]
+    #[ignore]
+    fn ack_session_is_ok() {
+        let api = RemoteSessionApiImpl {};
+        let res1 = api.ack(Uuid::new_v4(), 1);
+
+        println!("res1: {:?}", res1);
+        assert!(res1.is_ok());
     }
 }
