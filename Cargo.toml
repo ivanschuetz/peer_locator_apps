@@ -14,6 +14,8 @@ log-panics = "2.0"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "0.8.1", features = ["v4"] }
+openssl = "0.10.30"
+base64 = "0.12.3"
 
 [dependencies.reqwest]
 default-features = false # do not include the default features, and optionally
@@ -24,7 +26,7 @@ features = ["blocking", "json", "rustls-tls"]
 jni = { version = "0.16", default-features = false }
 android_logger = "0.8"
 
-[target.'cfg(target_os = "ios")'.dependencies]
+[target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]
 libc = "0.2"
 core-foundation = "0.6.2"
 

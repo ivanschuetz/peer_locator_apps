@@ -1,9 +1,9 @@
 use crate::ack;
 use crate::join_session_with_id;
-use crate::{networking::VecExt, start_session};
+use crate::{create_key_pair, networking::VecExt, start_session};
 use core_foundation::{
-    base::TCFType,
-    string::{CFString, CFStringRef},
+    base::{TCFType, TCFTypeRef},
+    string::{CFString, CFStringRef, __CFString},
 };
 use libc::c_char;
 use log::*;
@@ -19,6 +19,14 @@ pub struct FFISessionResult {
     status: i32, // 1 -> success, 0 -> unknown error
     session_json: CFStringRef,
 }
+
+#[repr(C)]
+pub struct FFIKeyPairResult {
+    status: i32, // 1 -> success, 0 -> unknown error
+    private: CFStringRef,
+    public: CFStringRef,
+}
+
 #[derive(Debug, Serialize)]
 pub struct FFISession {
     id: String,
@@ -28,6 +36,34 @@ pub struct FFISession {
 #[repr(C)]
 pub struct FFIAckResult {
     status: i32, // 1 -> success, 0 -> unknown error
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ffi_create_key_pair() -> FFIKeyPairResult {
+    let res = create_key_pair();
+
+    match res {
+        Ok(key_pair) => {
+            let private_str = base64::encode(key_pair.private);
+            let public_str = base64::encode(key_pair.public);
+            FFIKeyPairResult {
+                status: 1,
+                private: private_str.to_CFStringRef_and_forget(),
+                public: public_str.to_CFStringRef_and_forget(),
+            }
+        }
+        Err(e) => {
+            println!("Error creating session: {:?}", e);
+            // TODO proper error result, not "error with empty success fields"
+            let private_str = "".to_owned();
+            let public_str = "".to_owned();
+            FFIKeyPairResult {
+                status: 0,
+                private: private_str.to_CFStringRef_and_forget(),
+                public: public_str.to_CFStringRef_and_forget(),
+            }
+        }
+    }
 }
 
 #[no_mangle]
@@ -41,9 +77,7 @@ pub unsafe extern "C" fn ffi_create_session() -> FFISessionResult {
                 keys: session.keys.map_now(|k| k.str),
             };
             let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
-            let session_cf_string = CFString::new(&session_str.to_owned());
-            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
-            ::std::mem::forget(session_cf_string);
+            let cf_string_ref = session_str.to_CFStringRef_and_forget();
 
             FFISessionResult {
                 status: 1,
@@ -53,9 +87,7 @@ pub unsafe extern "C" fn ffi_create_session() -> FFISessionResult {
         Err(e) => {
             println!("Error creating session: {:?}", e);
             let session_str = "";
-            let session_cf_string = CFString::new(&session_str.to_owned());
-            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
-            ::std::mem::forget(session_cf_string);
+            let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 
             FFISessionResult {
                 status: 0,
@@ -77,9 +109,7 @@ pub unsafe extern "C" fn ffi_join_session(session_id: *const c_char) -> FFISessi
                 keys: session.keys.map_now(|k| k.str),
             };
             let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
-            let session_cf_string = CFString::new(&session_str.to_owned());
-            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
-            ::std::mem::forget(session_cf_string);
+            let cf_string_ref = session_str.to_CFStringRef_and_forget();
 
             FFISessionResult {
                 status: 1,
@@ -89,9 +119,7 @@ pub unsafe extern "C" fn ffi_join_session(session_id: *const c_char) -> FFISessi
         Err(e) => {
             println!("Error creating session: {:?}", e);
             let session_str = "";
-            let session_cf_string = CFString::new(&session_str.to_owned());
-            let cf_string_ref = session_cf_string.as_concrete_TypeRef();
-            ::std::mem::forget(session_cf_string);
+            let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 
             FFISessionResult {
                 status: 0,
@@ -224,4 +252,17 @@ pub struct ParamStruct {
 pub struct ReturnStruct {
     string: CFStringRef,
     int: i32,
+}
+
+trait StringFFIAdditions {
+    fn to_CFStringRef_and_forget(self) -> *const __CFString;
+}
+
+impl StringFFIAdditions for String {
+    fn to_CFStringRef_and_forget(self) -> *const __CFString {
+        let session_cf_string = CFString::new(&self.to_owned());
+        let cf_string_ref = session_cf_string.as_concrete_TypeRef();
+        ::std::mem::forget(session_cf_string);
+        cf_string_ref
+    }
 }

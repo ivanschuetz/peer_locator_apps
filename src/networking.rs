@@ -1,5 +1,6 @@
 use core::fmt;
 use log::*;
+use openssl::error::ErrorStack;
 use reqwest::{blocking::Client, Error};
 use serde::Deserialize;
 use serde::Serialize;
@@ -73,6 +74,12 @@ pub enum ServicesError {
 impl From<NetworkingError> for ServicesError {
     fn from(error: NetworkingError) -> Self {
         ServicesError::Networking(error)
+    }
+}
+
+impl From<ErrorStack> for ServicesError {
+    fn from(error: ErrorStack) -> Self {
+        ServicesError::General(format!("{:?}", error))
     }
 }
 
