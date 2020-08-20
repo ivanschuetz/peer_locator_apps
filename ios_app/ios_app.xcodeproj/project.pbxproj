@@ -10,6 +10,8 @@
 		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
 		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
 		8466613B24B3794400E5FBF9 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
+		8487FA3024EE77CE003FDB0C /* KeyChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8487FA2F24EE77CE003FDB0C /* KeyChain.swift */; };
+		8487FA3324EE7B98003FDB0C /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 8487FA3224EE7B98003FDB0C /* Valet */; };
 		8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
 		8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
 		8489BAE924EAF453006D1CD3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* Session.swift */; };
@@ -23,6 +25,7 @@
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
 		849A851024C3208A00EDFE5F /* RadarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849A850F24C3208A00EDFE5F /* RadarView.swift */; };
+		849B612924EDB99400D321D1 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* SessionService.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
 		84B0672D22F9B3FF006DDC18 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */; };
 		84B0673822F9B400006DDC18 /* ios_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0673722F9B400006DDC18 /* ios_appTests.swift */; };
@@ -79,6 +82,7 @@
 		84094EF924EACC4E0028BBDF /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
 		8466613624B3789200E5FBF9 /* mobileapp-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mobileapp-ios.h"; sourceTree = "<group>"; };
 		8466613A24B3794400E5FBF9 /* libcore */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcore; sourceTree = "<group>"; };
+		8487FA2F24EE77CE003FDB0C /* KeyChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyChain.swift; sourceTree = "<group>"; };
 		8489BAE324EAD4A8006D1CD3 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
 		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
 		8489BAE824EAF453006D1CD3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
@@ -92,6 +96,7 @@
 		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
 		849A850F24C3208A00EDFE5F /* RadarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarView.swift; sourceTree = "<group>"; };
+		849B612824EDB99400D321D1 /* SessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionService.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B0672922F9B3FF006DDC18 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		84B0672C22F9B3FF006DDC18 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -123,6 +128,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8487FA3324EE7B98003FDB0C /* Valet in Frameworks */,
 				84DC105D24B4CCC70064DEBE /* Dip in Frameworks */,
 				8466613B24B3794400E5FBF9 /* libcore in Frameworks */,
 			);
@@ -189,6 +195,7 @@
 			isa = PBXGroup;
 			children = (
 				84993A1724B5C0730044AA27 /* Preferences.swift */,
+				8487FA2F24EE77CE003FDB0C /* KeyChain.swift */,
 			);
 			path = system;
 			sourceTree = "<group>";
@@ -200,6 +207,7 @@
 				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
 				84E3DC8724C723AC00E2F175 /* PeerService.swift */,
 				848D5F5024CCA8E800F2D80B /* PeerDistanceNotificationService.swift */,
+				849B612824EDB99400D321D1 /* SessionService.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -348,17 +356,17 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
-		84B0678222F9E9F2006DDC18 /* mobcore */ = {
+		84B0678222F9E9F2006DDC18 /* core */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "\"$(SRCROOT)/build-rust-xcode.sh\"";
-			buildConfigurationList = 84B0678322F9E9F2006DDC18 /* Build configuration list for PBXLegacyTarget "mobcore" */;
+			buildConfigurationList = 84B0678322F9E9F2006DDC18 /* Build configuration list for PBXLegacyTarget "core" */;
 			buildPhases = (
 			);
 			buildToolPath = /bin/bash;
 			buildWorkingDirectory = ../;
 			dependencies = (
 			);
-			name = mobcore;
+			name = core;
 			passBuildSettingsInEnvironment = 1;
 			productName = sdfs;
 		};
@@ -382,6 +390,7 @@
 			name = Match;
 			packageProductDependencies = (
 				84DC105C24B4CCC70064DEBE /* Dip */,
+				8487FA3224EE7B98003FDB0C /* Valet */,
 			);
 			productName = ios_app;
 			productReference = 84B0671F22F9B3FE006DDC18 /* Match.app */;
@@ -438,6 +447,7 @@
 			mainGroup = 84B0671622F9B3FE006DDC18;
 			packageReferences = (
 				84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */,
+				8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */,
 			);
 			productRefGroup = 84B0672022F9B3FE006DDC18 /* Products */;
 			projectDirPath = "";
@@ -445,7 +455,7 @@
 			targets = (
 				84B0671E22F9B3FE006DDC18 /* Match */,
 				84B0673222F9B400006DDC18 /* Match tests */,
-				84B0678222F9E9F2006DDC18 /* mobcore */,
+				84B0678222F9E9F2006DDC18 /* core */,
 			);
 		};
 /* End PBXProject section */
@@ -495,6 +505,7 @@
 				849A851024C3208A00EDFE5F /* RadarView.swift in Sources */,
 				8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */,
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
+				8487FA3024EE77CE003FDB0C /* KeyChain.swift in Sources */,
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
@@ -504,6 +515,7 @@
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* TokenService.swift in Sources */,
+				849B612924EDB99400D321D1 /* SessionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -525,7 +537,7 @@
 		};
 		84B0678922F9F8C6006DDC18 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 84B0678222F9E9F2006DDC18 /* mobcore */;
+			target = 84B0678222F9E9F2006DDC18 /* core */;
 			targetProxy = 84B0678822F9F8C6006DDC18 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -807,7 +819,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		84B0678322F9E9F2006DDC18 /* Build configuration list for PBXLegacyTarget "mobcore" */ = {
+		84B0678322F9E9F2006DDC18 /* Build configuration list for PBXLegacyTarget "core" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				84B0678422F9E9F2006DDC18 /* Debug */,
@@ -819,6 +831,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/square/Valet";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.1;
+			};
+		};
 		84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AliSoftware/Dip";
@@ -830,6 +850,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8487FA3224EE7B98003FDB0C /* Valet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */;
+			productName = Valet;
+		};
 		84DC105C24B4CCC70064DEBE /* Dip */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */;
