@@ -687,6 +687,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/core",
 				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ischuetz/dev/rust/rust_android_ios/ios_app/Rust-Bridging-Header.h";
@@ -712,6 +713,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/core",
 				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ischuetz/dev/rust/rust_android_ios/ios_app/Rust-Bridging-Header.h";

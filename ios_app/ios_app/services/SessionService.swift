@@ -16,6 +16,7 @@ class SessionServiceImpl: SessionService {
     init(sessionApi: SessionApi, keyChain: KeyChain) {
         self.sessionApi = sessionApi
         self.keyChain = keyChain
+//        keyChain.removeAll()
     }
 
     func createSession() -> Result<SessionLink, ServicesError> {
@@ -112,6 +113,7 @@ class SessionServiceImpl: SessionService {
         switch loadRes {
         case .success(let data):
             if let data = data {
+                log.d("Loaded session data: \(data)", .session)
                 return .success(data)
             } else {
                 return createAndStoreSessionData(sessionIdGenerator: sessionIdGenerator)
@@ -123,6 +125,7 @@ class SessionServiceImpl: SessionService {
 
     private func createAndStoreSessionData(sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
         sessionApi.createKeyPair().flatMap { keyPair in
+            log.d("Created key pair: \(keyPair)", .session)
             let sessionId = sessionIdGenerator()
             let sessionData = MySessionData(
                 sessionId: sessionId,

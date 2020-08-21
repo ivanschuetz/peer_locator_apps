@@ -1,7 +1,7 @@
 use networking::{
     PublicKey, RemoteSessionApi, RemoteSessionApiImpl, ServicesError, Session, SessionKey,
 };
-use openssl::rsa::Rsa;
+// use openssl::rsa::Rsa;
 use uuid::Uuid;
 
 mod networking;
@@ -17,42 +17,54 @@ struct KeyPair {
     public: Vec<u8>,
 }
 
-fn start_session() -> Result<Session, ServicesError> {
+fn start_session(key: String) -> Result<Session, ServicesError> {
     let uuid = Uuid::new_v4();
     // TODO check if already exists in db?
 
-    join_session_with_id(uuid.to_string())
+    join_session_with_id(uuid.to_string(), key)
 }
 
 fn create_key_pair() -> Result<KeyPair, ServicesError> {
-    let rsa = Rsa::generate(4096)?;
+    // it was not possible to get rust-openssl working:
+    // https://stackoverflow.com/questions/63513401/how-to-use-rust-openssl-on-ios
+    // https://github.com/sfackler/rust-openssl/issues/1331
+    // for now generating keys in the apps
+    // note also that we should use EC instead of RSA (doing this now on iOS)
 
-    let private_key = rsa.private_key_to_pem()?;
-    let public_key = rsa.public_key_to_pem()?;
+    // let rsa = Rsa::generate(4096)?;
 
+    // let private_key = rsa.private_key_to_pem()?;
+    // let public_key = rsa.public_key_to_pem()?;
+
+    // Ok(KeyPair {
+    //     private: private_key,
+    //     public: public_key,
+    // })
     Ok(KeyPair {
-        private: private_key,
-        public: public_key,
+        private: vec![],
+        public: vec![],
     })
 }
 
-fn join_session_with_id(id: String) -> Result<Session, ServicesError> {
+fn join_session_with_id(id: String, key: String) -> Result<Session, ServicesError> {
     let api = RemoteSessionApiImpl {};
-    let key = "123"; // TODO create
     api.join_session(SessionKey {
         session_id: id,
-        key: PublicKey {
-            str: key.to_owned(),
-        },
+        key: PublicKey { str: key },
     })
     .map_err(ServicesError::from)
 }
 
-fn ack(uuid: String, stored_participants: i32) -> Result<(), ServicesError> {
+fn ack(uuid: String, stored_participants: i32) -> Result<bool, ServicesError> {
     let api = RemoteSessionApiImpl {};
     let uuid = Uuid::parse_str(uuid.as_ref())?;
     api.ack(uuid, stored_participants)
         .map_err(ServicesError::from)
+}
+
+fn participants(session_id: String) -> Result<Session, ServicesError> {
+    let api = RemoteSessionApiImpl {};
+    api.participants(session_id).map_err(ServicesError::from)
 }
 
 #[cfg(test)]

@@ -12,6 +12,8 @@ protocol KeyChain {
 
     func putEncodable<T: Encodable>(key: KeyChainKey, value: T) -> Result<(), ServicesError>
     func getDecodable<T: Decodable>(key: KeyChainKey) -> Result<T?, ServicesError>
+
+    func removeAll() -> Result<(), ServicesError>
 }
 
 class KeyChainImpl: KeyChain {
@@ -44,9 +46,14 @@ class KeyChainImpl: KeyChain {
         do {
             return .success(try valet.string(forKey: key.rawValue))
         } catch (let e) {
-            let msg = "Error accessing keychain for key: \(key), error: \(e)"
-            log.e(msg, .env)
-            return .failure(.general(msg))
+
+            switch e {
+            case KeychainError.itemNotFound: return .success(nil)
+            default:
+                let msg = "Error accessing keychain for key: \(key), error: \(e)"
+                log.e(msg, .env)
+                return .failure(.general(msg))
+            }
         }
     }
 

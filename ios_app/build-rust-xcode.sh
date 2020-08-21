@@ -2,6 +2,7 @@
 
 # Ensure that `cargo` is in PATH, using the default location.
 export PATH="$PATH:${HOME}/.cargo/bin"
+export OPENSSL_DIR="/usr/local/opt/openssl"
 
 set -x
 

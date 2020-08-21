@@ -1,6 +1,6 @@
 use core::fmt;
 use log::*;
-use openssl::error::ErrorStack;
+// use openssl::error::ErrorStack;
 use reqwest::{blocking::Client, Error};
 use serde::Deserialize;
 use serde::Serialize;
@@ -29,6 +29,12 @@ pub struct AckRequestParams {
     pub accepted: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ParticipantsRequestParams {
+    pub session_id: String,
+    // TODO send uuid+signature too, so not anyone that has the session id can download the participants
+}
+
 #[derive(Debug)]
 pub struct SessionKey {
     pub session_id: String,
@@ -55,6 +61,13 @@ struct JoinSessionResult {
 #[derive(Serialize, Deserialize, Debug)]
 struct AckResult {
     status: i32,
+    is_ready: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ParticipantsResult {
+    status: i32,
+    keys: Vec<PublicKey>,
 }
 
 impl From<uuid::Error> for ServicesError {
@@ -77,11 +90,11 @@ impl From<NetworkingError> for ServicesError {
     }
 }
 
-impl From<ErrorStack> for ServicesError {
-    fn from(error: ErrorStack) -> Self {
-        ServicesError::General(format!("{:?}", error))
-    }
-}
+// impl From<ErrorStack> for ServicesError {
+//     fn from(error: ErrorStack) -> Self {
+//         ServicesError::General(format!("{:?}", error))
+//     }
+// }
 
 pub trait VecExt<T> {
     fn map_now<U>(self, f: impl FnMut(T) -> U) -> Vec<U>;
@@ -98,7 +111,8 @@ impl<T> VecExt<T> for Vec<T> {
 
 pub trait RemoteSessionApi {
     fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError>;
-    fn ack(&self, uuid: Uuid, count: i32) -> Result<(), NetworkingError>;
+    fn ack(&self, uuid: Uuid, count: i32) -> Result<bool, NetworkingError>;
+    fn participants(&self, session_id: String) -> Result<Session, NetworkingError>;
 }
 
 pub struct RemoteSessionApiImpl {}
@@ -150,7 +164,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         }
     }
 
-    fn ack(&self, uuid: Uuid, stored_participants: i32) -> Result<(), NetworkingError> {
+    fn ack(&self, uuid: Uuid, stored_participants: i32) -> Result<bool, NetworkingError> {
         info!(
             "ACK-ing session for: {:?}, participants: {:?}",
             uuid, stored_participants
@@ -175,7 +189,39 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         println!("Ack-ed, networking result: {:?}", res);
 
         match res.status {
-            1 => Ok(()),
+            1 => Ok(res.is_ready),
+            _ => Err(NetworkingError {
+                http_status: UNKNOWN_HTTP_STATUS,
+                message: format!("Http internal error code: {}", res.status),
+            }),
+        }
+    }
+
+    fn participants(&self, session_id: String) -> Result<Session, NetworkingError> {
+        info!("Requesting participants, session id: {:?}", session_id);
+
+        let params = ParticipantsRequestParams {
+            session_id: session_id.clone(),
+        };
+
+        let url: &str = &format!("{}part", BASE_URL.to_owned())[..];
+        let params_str = serde_json::to_string(&params).unwrap();
+
+        let client = Self::create_client()?;
+        let response = client
+            .post(url)
+            .header("Content-Type", "application/json")
+            .body(params_str)
+            .send()?;
+
+        let res = response.json::<ParticipantsResult>()?;
+        info!("Retrieved participants, networking result: {:?}", res);
+
+        match res.status {
+            1 => Ok(Session {
+                id: session_id,
+                keys: res.keys,
+            }),
             _ => Err(NetworkingError {
                 http_status: UNKNOWN_HTTP_STATUS,
                 message: format!("Http internal error code: {}", res.status),
@@ -301,11 +347,18 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn ack_session_is_ok() {
+    fn ack_session_is_err() {
         let api = RemoteSessionApiImpl {};
+        // random uuid, so it will not find anything
         let res1 = api.ack(Uuid::new_v4(), 1);
+        assert!(res1.is_err());
+    }
 
-        println!("res1: {:?}", res1);
+    #[test]
+    #[ignore]
+    fn participants_is_ok() {
+        let api = RemoteSessionApiImpl {};
+        let res1 = api.participants("123".to_owned());
         assert!(res1.is_ok());
     }
 }

@@ -1,8 +1,8 @@
 use crate::ack;
 use crate::join_session_with_id;
-use crate::{create_key_pair, networking::VecExt, start_session};
+use crate::{create_key_pair, networking::VecExt, participants, start_session};
 use core_foundation::{
-    base::{TCFType, TCFTypeRef},
+    base::TCFType,
     string::{CFString, CFStringRef, __CFString},
 };
 use libc::c_char;
@@ -23,10 +23,10 @@ pub struct FFISessionResult {
 #[repr(C)]
 pub struct FFIKeyPairResult {
     status: i32, // 1 -> success, 0 -> unknown error
-    private: CFStringRef,
-    public: CFStringRef,
+    private_key: CFStringRef,
+    public_key: CFStringRef,
 }
-
+// Not directly FFI: serialized to JSON
 #[derive(Debug, Serialize)]
 pub struct FFISession {
     id: String,
@@ -36,6 +36,13 @@ pub struct FFISession {
 #[repr(C)]
 pub struct FFIAckResult {
     status: i32, // 1 -> success, 0 -> unknown error
+    is_ready: bool,
+}
+
+#[repr(C)]
+pub struct FFIParticipantsResult {
+    status: i32, // 1 -> success, 0 -> unknown error
+    session_json: CFStringRef,
 }
 
 #[no_mangle]
@@ -48,8 +55,8 @@ pub unsafe extern "C" fn ffi_create_key_pair() -> FFIKeyPairResult {
             let public_str = base64::encode(key_pair.public);
             FFIKeyPairResult {
                 status: 1,
-                private: private_str.to_CFStringRef_and_forget(),
-                public: public_str.to_CFStringRef_and_forget(),
+                private_key: private_str.to_CFStringRef_and_forget(),
+                public_key: public_str.to_CFStringRef_and_forget(),
             }
         }
         Err(e) => {
@@ -59,16 +66,17 @@ pub unsafe extern "C" fn ffi_create_key_pair() -> FFIKeyPairResult {
             let public_str = "".to_owned();
             FFIKeyPairResult {
                 status: 0,
-                private: private_str.to_CFStringRef_and_forget(),
-                public: public_str.to_CFStringRef_and_forget(),
+                private_key: private_str.to_CFStringRef_and_forget(),
+                public_key: public_str.to_CFStringRef_and_forget(),
             }
         }
     }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ffi_create_session() -> FFISessionResult {
-    let res = start_session();
+pub unsafe extern "C" fn ffi_create_session(key: *const c_char) -> FFISessionResult {
+    let key_str: String = cstring_to_str(&key).into();
+    let res = start_session(key_str);
 
     match res {
         Ok(session) => {
@@ -98,9 +106,13 @@ pub unsafe extern "C" fn ffi_create_session() -> FFISessionResult {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ffi_join_session(session_id: *const c_char) -> FFISessionResult {
-    let str: String = cstring_to_str(&session_id).into();
-    let res = join_session_with_id(str);
+pub unsafe extern "C" fn ffi_join_session(
+    session_id: *const c_char,
+    key: *const c_char,
+) -> FFISessionResult {
+    let session_id_str: String = cstring_to_str(&session_id).into();
+    let key_str: String = cstring_to_str(&key).into();
+    let res = join_session_with_id(session_id_str, key_str);
 
     match res {
         Ok(session) => {
@@ -135,10 +147,48 @@ pub unsafe extern "C" fn ffi_ack(uuid: *const c_char, stored_participants: i32) 
     let res = ack(uuid_str, stored_participants);
 
     match res {
-        Ok(_) => FFIAckResult { status: 1 },
+        Ok(is_ready) => FFIAckResult {
+            status: 1,
+            is_ready,
+        },
         Err(e) => {
             println!("Error acking: {:?}", e);
-            FFIAckResult { status: 0 }
+            FFIAckResult {
+                status: 0,
+                is_ready: false,
+            }
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ffi_participants(session_id: *const c_char) -> FFIParticipantsResult {
+    let session_id_str: String = cstring_to_str(&session_id).into();
+    let res = participants(session_id_str);
+
+    match res {
+        Ok(session) => {
+            let ffi_session = FFISession {
+                id: session.id,
+                keys: session.keys.map_now(|k| k.str),
+            };
+            let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
+            let cf_string_ref = session_str.to_CFStringRef_and_forget();
+
+            FFIParticipantsResult {
+                status: 1,
+                session_json: cf_string_ref,
+            }
+        }
+        Err(e) => {
+            println!("Error creating session: {:?}", e);
+            let session_str = "";
+            let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
+
+            FFIParticipantsResult {
+                status: 0,
+                session_json: cf_string_ref,
+            }
         }
     }
 }

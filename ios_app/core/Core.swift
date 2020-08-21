@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 protocol SessionApi {
     func createKeyPair() -> Result<KeyPair, ServicesError>
@@ -15,15 +16,26 @@ protocol SessionApi {
 class CoreImpl: SessionApi {
 
     func createKeyPair() -> Result<KeyPair, ServicesError> {
-        let res = ffi_create_key_pair()
-        switch res.status {
-        case 1:
-            return .success(KeyPair(private_key: PrivateKey(value: res.private_key.toString()),
-                                    public_key: PublicKey(value: res.public_key.toString())))
-        default: return .failure(.general("Create session error: \(res)"))
-        }
+        createKeyPairLocal()
+        // it was not possible to get rust-openssl working:
+        // https://stackoverflow.com/questions/63513401/how-to-use-rust-openssl-on-ios
+        // https://github.com/sfackler/rust-openssl/issues/1331
+//        let res = ffi_create_key_pair()
+//        switch res.status {
+//        case 1:
+//            return .success(KeyPair(private_key: PrivateKey(value: res.private_key.toString()),
+//                                    public_key: PublicKey(value: res.public_key.toString())))
+//        default: return .failure(.general("Create session error: \(res)"))
+//        }
     }
-    
+
+    private func createKeyPairLocal() -> Result<KeyPair, ServicesError> {
+        let privateKey = P521.KeyAgreement.PrivateKey()
+        let publicKey = privateKey.publicKey
+        return .success(KeyPair(private_key: PrivateKey(value: privateKey.pemRepresentation),
+                                public_key: PublicKey(value: publicKey.pemRepresentation)))
+    }
+
     func createSession(publicKey: PublicKey) -> Result<Session, ServicesError> {
         let res = ffi_create_session(publicKey.value)
         switch res.status {
