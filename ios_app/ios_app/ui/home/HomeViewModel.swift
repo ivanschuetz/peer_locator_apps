@@ -26,7 +26,7 @@ class HomeViewModel: ObservableObject {
 
         notificationPermission.request()
 
-        statusCancellable = central.status
+        statusCancellable = central.statusMsg
             .sink(receiveCompletion: { completion in }) { [weak self] status in
                 self?.labelValue = "\(status)"
         }

@@ -4,6 +4,7 @@ import Combine
 
 protocol BlePeripheral {
     var readMyId: PassthroughSubject<BleId, Never> { get }
+    func requestStart()
 }
 
 class BlePeripheralImpl: NSObject, BlePeripheral {
@@ -14,13 +15,41 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
 
     let readMyId = PassthroughSubject<BleId, Never>()
 
+    private let status = PassthroughSubject<(CBManagerState, CBPeripheralManager), Never>()
+    private let startTrigger = PassthroughSubject<(), Never>()
+    private var startCancellable: AnyCancellable?
+
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+
+        startCancellable = startTrigger
+            .combineLatest(status)
+            .map { _, status in status }
+            .removeDuplicates(by: { tuple1, tuple2 in
+                tuple1.0 != tuple2.0 // status change
+            })
+            .sink(receiveValue: {[weak self] (status, peripheralManager) in
+                if status == .poweredOn {
+                    self?.start(peripheralManager: peripheralManager)
+                } else {
+                    log.d("Requested peripheral start while not powered on: \(status.asString())", .ble)
+                }
+            })
+    }
+
+    func requestStart() {
+        startTrigger.send(())
+    }
+
+    private func start(peripheralManager: CBPeripheralManager) {
+        log.i("Will start peripheral", .ble)
+        peripheralManager.add(createService())
     }
 
     private func startAdvertising() {
+        log.d("Will start peripheral", .ble)
         peripheralManager?.startAdvertising([
             CBAdvertisementDataServiceUUIDsKey: [CBUUID.serviceCBUUID]
         ])
@@ -29,10 +58,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
 
 extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        switch peripheral.state {
-        case .poweredOn: peripheral.add(createService())
-        default: break
-        }
+        status.send((peripheral.state, peripheral))
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
@@ -77,4 +103,5 @@ private func createCharacteristic() -> CBCharacteristic {
 
 class BlePeripheralNoop: NSObject, BlePeripheral {
     let readMyId = PassthroughSubject<BleId, Never>()
+    func requestStart() {}
 }

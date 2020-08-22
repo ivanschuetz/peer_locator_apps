@@ -27,13 +27,18 @@ struct SessionView: View {
                 viewModel.joinSession()
             })
             Text(viewModel.sessionStartedMessage)
+            Button("Activate session", action: {
+                viewModel.activateSession()
+            })
         }
     }
 }
 
 struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
-        SessionView(viewModel: SessionViewModel(sessionService: NoopSessionService()))
+        SessionView(viewModel: SessionViewModel(sessionService: NoopSessionService(),
+                                                p2pService: P2pServiceImpl(peripheral: BlePeripheralNoop(),
+                                                                           central: BleCentralNoop())))
     }
 }
 

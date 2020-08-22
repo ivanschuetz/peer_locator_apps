@@ -4,6 +4,7 @@ import SwiftUI
 
 class SessionViewModel: ObservableObject {
     private let sessionService: SessionService
+    private let p2pService: P2pService
 
     @Published var createdSessionLink: String = ""
 
@@ -11,8 +12,9 @@ class SessionViewModel: ObservableObject {
 
     @Published var sessionId: String = ""
 
-    init(sessionService: SessionService) {
+    init(sessionService: SessionService, p2pService: P2pService) {
         self.sessionService = sessionService
+        self.p2pService = p2pService
     }
 
     func createSession() {
@@ -58,5 +60,9 @@ class SessionViewModel: ObservableObject {
             log.e("Failure refreshing session data: \(error)", .session)
             // TODO notification
         }
+    }
+
+    func activateSession() {
+        p2pService.activateSession()
     }
 }

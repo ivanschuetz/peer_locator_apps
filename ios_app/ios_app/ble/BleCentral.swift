@@ -3,16 +3,18 @@ import CoreBluetooth
 import Combine
 
 protocol BleCentral {
-    var status: PassthroughSubject<String, Never> { get }
+    var statusMsg: PassthroughSubject<String, Never> { get }
     var writtenMyId: PassthroughSubject<BleId, Never> { get }
     var discovered: PassthroughSubject<(BleId, Double), Never> { get }
 
+    // Starts central if status is powered on. If request is sent before status is on, it will be
+    // processed when status in on.
+    func requestStart()
     func stop()
 }
 
 class BleCentralImpl: NSObject, BleCentral {
-
-    let status = PassthroughSubject<String, Never>()
+    let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
     let discovered = PassthroughSubject<(BleId, Double), Never>()
 
@@ -23,10 +25,30 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private var peripheralsToWriteTCNTo = Set<CBPeripheral>()
 
+    private let status = PassthroughSubject<CBManagerState, Never>()
+    private let startTrigger = PassthroughSubject<(), Never>()
+    private var startCancellable: AnyCancellable?
+
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
+
+        startCancellable = startTrigger
+            .combineLatest(status)
+            .map { _, status in status }
+            .removeDuplicates()
+            .sink(receiveValue: {[weak self] status in
+                if status == .poweredOn {
+                    self?.start()
+                } else {
+                    log.d("Requested central start while not powered on: \(status.asString())", .ble)
+                }
+            })
+    }
+
+    func requestStart() {
+        startTrigger.send(())
     }
 
     func stop() {
@@ -36,6 +58,13 @@ class BleCentralImpl: NSObject, BleCentral {
         }
     }
 
+    private func start() {
+        log.i("Will start central", .ble)
+        centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
+            CBCentralManagerScanOptionAllowDuplicatesKey : NSNumber(booleanLiteral: true)
+        ])
+    }
+
     private func flush(_ peripheral: CBPeripheral) {
         self.peripheralsToWriteTCNTo.remove(peripheral)
     }
@@ -43,15 +72,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
 extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        status.send("\(central.state.asString())")
-
-        switch central.state {
-        case .poweredOn:
-            centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
-                CBCentralManagerScanOptionAllowDuplicatesKey : NSNumber(booleanLiteral: true)
-            ])
-        default: break
-        }
+        status.send(central.state)
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
@@ -151,7 +172,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 }
 
-private extension CBManagerState {
+extension CBManagerState {
     func asString() -> String {
         switch self {
         case .unknown: return ".unknown"
@@ -166,9 +187,10 @@ private extension CBManagerState {
 }
 
 class BleCentralNoop: NSObject, BleCentral {
-    let status = PassthroughSubject<String, Never>()
+    let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
     let discovered = PassthroughSubject<(BleId, Double), Never>()
+    func requestStart() {}
     func stop() {}
 }
 
