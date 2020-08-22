@@ -17,6 +17,11 @@ protocol KeyChain {
 }
 
 class KeyChainImpl: KeyChain {
+    private let json: Json
+
+    init(json: Json) {
+        self.json = json
+    }
 
     private let valet = Identifier(nonEmpty: "verimeet").map { Valet.valet(
         with: $0,
@@ -58,9 +63,7 @@ class KeyChainImpl: KeyChain {
     }
 
     func putEncodable<T: Encodable>(key: KeyChainKey, value: T) -> Result<(), ServicesError> {
-        let data = try! JSONEncoder().encode(value)
-        let string = String(data: data, encoding: .utf8)!
-        return putString(key, value: string)
+        putString(key, value: json.toJson(encodable: value))
     }
 
     func getDecodable<T: Decodable>(key: KeyChainKey) -> Result<T?, ServicesError> {
@@ -68,9 +71,7 @@ class KeyChainImpl: KeyChain {
         switch res {
         case .success(let str):
             if let str = str {
-                let data = str.data(using: .utf8)!
-                let decoder = JSONDecoder()
-                return .success(try! decoder.decode(T.self, from: data))
+                return .success(json.fromJson(json: str))
             } else {
                 return .success(nil)
             }

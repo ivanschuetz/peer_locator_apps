@@ -6,11 +6,11 @@ struct Session {
 }
 
 struct PublicKey: Encodable, Decodable {
-    let value: String
+    let value: String // P521 PEM representation
 }
 
 struct PrivateKey: Encodable, Decodable {
-    let value: String
+    let value: String // P521 PEM representation
 }
 
 struct SessionId: Encodable, Decodable {
@@ -36,4 +36,10 @@ struct Participants: Encodable, Decodable {
 
 struct SessionLink {
     let value: String
+}
+
+struct SessionSignedPayload: Encodable, Decodable {
+    let sessionId: String
+    let name: String
+    let nonce: String
 }

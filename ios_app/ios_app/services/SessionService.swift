@@ -11,10 +11,12 @@ protocol SessionService {
 
 class SessionServiceImpl: SessionService {
     private let sessionApi: SessionApi
+    private let crypto: Crypto
     private let keyChain: KeyChain
 
-    init(sessionApi: SessionApi, keyChain: KeyChain) {
+    init(sessionApi: SessionApi, crypto: Crypto, keyChain: KeyChain) {
         self.sessionApi = sessionApi
+        self.crypto = crypto
         self.keyChain = keyChain
 //        keyChain.removeAll()
     }
@@ -124,21 +126,20 @@ class SessionServiceImpl: SessionService {
     }
 
     private func createAndStoreSessionData(sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
-        sessionApi.createKeyPair().flatMap { keyPair in
-            log.d("Created key pair: \(keyPair)", .session)
-            let sessionId = sessionIdGenerator()
-            let sessionData = MySessionData(
-                sessionId: sessionId,
-                privateKey: keyPair.private_key,
-                publicKey: keyPair.public_key
-            )
-            let saveRes = keyChain.putEncodable(key: .mySessionData, value: sessionData)
-            switch saveRes {
-            case .success:
-                return .success(sessionData)
-            case .failure(let e):
-                return .failure(.general("Couldn't save session data in keychain: \(e)"))
-            }
+        let keyPair = crypto.createKeyPair()
+        log.d("Created key pair: \(keyPair)", .session)
+        let sessionId = sessionIdGenerator()
+        let sessionData = MySessionData(
+            sessionId: sessionId,
+            privateKey: keyPair.private_key,
+            publicKey: keyPair.public_key
+        )
+        let saveRes = keyChain.putEncodable(key: .mySessionData, value: sessionData)
+        switch saveRes {
+        case .success:
+            return .success(sessionData)
+        case .failure(let e):
+            return .failure(.general("Couldn't save session data in keychain: \(e)"))
         }
     }
 }
