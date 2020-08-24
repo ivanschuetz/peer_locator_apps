@@ -5,17 +5,14 @@ protocol P2pService {
 }
 
 class P2pServiceImpl: P2pService {
-    private let peripheral: BlePeripheral
-    private let central: BleCentral
+    private let bleManager: BleManager
 
-    init(peripheral: BlePeripheral, central: BleCentral) {
-        self.peripheral = peripheral
-        self.central = central
+    init(bleManager: BleManager) {
+        self.bleManager = bleManager
     }
 
     func activateSession() {
-        peripheral.requestStart()
-        central.requestStart()
+        bleManager.start()
     }
     // TODO deactivate?
 }

@@ -38,9 +38,9 @@ class HomeViewModel: ObservableObject {
 
         discoveredCancellable = central.discovered
             .removeDuplicates(by: { t1, t2 in
-                t1.0.data == t2.0.data
+                t1.id.data == t2.id.data
             })
-            .scan([], { acc, bleId in acc + [bleId.0] })
+            .scan([], { acc, peer in acc + [peer.id] })
             .sink(receiveCompletion: { completion in }) { [weak self] ids in
                 self?.detectedDevices = ids.map { BleIdRow(id: UUID(), bleId: $0) }
             }

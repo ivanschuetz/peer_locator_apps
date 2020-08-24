@@ -39,7 +39,6 @@ struct SessionLink {
 }
 
 struct SessionSignedPayload: Encodable, Decodable {
-    let sessionId: String
-    let name: String
-    let nonce: String
+    // For now a red herring. Normally we should encrypt, with a nonce.
+    let id: String
 }

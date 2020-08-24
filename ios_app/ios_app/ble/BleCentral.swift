@@ -5,7 +5,7 @@ import Combine
 protocol BleCentral {
     var statusMsg: PassthroughSubject<String, Never> { get }
     var writtenMyId: PassthroughSubject<BleId, Never> { get }
-    var discovered: PassthroughSubject<(BleId, Double), Never> { get }
+    var discovered: PassthroughSubject<BleParticipant, Never> { get }
 
     // Starts central if status is powered on. If request is sent before status is on, it will be
     // processed when status in on.
@@ -16,7 +16,7 @@ protocol BleCentral {
 class BleCentralImpl: NSObject, BleCentral {
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
-    let discovered = PassthroughSubject<(BleId, Double), Never>()
+    let discovered = PassthroughSubject<BleParticipant, Never>()
 
     private let idService: BleIdService
 
@@ -92,7 +92,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
                 log.d("Ble id: \(id), rssi: \(rssi), txPowerLevel: \(String(describing: txPowerLevel)), " +
                       "distance: \(distance), device: \(peripheral.identifier)", .ble)
-                discovered.send((id, distance))
+                discovered.send(BleParticipant(id: id, distance: distance))
 
             } else {
                 log.e("Service data is not a valid id: \(serviceData), length: \(serviceData.count)", .ble)
@@ -134,20 +134,28 @@ extension BleCentralImpl: CBPeripheralDelegate {
 //            }
 //        }
 
+        // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
+        // no need to do write (other that for possible ACKs later)
         if let characteristic = service.characteristics?.first(where: {
             $0.uuid == .characteristicCBUUID
         }) {
             if peripheralsToWriteTCNTo.contains(peripheral) {
-                let bleId = idService.id()
-                writtenMyId.send(bleId)
+                if let bleId = idService.id() {
+                    writtenMyId.send(bleId)
 
-                log.d("Writing bldId: \(bleId) to: \(peripheral)", .ble)
+                    log.d("Writing bldId: \(bleId) to: \(peripheral)", .ble)
 
-                peripheral.writeValue(
-                    bleId.data,
-                    for: characteristic,
-                    type: .withResponse
-                )
+                    peripheral.writeValue(
+                        bleId.data,
+                        for: characteristic,
+                        type: .withResponse
+                    )
+                } else {
+                    // TODO review handling
+                    log.e("Illegal state: central shouldn't be on without an available id. Ignoring (for now)")
+                    return
+                }
+
             } else {
                 peripheral.readValue(for: characteristic)
             }
@@ -162,7 +170,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
                 let id = BleId(data: value)!
                 log.d("Received id: \(id)", .ble)
                 // Did read id (from iOS, Android can broadcast it in advertisement, so it doesn't expose characteristic to read)
-                discovered.send((id, -1)) // TODO distance
+                discovered.send(BleParticipant(id: id, distance: -1)) // TODO distance
             } else {
                 log.w("Characteristic had no value", .ble)
             }
@@ -187,9 +195,9 @@ extension CBManagerState {
 }
 
 class BleCentralNoop: NSObject, BleCentral {
+    let discovered = PassthroughSubject<BleParticipant, Never>()
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
-    let discovered = PassthroughSubject<(BleId, Double), Never>()
     func requestStart() {}
     func stop() {}
 }

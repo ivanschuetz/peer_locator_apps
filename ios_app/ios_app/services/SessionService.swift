@@ -7,6 +7,8 @@ protocol SessionService {
     // Fetches participants, acks having stored the participants and returns whether the session is ready
     // (all participants have stored all other participants)
     func refreshSessionData() -> Result<SessionReady, ServicesError>
+
+    func currentSessionParticipants() -> Result<Participants?, ServicesError>
 }
 
 class SessionServiceImpl: SessionService {
@@ -50,7 +52,7 @@ class SessionServiceImpl: SessionService {
     }
 
     func refreshSessionData() -> Result<SessionReady, ServicesError> {
-        let sessionDataRes: Result<MySessionData?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
+        let sessionDataRes: Result<MySessionData?, ServicesError> = currentSession()
         switch sessionDataRes {
         case .success(let sessionData):
             if let sessionData = sessionData {
@@ -65,6 +67,14 @@ class SessionServiceImpl: SessionService {
         case .failure(let e):
             return .failure(.general("Failed fetching session data from keychain: \(e)"))
         }
+    }
+
+    func currentSession() -> Result<MySessionData?, ServicesError> {
+        keyChain.getDecodable(key: .mySessionData)
+    }
+
+    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
+        keyChain.getDecodable(key: .participants)
     }
 
     private func ackAndRequestSessionReady() -> Result<SessionReady, ServicesError> {
@@ -91,7 +101,7 @@ class SessionServiceImpl: SessionService {
     }
 
     private func storeParticipantsAndAck(session: Session) -> Result<SessionReady, ServicesError> {
-        switch keyChain.putEncodable(key: .participants, value: session.keys) {
+        switch keyChain.putEncodable(key: .participants, value: Participants(participants: session.keys)) {
         case .success:
             return ackAndRequestSessionReady()
         case .failure(let e):

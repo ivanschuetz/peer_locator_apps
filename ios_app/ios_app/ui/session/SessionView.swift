@@ -37,13 +37,11 @@ struct SessionView: View {
 struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
         SessionView(viewModel: SessionViewModel(sessionService: NoopSessionService(),
-                                                p2pService: P2pServiceImpl(peripheral: BlePeripheralNoop(),
-                                                                           central: BleCentralNoop())))
+                                                p2pService: P2pServiceImpl(bleManager: BleManagerNoop())))
     }
 }
 
 class NoopSessionService: SessionService {
-
     func createSession() -> Result<SessionLink, ServicesError> {
         .success(SessionLink(value: "123"))
     }
@@ -54,5 +52,9 @@ class NoopSessionService: SessionService {
 
     func refreshSessionData() -> Result<SessionReady, ServicesError> {
         .success(.no)
+    }
+
+    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
+        .success(nil)
     }
 }

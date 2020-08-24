@@ -73,11 +73,19 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         if request.characteristic.uuid == CBUUID.characteristicCBUUID { // TODO do we really need this check?
-            let myId = idService.id()
-            self.readMyId.send(myId)
-            request.value = myId.data
-            peripheral.respond(to: request, withResult: .success)
+            if let myId = idService.id() {
+                self.readMyId.send(myId)
+                request.value = myId.data
+                peripheral.respond(to: request, withResult: .success)
+
+            } else {
+                // TODO review handling
+                log.e("Illegal state: peripheral shouldn't be on without an available id. Ignoring (for now)")
+                return
+            }
+
         } else {
+            // TODO review handling
             log.e("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)", .ble)
         }
     }
