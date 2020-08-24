@@ -4,14 +4,10 @@ import Combine
 // TODO we also have p2pservice now: isn't it the same thing? merge?
 protocol PeerService {
     var peers: AnyPublisher<Set<Peer>, Never> { get }
-
-    // Temporary
-    var blePeers: AnyPublisher<Set<Peer>, Never> { get }
 }
 
 class PeerServiceImpl: PeerService {
     let peers: AnyPublisher<Set<Peer>, Never>
-    let blePeers: AnyPublisher<Set<Peer>, Never>
 
     private let nearby: Nearby
     private let bleManager: BleManager
@@ -36,13 +32,14 @@ class PeerServiceImpl: PeerService {
         // best priv is variable serv/char + asymmetric encrypted data (peers offer different payload)
         // TODO review whetehr this privacy level is needed at this stage
 
-        blePeers = validatedBlePeers
+        let blePeers = validatedBlePeers
             .map { bleParticipant in
                 // TODO generate peer's name when creating/joining session, allow user to override (the peer)
                 Peer(name: "TODO BLE participant name",
                      dist: Float(bleParticipant.distance),
                      loc: nil,
-                     dir: nil
+                     dir: nil,
+                     src: .ble
                 )
             }
             .scan(Dictionary<String, Peer>(), { acc, peer in
@@ -59,12 +56,13 @@ class PeerServiceImpl: PeerService {
             .eraseToAnyPublisher()
 
         // TODO: Nearby distance unit unclear. 
-        peers = nearby.discovered
+        let nearbyPeers = nearby.discovered
             .map { nearbyObj in
                 Peer(name: nearbyObj.name,
                      dist: nearbyObj.dist,
                      loc: nearbyObj.loc,
-                     dir: nearbyObj.dir.map { Direction(x: $0.x, y: $0.y) }
+                     dir: nearbyObj.dir.map { Direction(x: $0.x, y: $0.y) },
+                     src: .nearby
                 )
             }
             .scan(Dictionary<String, Peer>(), { acc, peer in
@@ -79,7 +77,30 @@ class PeerServiceImpl: PeerService {
             })
             .share()
             .eraseToAnyPublisher()
+
+        // Temporary placeholder implementation: ble until the first nearby event detected,
+        // after that always nearby.
+        // TODO switch to ble on threshold (> x nearby events / second?) and back
+        // and reduce intermittency somehow: ranges/tolerance?
+        let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeers
+            .map { _ in .nearby }
+            .prepend(.ble)
+            .eraseToAnyPublisher()
+
+        peers = blePeers
+            .merge(with: nearbyPeers)
+            .combineLatest(peerFilter)
+            .map { peers, filter in
+                // TODO consider handling only a peer (not Set<Peer>)
+                // we will not support multiple peers initially and it may confuse things
+                peers.filter { $0.src == filter }
+            }
+            .eraseToAnyPublisher()
     }
+}
+
+enum PeerSource {
+    case ble, nearby
 }
 
 struct Location: Equatable {
@@ -95,6 +116,7 @@ struct Peer: Hashable {
     let dist: Float?
     let loc: Location?
     let dir: Direction?
+    let src: PeerSource
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
