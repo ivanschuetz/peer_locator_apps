@@ -17,12 +17,22 @@ struct SessionView: View {
             Button("Create session", action: {
                 viewModel.createSession()
             })
-            Text(viewModel.createdSessionLink)
-            TextField("", text: $viewModel.sessionId)
-                .multilineTextAlignment(.center)
-                .padding(.top, 20)
-                .padding(.bottom, 20)
-                .background(Color.green)
+            HStack {
+                Text(viewModel.createdSessionLink)
+                Button("Copy", action: {
+                    viewModel.onCopyLinkTap()
+                })
+            }
+            HStack {
+                TextField("", text: $viewModel.sessionLinkInput)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 20)
+                    .padding(.bottom, 20)
+                    .background(Color.green)
+                Button("Paste", action: {
+                    viewModel.onPasteLinkTap()
+                })
+            }
             Button("Join session", action: {
                 viewModel.joinSession()
             })
@@ -36,25 +46,47 @@ struct SessionView: View {
 
 struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
-        SessionView(viewModel: SessionViewModel(sessionService: NoopSessionService(),
-                                                p2pService: P2pServiceImpl(bleManager: BleManagerNoop())))
+        SessionView(viewModel: SessionViewModel(sessionService: NoopCurrentSessionService(),
+                                                p2pService: P2pServiceImpl(bleManager: BleManagerNoop()),
+                                                clipboard: NoopClipboard()))
     }
 }
 
 class NoopSessionService: SessionService {
-    func createSession() -> Result<SessionLink, ServicesError> {
-        .success(SessionLink(value: "123"))
+
+    func createSession() -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no))
     }
 
-    func joinSession(sessionId: SessionId) -> Result<SessionReady, ServicesError> {
-        .success(.no)
+    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: try! link.extractSessionId().get(), isReady: .no))
     }
 
-    func refreshSessionData() -> Result<SessionReady, ServicesError> {
-        .success(.no)
+    func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no))
+    }
+
+    func currentSession() -> Result<SharedSessionData?, ServicesError> {
+        .success(nil)
     }
 
     func currentSessionParticipants() -> Result<Participants?, ServicesError> {
         .success(nil)
     }
+}
+
+class NoopCurrentSessionService: CurrentSessionService {
+    var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> = Just(.success(nil))
+        .eraseToAnyPublisher()
+
+    func create() {}
+
+    func join(link: SessionLink) {}
+
+    func refresh() {}
+}
+
+class NoopClipboard: Clipboard {
+    func getFromClipboard() -> String { "" }
+    func putInClipboard(text: String) {}
 }

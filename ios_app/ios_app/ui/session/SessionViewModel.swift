@@ -3,46 +3,32 @@ import Combine
 import SwiftUI
 
 class SessionViewModel: ObservableObject {
-    private let sessionService: SessionService
+    private let sessionService: CurrentSessionService
     private let p2pService: P2pService
+    private let clipboard: Clipboard
 
     @Published var createdSessionLink: String = ""
-
     @Published var sessionStartedMessage: String = ""
+    @Published var sessionLinkInput: String = ""
 
-    @Published var sessionId: String = ""
-
-    init(sessionService: SessionService, p2pService: P2pService) {
+    init(sessionService: CurrentSessionService, p2pService: P2pService, clipboard: Clipboard) {
         self.sessionService = sessionService
         self.p2pService = p2pService
+        self.clipboard = clipboard
     }
 
     func createSession() {
-        switch sessionService.createSession() {
-        case .success(let sessionLink):
-            log.d("Created session with link: \(sessionLink)", .ui)
-            createdSessionLink = sessionLink.value
-
-        case .failure(let error):
-            log.e("Failure creating session! \(error)", .session)
-            // TODO notification
-        }
+        sessionService.create()
     }
 
     func joinSession() {
-        guard !sessionId.isEmpty else {
-            log.e("Session id is empty. Nothing to join", .session)
+        guard !sessionLinkInput.isEmpty else {
+            log.e("Session link is empty. Nothing to join", .session)
             // TODO this state should be impossible: if there's no link in input, don't allow to press join
             return
+            // TODO failable SessionLink initializer
         }
-
-        switch sessionService.joinSession(sessionId: SessionId(value: sessionId)) {
-        case .success(let session):
-            sessionStartedMessage = "Session joined: \(session)"
-        case .failure(let error):
-            log.e("Failure joining session! \(error)", .session)
-            // TODO notification
-        }
+        sessionService.join(link: SessionLink(value: sessionLinkInput))
     }
 
     // TODO call when opening the screen, maybe also pull to refresh "update participants status..."
@@ -50,16 +36,18 @@ class SessionViewModel: ObservableObject {
     // maybe also button? "is the session ready?" with
     // text yes: "all the participants are connected and ready to meet", no: "not all participants are ready"
     func refreshSessionData() {
-        switch sessionService.refreshSessionData() {
-        case .success(let isReady):
-            switch isReady {
-            case .yes: sessionStartedMessage = "Session is ready!"
-            case .no: sessionStartedMessage = "Session not ready yet"
-            }
-        case .failure(let error):
-            log.e("Failure refreshing session data: \(error)", .session)
-            // TODO notification
-        }
+        sessionService.refresh()
+    }
+
+    func onCopyLinkTap() {
+        // TODO check that link isn't empty
+        clipboard.putInClipboard(text: createdSessionLink)
+        // TODO notification
+        log.d("Copied link to clipboard: \(createdSessionLink)", .ui)
+    }
+
+    func onPasteLinkTap() {
+        sessionLinkInput = clipboard.getFromClipboard()
     }
 
     func activateSession() {

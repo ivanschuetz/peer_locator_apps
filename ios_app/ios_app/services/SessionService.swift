@@ -1,12 +1,16 @@
 import Foundation
 
 protocol SessionService {
-    func createSession() -> Result<SessionLink, ServicesError>
-    func joinSession(sessionId: SessionId) -> Result<SessionReady, ServicesError>
+    func createSession() -> Result<SharedSessionData, ServicesError>
+    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError>
 
     // Fetches participants, acks having stored the participants and returns whether the session is ready
     // (all participants have stored all other participants)
-    func refreshSessionData() -> Result<SessionReady, ServicesError>
+    // Note: UI should allow refresh only while there's an active session,
+    // thus if there's no active session, returns an error
+    func refreshSessionData() -> Result<SharedSessionData, ServicesError>
+
+    func currentSession() -> Result<SharedSessionData?, ServicesError>
 
     func currentSessionParticipants() -> Result<Participants?, ServicesError>
 }
@@ -23,18 +27,28 @@ class SessionServiceImpl: SessionService {
 //        keyChain.removeAll()
     }
 
-    func createSession() -> Result<SessionLink, ServicesError> {
+    func createSession() -> Result<SharedSessionData, ServicesError> {
         switch loadOrCreateSessionData(sessionIdGenerator: { SessionId(value: UUID().uuidString) }) {
         case .success(let sessionData):
             return sessionApi
                 .createSession(publicKey: sessionData.publicKey)
-                .map { _ in sessionData.sessionId.createLink() }
+                .map { _ in SharedSessionData(id: sessionData.sessionId, isReady: .no) }
         case .failure(let e):
             return .failure(e)
         }
     }
 
-    func joinSession(sessionId: SessionId) -> Result<SessionReady, ServicesError> {
+    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
+        switch link.extractSessionId() {
+        case .success(let sessionId):
+            return joinSession(sessionId: sessionId)
+        case .failure(let e):
+            log.e("Can't join session: invalid link: \(link)")
+            return .failure(e)
+        }
+    }
+
+    private func joinSession(sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
         switch loadOrCreateSessionData(sessionIdGenerator: { sessionId }) {
         case .success(let sessionData):
             let joinRes = sessionApi
@@ -42,7 +56,13 @@ class SessionServiceImpl: SessionService {
             // Join returns the current participants too (like the participants call)
             switch joinRes {
             case .success(let session):
-                return storeParticipantsAndAck(session: session)
+                let readyRes = storeParticipantsAndAck(session: session)
+                switch readyRes {
+                case .success(let ready):
+                    return .success(SharedSessionData(id: sessionId, isReady: ready))
+                case .failure(let e):
+                    return .failure(e)
+                }
             case .failure(let e):
                 return .failure(e)
             }
@@ -51,14 +71,19 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    func refreshSessionData() -> Result<SessionReady, ServicesError> {
+    func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
+        // Retrieve locally stored session
         let sessionDataRes: Result<MySessionData?, ServicesError> = currentSession()
         switch sessionDataRes {
         case .success(let sessionData):
             if let sessionData = sessionData {
+                // Retrieve participants from server and store locally
                 let fetchAndStoreRes = fetchAndStoreParticipants(sessionId: sessionData.sessionId)
                 switch fetchAndStoreRes {
-                case .success: return ackAndRequestSessionReady()
+                // Ack the participants and see whether session is ready (everyone acked all the participants)
+                case .success: return ackAndRequestSessionReady().map {
+                    SharedSessionData(id: sessionData.sessionId, isReady: $0)
+                }
                 case .failure(let e): return .failure(.general("Couldn't fetch or store participants: \(e)"))
                 }
             } else {
@@ -71,6 +96,22 @@ class SessionServiceImpl: SessionService {
 
     func currentSession() -> Result<MySessionData?, ServicesError> {
         keyChain.getDecodable(key: .mySessionData)
+    }
+
+    func currentSession() -> Result<SharedSessionData?, ServicesError> {
+        let res: Result<MySessionData?, ServicesError> = currentSession()
+        let participantsRes: Result<Participants?, ServicesError> = keyChain.getDecodable(key: .participants)
+        return res.flatMap { sessionData in
+            switch participantsRes {
+            case .success(let participants):
+                return .success(sessionData.map {
+                    SharedSessionData(id: $0.sessionId,
+                                      isReady: participants.map { $0.participants.isEmpty ? .yes : .no } ?? .no)
+                })
+            case .failure(let e):
+                return .failure(e)
+            }
+        }
     }
 
     func currentSessionParticipants() -> Result<Participants?, ServicesError> {
@@ -152,14 +193,4 @@ class SessionServiceImpl: SessionService {
             return .failure(.general("Couldn't save session data in keychain: \(e)"))
         }
     }
-}
-
-private extension SessionId {
-    func createLink() -> SessionLink {
-        SessionLink(value: "verimeet:\\\(value)")
-    }
-}
-
-enum SessionReady {
-    case yes, no
 }
