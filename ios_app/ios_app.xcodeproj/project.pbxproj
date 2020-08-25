@@ -10,6 +10,8 @@
 		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
 		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
 		841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C331724F4F24000F99B93 /* Result+Convenience.swift */; };
+		841C331A24F53AD300F99B93 /* UINotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C331924F53AD300F99B93 /* UINotifications.swift */; };
+		841C331D24F53E9200F99B93 /* SwiftEntryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 841C331C24F53E9200F99B93 /* SwiftEntryKit */; };
 		841CBBF424F3DC39003E2A60 /* CurrentSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */; };
 		843F7EF124F10477002AA5F8 /* BleId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF024F10477002AA5F8 /* BleId.swift */; };
 		843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF224F10582002AA5F8 /* P2pService.swift */; };
@@ -89,6 +91,7 @@
 		84094EF724EACC3C0028BBDF /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		84094EF924EACC4E0028BBDF /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
 		841C331724F4F24000F99B93 /* Result+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Convenience.swift"; sourceTree = "<group>"; };
+		841C331924F53AD300F99B93 /* UINotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINotifications.swift; sourceTree = "<group>"; };
 		841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentSessionService.swift; sourceTree = "<group>"; };
 		843F7EF024F10477002AA5F8 /* BleId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleId.swift; sourceTree = "<group>"; };
 		843F7EF224F10582002AA5F8 /* P2pService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2pService.swift; sourceTree = "<group>"; };
@@ -144,6 +147,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841C331D24F53E9200F99B93 /* SwiftEntryKit in Frameworks */,
 				8487FA3324EE7B98003FDB0C /* Valet in Frameworks */,
 				84DC105D24B4CCC70064DEBE /* Dip in Frameworks */,
 				8466613B24B3794400E5FBF9 /* libcore in Frameworks */,
@@ -295,6 +299,7 @@
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				8489BAEA24EB1583006D1CD3 /* tabs */,
 				84094EF624EACAAC0028BBDF /* session */,
 				84E3DC8924C7261500E2F175 /* services */,
@@ -415,6 +420,7 @@
 			packageProductDependencies = (
 				84DC105C24B4CCC70064DEBE /* Dip */,
 				8487FA3224EE7B98003FDB0C /* Valet */,
+				841C331C24F53E9200F99B93 /* SwiftEntryKit */,
 			);
 			productName = ios_app;
 			productReference = 84B0671F22F9B3FE006DDC18 /* Match.app */;
@@ -472,6 +478,7 @@
 			packageReferences = (
 				84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */,
 				8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */,
+				841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */,
 			);
 			productRefGroup = 84B0672022F9B3FE006DDC18 /* Products */;
 			projectDirPath = "";
@@ -528,6 +535,7 @@
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
 				84DC104824B49E340064DEBE /* HomeView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
+				841C331A24F53AD300F99B93 /* UINotifications.swift in Sources */,
 				84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */,
 				841CBBF424F3DC39003E2A60 /* CurrentSessionService.swift in Sources */,
 				84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */,
@@ -867,6 +875,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/huri000/SwiftEntryKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.3;
+			};
+		};
 		8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/square/Valet";
@@ -886,6 +902,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		841C331C24F53E9200F99B93 /* SwiftEntryKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */;
+			productName = SwiftEntryKit;
+		};
 		8487FA3224EE7B98003FDB0C /* Valet */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */;

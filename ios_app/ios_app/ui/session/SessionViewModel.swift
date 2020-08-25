@@ -6,6 +6,7 @@ class SessionViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
     private let p2pService: P2pService
     private let clipboard: Clipboard
+    private let uiNotifier: UINotifier
 
     @Published var createdSessionLink: String = ""
     @Published var sessionStartedMessage: String = ""
@@ -13,10 +14,12 @@ class SessionViewModel: ObservableObject {
 
     private var sessionCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, p2pService: P2pService, clipboard: Clipboard) {
+    init(sessionService: CurrentSessionService, p2pService: P2pService, clipboard: Clipboard,
+         uiNotifier: UINotifier) {
         self.sessionService = sessionService
         self.p2pService = p2pService
         self.clipboard = clipboard
+        self.uiNotifier = uiNotifier
 
         sessionCancellable = sessionService.session
             .sink(receiveCompletion: { completion in }) { [weak self] sessionRes in
@@ -24,8 +27,9 @@ class SessionViewModel: ObservableObject {
                 case .success(let session):
                     self?.createdSessionLink = session?.id.createLink().value ?? ""
                 case .failure(let e):
+                    log.e("Current session error: \(e)", .session)
+                    uiNotifier.show(.error("Current session error: \(e)"))
                     // TODO handle
-                    log.e("Current session error: \(e)")
                 }
         }
     }
@@ -37,6 +41,7 @@ class SessionViewModel: ObservableObject {
     func joinSession() {
         guard !sessionLinkInput.isEmpty else {
             log.e("Session link is empty. Nothing to join", .session)
+            uiNotifier.show(.error("Session link is empty. Nothing to join"))
             // TODO this state should be impossible: if there's no link in input, don't allow to press join
             return
             // TODO failable SessionLink initializer
@@ -56,6 +61,7 @@ class SessionViewModel: ObservableObject {
         // TODO check that link isn't empty
         clipboard.putInClipboard(text: createdSessionLink)
         // TODO notification
+        uiNotifier.show(.success("Copied link to clipboard: \(createdSessionLink)"))
         log.d("Copied link to clipboard: \(createdSessionLink)", .ui)
     }
 

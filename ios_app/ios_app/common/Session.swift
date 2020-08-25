@@ -19,7 +19,7 @@ struct SessionId: Encodable, Decodable {
 
 extension SessionId {
     func createLink() -> SessionLink {
-        SessionLink(value: "verimeet://\(value)")
+        SessionLink(value: "vemeet://\(value)")
     }
 }
 

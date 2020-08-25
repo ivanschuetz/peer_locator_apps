@@ -48,8 +48,13 @@ struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
         SessionView(viewModel: SessionViewModel(sessionService: NoopCurrentSessionService(),
                                                 p2pService: P2pServiceImpl(bleManager: BleManagerNoop()),
-                                                clipboard: NoopClipboard()))
+                                                clipboard: NoopClipboard(),
+                                                uiNotifier: NoopUINotifier()))
     }
+}
+
+class NoopUINotifier: UINotifier {
+    func show(_ notification: UINotification) {}
 }
 
 class NoopSessionService: SessionService {

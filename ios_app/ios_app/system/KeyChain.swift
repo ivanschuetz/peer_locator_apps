@@ -23,7 +23,7 @@ class KeyChainImpl: KeyChain {
         self.json = json
     }
 
-    private let valet = Identifier(nonEmpty: "verimeet").map { Valet.valet(
+    private let valet = Identifier(nonEmpty: "vemeet").map { Valet.valet(
         with: $0,
         accessibility: .afterFirstUnlock
     )}
