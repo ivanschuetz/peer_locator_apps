@@ -11,10 +11,23 @@ class SessionViewModel: ObservableObject {
     @Published var sessionStartedMessage: String = ""
     @Published var sessionLinkInput: String = ""
 
+    private var sessionCancellable: AnyCancellable?
+
     init(sessionService: CurrentSessionService, p2pService: P2pService, clipboard: Clipboard) {
         self.sessionService = sessionService
         self.p2pService = p2pService
         self.clipboard = clipboard
+
+        sessionCancellable = sessionService.session
+            .sink(receiveCompletion: { completion in }) { [weak self] sessionRes in
+                switch sessionRes {
+                case .success(let session):
+                    self?.createdSessionLink = session?.id.createLink().value ?? ""
+                case .failure(let e):
+                    // TODO handle
+                    log.e("Current session error: \(e)")
+                }
+        }
     }
 
     func createSession() {
