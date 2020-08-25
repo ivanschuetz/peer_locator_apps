@@ -1,14 +1,17 @@
 use core::fmt;
 use log::*;
 // use openssl::error::ErrorStack;
-use reqwest::{blocking::Client, Error};
+use reqwest::{
+    blocking::{Client, Response},
+    Error,
+};
 use serde::Deserialize;
-use serde::Serialize;
+use serde::{de::DeserializeOwned, Serialize};
 use std::error;
 use uuid::Uuid;
 
-// static BASE_URL: &str = "http://192.168.0.2:8000/";
-static BASE_URL: &str = "http://127.0.0.1:8000/";
+static BASE_URL: &str = "http://192.168.0.2:8000/";
+// static BASE_URL: &str = "http://127.0.0.1:8000/";
 // static BASE_URL: &str = "http://localhost.charlesproxy.com:8000/";
 
 static UNKNOWN_HTTP_STATUS: u16 = 520;
@@ -35,7 +38,7 @@ pub struct ParticipantsRequestParams {
     // TODO send uuid+signature too, so not anyone that has the session id can download the participants
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SessionKey {
     pub session_id: String,
     pub key: PublicKey,
@@ -54,19 +57,22 @@ pub struct PublicKey {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct JoinSessionResult {
-    status: i32,
     keys: Vec<PublicKey>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct AckResult {
-    status: i32,
     is_ready: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct ParticipantsResult {
+struct HttpError {
     status: i32,
+    msg: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ParticipantsResult {
     keys: Vec<PublicKey>,
 }
 
@@ -128,6 +134,33 @@ impl RemoteSessionApiImpl {
             // )?) // Charles proxy
             .build()
     }
+
+    fn deserialize<T>(response: Response) -> Result<T, NetworkingError>
+    where
+        T: DeserializeOwned + std::fmt::Debug,
+    {
+        let status = response.status();
+        if status.is_success() {
+            let res = response.json::<T>();
+            info!("Http response parsing result: {:?}", res);
+
+            match res {
+                Ok(obj) => Ok(obj),
+                Err(error) => Err(NetworkingError {
+                    http_status: UNKNOWN_HTTP_STATUS,
+                    message: format!("Http internal error response: {:?}", error),
+                }),
+            }
+        } else {
+            let res = response.json::<HttpError>();
+            info!("Http error response parsing result: {:?}", res);
+
+            Err(NetworkingError {
+                http_status: status.as_u16(),
+                message: format!("Http error response: {:?}", res),
+            })
+        }
+    }
 }
 
 impl RemoteSessionApi for RemoteSessionApiImpl {
@@ -136,7 +169,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
 
         let params = SessionKeyRequestParams {
             session_id: session_key.session_id.clone(),
-            key: session_key.key.str,
+            key: session_key.clone().key.str,
         };
 
         let url: &str = &format!("{}key", BASE_URL.to_owned())[..];
@@ -149,19 +182,10 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
             .body(params_str)
             .send()?;
 
-        let res = response.json::<JoinSessionResult>()?;
-        info!("Retrieved keys, networking result: {:?}", res);
-
-        match res.status {
-            1 => Ok(Session {
-                id: session_key.session_id,
-                keys: res.keys,
-            }),
-            _ => Err(NetworkingError {
-                http_status: UNKNOWN_HTTP_STATUS,
-                message: format!("Http internal error code: {}", res.status),
-            }),
-        }
+        RemoteSessionApiImpl::deserialize(response).map(|r: JoinSessionResult| Session {
+            id: session_key.session_id,
+            keys: r.keys,
+        })
     }
 
     fn ack(&self, uuid: Uuid, stored_participants: i32) -> Result<bool, NetworkingError> {
@@ -185,16 +209,14 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
             .body(params_str)
             .send()?;
 
-        let res = response.json::<AckResult>()?;
-        println!("Ack-ed, networking result: {:?}", res);
+        // TODO improve response handling: generic status: i32, err: string?, success: T?:  (?)
+        // currently if JSON response isn't success, parsing to success type fails and does early exit
+        // this works but not quite as intended: we want to handle success/error JSON payloads in the match below
+        // currently app error messages are confusing, as we get parser errors, not the actual error
+        // the other requests also have this problem.
+        debug!("Ack-ed, networking response: {:?}", response);
 
-        match res.status {
-            1 => Ok(res.is_ready),
-            _ => Err(NetworkingError {
-                http_status: UNKNOWN_HTTP_STATUS,
-                message: format!("Http internal error code: {}", res.status),
-            }),
-        }
+        RemoteSessionApiImpl::deserialize(response).map(|r: AckResult| r.is_ready)
     }
 
     fn participants(&self, session_id: String) -> Result<Session, NetworkingError> {
@@ -214,19 +236,10 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
             .body(params_str)
             .send()?;
 
-        let res = response.json::<ParticipantsResult>()?;
-        info!("Retrieved participants, networking result: {:?}", res);
-
-        match res.status {
-            1 => Ok(Session {
-                id: session_id,
-                keys: res.keys,
-            }),
-            _ => Err(NetworkingError {
-                http_status: UNKNOWN_HTTP_STATUS,
-                message: format!("Http internal error code: {}", res.status),
-            }),
-        }
+        RemoteSessionApiImpl::deserialize(response).map(|r: ParticipantsResult| Session {
+            id: session_id,
+            keys: r.keys,
+        })
     }
 }
 
