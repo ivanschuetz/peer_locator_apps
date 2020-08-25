@@ -9,7 +9,7 @@ protocol SessionApi {
 
     // TODO: review api here: when creating, there can't be partipants yet, so it
     // doesn't make sense to return public keys
-    func createSession(publicKey: PublicKey) -> Result<Session, ServicesError>
+    func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
 
     func joinSession(id: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
     func ackAndRequestSessionReady(sessionId: SessionId, storedParticipants: Int) -> Result<SessionReady, ServicesError>
@@ -32,8 +32,8 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    func createSession(publicKey: PublicKey) -> Result<Session, ServicesError> {
-        let res = ffi_create_session(publicKey.value)
+    func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError> {
+        let res = ffi_create_session(sessionId.value, publicKey.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
         default: return .failure(.general("Create session error: \(res)"))

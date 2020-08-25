@@ -19,7 +19,8 @@ struct SessionId: Encodable, Decodable {
 
 extension SessionId {
     func createLink() -> SessionLink {
-        SessionLink(value: "vemeet://\(value)")
+        // remeet? vemeet?
+        SessionLink(value: "rebond://\(value)")
     }
 }
 

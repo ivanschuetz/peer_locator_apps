@@ -77,7 +77,7 @@ FFIKeyPairResult ffi_create_key_pair(void);
 #endif
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
-FFISessionResult ffi_create_session(const char *key);
+FFISessionResult ffi_create_session(const char *session_id, const char *key);
 #endif
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))

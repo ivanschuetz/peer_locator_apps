@@ -12,11 +12,10 @@ pub struct KeyPair {
     pub public: Vec<u8>,
 }
 
-pub fn start_session(key: String) -> Result<Session, ServicesError> {
-    let uuid = Uuid::new_v4();
-    // TODO check if already exists in db?
+pub fn start_session(session_id: String, key: String) -> Result<Session, ServicesError> {
+    // TODO check if id already exists in db?
 
-    let res = join_session_with_id(uuid.to_string(), key);
+    let res = join_session_with_id(session_id, key);
     debug!("Start session res: {:?}", res);
     res
 }

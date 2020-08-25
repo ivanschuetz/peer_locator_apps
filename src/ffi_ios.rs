@@ -74,7 +74,7 @@ pub unsafe extern "C" fn ffi_create_key_pair() -> FFIKeyPairResult {
             }
         }
         Err(e) => {
-            println!("Error creating session: {:?}", e);
+            error!("Error creating session: {:?}", e);
             // TODO proper error result, not "error with empty success fields"
             let private_str = "".to_owned();
             let public_str = "".to_owned();
@@ -88,9 +88,13 @@ pub unsafe extern "C" fn ffi_create_key_pair() -> FFIKeyPairResult {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ffi_create_session(key: *const c_char) -> FFISessionResult {
+pub unsafe extern "C" fn ffi_create_session(
+    session_id: *const c_char,
+    key: *const c_char,
+) -> FFISessionResult {
+    let session_id_str: String = cstring_to_str(&session_id).into();
     let key_str: String = cstring_to_str(&key).into();
-    let res = start_session(key_str);
+    let res = start_session(session_id_str, key_str);
 
     match res {
         Ok(session) => {
@@ -107,7 +111,7 @@ pub unsafe extern "C" fn ffi_create_session(key: *const c_char) -> FFISessionRes
             }
         }
         Err(e) => {
-            println!("Error creating session: {:?}", e);
+            error!("Error creating session: {:?}", e);
             let session_str = "";
             let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 
@@ -143,7 +147,7 @@ pub unsafe extern "C" fn ffi_join_session(
             }
         }
         Err(e) => {
-            println!("Error creating session: {:?}", e);
+            error!("Error creating session: {:?}", e);
             let session_str = "";
             let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 
@@ -166,7 +170,7 @@ pub unsafe extern "C" fn ffi_ack(uuid: *const c_char, stored_participants: i32) 
             is_ready,
         },
         Err(e) => {
-            println!("Error acking: {:?}", e);
+            error!("Error acking: {:?}", e);
             FFIAckResult {
                 status: 0,
                 is_ready: false,
@@ -195,7 +199,7 @@ pub unsafe extern "C" fn ffi_participants(session_id: *const c_char) -> FFIParti
             }
         }
         Err(e) => {
-            println!("Error creating session: {:?}", e);
+            error!("Error retrieving participants: {:?}", e);
             let session_str = "";
             let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 

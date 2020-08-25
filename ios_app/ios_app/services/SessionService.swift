@@ -28,13 +28,13 @@ class SessionServiceImpl: SessionService {
     }
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
-        guard !hasActiveSession() else {
-            return .failure(.general("Can't create session: there's already one."))
-        }
+//        guard !hasActiveSession() else {
+//            return .failure(.general("Can't create session: there's already one."))
+//        }
         switch loadOrCreateSessionData(sessionIdGenerator: { SessionId(value: UUID().uuidString) }) {
         case .success(let sessionData):
             return sessionApi
-                .createSession(publicKey: sessionData.publicKey)
+                .createSession(sessionId: sessionData.sessionId, publicKey: sessionData.publicKey)
                 .map { _ in SharedSessionData(id: sessionData.sessionId, isReady: .no) }
         case .failure(let e):
             return .failure(e)
