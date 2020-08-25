@@ -165,7 +165,7 @@ impl RemoteSessionApiImpl {
 
 impl RemoteSessionApi for RemoteSessionApiImpl {
     fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError> {
-        info!("Joining session, key: {:?}", session_key);
+        info!("Networking: joining session, key: {:?}", session_key);
 
         let params = SessionKeyRequestParams {
             session_id: session_key.session_id.clone(),
@@ -190,7 +190,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
 
     fn ack(&self, uuid: Uuid, stored_participants: i32) -> Result<bool, NetworkingError> {
         info!(
-            "ACK-ing session for: {:?}, participants: {:?}",
+            "Networking: ack-ing session for: {:?}, participants: {:?}",
             uuid, stored_participants
         );
 
@@ -220,7 +220,10 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
     }
 
     fn participants(&self, session_id: String) -> Result<Session, NetworkingError> {
-        info!("Requesting participants, session id: {:?}", session_id);
+        info!(
+            "Networking: requesting participants, session id: {:?}",
+            session_id
+        );
 
         let params = ParticipantsRequestParams {
             session_id: session_id.clone(),

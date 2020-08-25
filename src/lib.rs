@@ -2,6 +2,7 @@ use networking::{
     PublicKey, RemoteSessionApi, RemoteSessionApiImpl, ServicesError, Session, SessionKey,
 };
 // use openssl::rsa::Rsa;
+use log::debug;
 use uuid::Uuid;
 
 mod logger;
@@ -48,6 +49,7 @@ fn create_key_pair() -> Result<KeyPair, ServicesError> {
 }
 
 fn join_session_with_id(id: String, key: String) -> Result<Session, ServicesError> {
+    debug!("Joining session with id: {}, key: {}", id, key);
     let api = RemoteSessionApiImpl {};
     api.join_session(SessionKey {
         session_id: id,
