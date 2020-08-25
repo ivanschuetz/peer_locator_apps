@@ -1,5 +1,14 @@
 #include <CoreFoundation/CoreFoundation.h>
 
+enum CoreLogLevel {
+  Trace = 0,
+  Debug = 1,
+  Info = 2,
+  Warn = 3,
+  Error = 4,
+};
+typedef uint8_t CoreLogLevel;
+
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
 typedef struct {
   int32_t status;
@@ -38,6 +47,14 @@ typedef struct {
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
 typedef struct {
+  CoreLogLevel level;
+  CFStringRef text;
+  int64_t time;
+} CoreLogMessage;
+#endif
+
+#if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
+typedef struct {
   CFStringRef string;
   int32_t int_;
 } ReturnStruct;
@@ -49,6 +66,10 @@ int32_t add_values(int32_t value1, int32_t value2);
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
 FFIAckResult ffi_ack(const char *uuid, int32_t stored_participants);
+#endif
+
+#if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
+int32_t ffi_bootstrap(CoreLogLevel level, bool app_only);
 #endif
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
@@ -77,6 +98,10 @@ void pass_struct(const ParamStruct *object);
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
 void register_callback(void (*callback)(CFStringRef));
+#endif
+
+#if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
+int32_t register_log_callback(void (*log_callback)(CoreLogMessage));
 #endif
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))

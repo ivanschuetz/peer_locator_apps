@@ -4,6 +4,7 @@ use networking::{
 // use openssl::rsa::Rsa;
 use uuid::Uuid;
 
+mod logger;
 mod networking;
 
 #[cfg(target_os = "android")]

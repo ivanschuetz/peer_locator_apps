@@ -1,6 +1,12 @@
 use crate::ack;
 use crate::join_session_with_id;
-use crate::{create_key_pair, networking::VecExt, participants, start_session};
+use crate::logger;
+use crate::{
+    create_key_pair,
+    logger::{CoreLogLevel, CoreLogMessageThreadSafe, SENDER},
+    networking::VecExt,
+    participants, start_session,
+};
 use core_foundation::{
     base::TCFType,
     string::{CFString, CFStringRef, __CFString},
@@ -10,6 +16,7 @@ use log::*;
 use mpsc::Receiver;
 use serde::Serialize;
 use std::{
+    str::FromStr,
     sync::mpsc::{self, Sender},
     thread,
 };
@@ -43,6 +50,14 @@ pub struct FFIAckResult {
 pub struct FFIParticipantsResult {
     status: i32, // 1 -> success, 0 -> unknown error
     session_json: CFStringRef,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ffi_bootstrap(level: CoreLogLevel, app_only: bool) -> i32 {
+    let level_string = level.to_string();
+    let filter_level = LevelFilter::from_str(&level_string).expect("Incorrect log level selected");
+    logger::setup_logger(filter_level, app_only);
+    1
 }
 
 #[no_mangle]
@@ -314,5 +329,71 @@ impl StringFFIAdditions for String {
         let cf_string_ref = session_cf_string.as_concrete_TypeRef();
         ::std::mem::forget(session_cf_string);
         cf_string_ref
+    }
+}
+
+pub trait LogCallback {
+    fn call(&self, log_message: CoreLogMessage);
+}
+
+impl LogCallback for unsafe extern "C" fn(CoreLogMessage) {
+    fn call(&self, log_message: CoreLogMessage) {
+        unsafe {
+            self(log_message);
+        }
+    }
+}
+
+fn register_log_callback_internal(callback: Box<dyn LogCallback>) {
+    // Make callback implement Send (marker for thread safe, basically) https://doc.rust-lang.org/std/marker/trait.Send.html
+    let log_callback = unsafe {
+        std::mem::transmute::<Box<dyn LogCallback>, Box<dyn LogCallback + Send>>(callback)
+    };
+
+    // Create channel
+    let (tx, rx): (
+        Sender<CoreLogMessageThreadSafe>,
+        Receiver<CoreLogMessageThreadSafe>,
+    ) = mpsc::channel();
+
+    // Save the sender in a static variable, which will be used to push elements to the callback
+    unsafe {
+        SENDER = Some(tx);
+    }
+
+    // Thread waits for elements pushed to SENDER and calls the callback
+    thread::spawn(move || {
+        for log_entry in rx.iter() {
+            log_callback.call(log_entry.into());
+        }
+    });
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn register_log_callback(
+    log_callback: unsafe extern "C" fn(CoreLogMessage),
+) -> i32 {
+    register_log_callback_internal(Box::new(log_callback));
+    2
+}
+
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct CoreLogMessage {
+    level: CoreLogLevel,
+    text: CFStringRef,
+    time: i64,
+}
+
+impl From<CoreLogMessageThreadSafe> for CoreLogMessage {
+    fn from(lts: CoreLogMessageThreadSafe) -> Self {
+        let cf_string = CFString::new(&lts.text);
+        let cf_string_ref = cf_string.as_concrete_TypeRef();
+        ::std::mem::forget(cf_string);
+        CoreLogMessage {
+            level: lts.level,
+            text: cf_string_ref,
+            time: lts.time,
+        }
     }
 }

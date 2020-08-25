@@ -16,6 +16,7 @@ serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "0.8.1", features = ["v4"] }
 # openssl = { version = "0.10.30", features = ["vendored"] }
 base64 = "0.12.3"
+chrono = "0.4"
 
 [dependencies.reqwest]
 default-features = false # do not include the default features, and optionally
