@@ -1,11 +1,10 @@
-use crate::ack;
-use crate::join_session_with_id;
+use crate::globals::ack;
+use crate::globals::join_session_with_id;
+use crate::globals::{create_key_pair, participants, start_session};
 use crate::logger;
 use crate::{
-    create_key_pair,
     logger::{CoreLogLevel, CoreLogMessageThreadSafe, SENDER},
     networking::VecExt,
-    participants, start_session,
 };
 use core_foundation::{
     base::TCFType,
