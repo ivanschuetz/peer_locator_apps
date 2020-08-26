@@ -44,9 +44,11 @@ class BleIdServiceImpl: BleIdService {
         // this is anyway a temporary solution. We want to send encrypted (with peer's public key) json (with an index)
         let randomString = "randomString"
 
+        let payloadToSignStr = json.toJson(encodable: SessionPayloadToSign(id: randomString))
+
         // Create our signature
         let signature = crypto.sign(privateKey: sessionData.privateKey,
-                                    payload: SessionSignedPayload(id: randomString))
+                                    payload: payloadToSignStr)
         let signatureStr = signature.toHex()
 
         // The total data sent to participants: "data"(useless) with the corresponding signature
@@ -78,12 +80,12 @@ class BleIdServiceImpl: BleIdService {
         let dataStr = bleId.str()
 
         let signedParticipantPayload: SignedParticipantPayload = json.fromJson(json: dataStr)
+        let payloadToSign = signedParticipantPayload.data
 
-        let randomData = signedParticipantPayload.data.data(using: .utf8)!
         let signData = Data(fromHexEncodedString: signedParticipantPayload.sig)!
 
         return participants.participants.contains { publicKey in
-            crypto.validate(data: randomData, signature: signData, publicKey: publicKey)
+            crypto.validate(payload: payloadToSign, signature: signData, publicKey: publicKey)
         }
     }
 }

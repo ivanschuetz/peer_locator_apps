@@ -71,7 +71,7 @@ extension SessionLink {
     }
 }
 
-struct SessionSignedPayload: Encodable, Decodable {
+struct SessionPayloadToSign: Encodable, Decodable {
     // For now a red herring. Normally we should encrypt, with a nonce.
     let id: String
 }

@@ -3,18 +3,12 @@ import CryptoKit
 
 protocol Crypto {
     func createKeyPair() -> KeyPair
-    func sign(privateKey: PrivateKey, payload: SessionSignedPayload) -> Data
-    func validate(data: Data, signature: Data, publicKey: PublicKey) -> Bool
+    func sign(privateKey: PrivateKey, payload: String) -> Data
+    func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool
     func sha256(str: String) -> String
 }
 
 class CryptoImpl: Crypto {
-    private let json: Json
-
-    // TODO (low prio) crypto shouldn't depend on JSON
-    init(json: Json) {
-        self.json = json
-    }
 
     func createKeyPair() -> KeyPair {
         let privateKey = P521.Signing.PrivateKey()
@@ -23,14 +17,17 @@ class CryptoImpl: Crypto {
                        public_key: PublicKey(value: publicKey.pemRepresentation))
     }
 
-    func sign<T: Encodable>(privateKey: PrivateKey, payload: T) -> Data {
+    func sign(privateKey: PrivateKey, payload: String) -> Data {
+        let data = payload.data(using: .utf8)!
         let p5121PrivateKey = try! P521.Signing.PrivateKey(pemRepresentation: privateKey.value)
-        let data = json.toJson(encodable: payload).data(using: .utf8)!
         let signature = try! p5121PrivateKey.signature(for: data)
+        log.v("Signed: \(payload), privateKey: \(privateKey), signature: \(signature.rawRepresentation.toHex())")
         return signature.rawRepresentation
     }
 
-    func validate(data: Data, signature: Data, publicKey: PublicKey) -> Bool {
+    func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool {
+        log.v("Validating payload: \(payload), signature: \(signature.toHex()), public key: \(publicKey)")
+        let data = payload.data(using: .utf8)!
         let signingPublicKey = try! P521.Signing.PublicKey(pemRepresentation: publicKey.value)
         let p521Signature = try! P521.Signing.ECDSASignature(rawRepresentation: signature)
         return signingPublicKey.isValidSignature(p521Signature, for: data)
