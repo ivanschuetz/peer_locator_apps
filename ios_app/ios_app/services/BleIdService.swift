@@ -47,7 +47,7 @@ class BleIdServiceImpl: BleIdService {
         // Create our signature
         let signature = crypto.sign(privateKey: sessionData.privateKey,
                                     payload: SessionSignedPayload(id: randomString))
-        let signatureStr = String(data: signature, encoding: .utf8)!
+        let signatureStr = signature.toHex()
 
         // The total data sent to participants: "data"(useless) with the corresponding signature
         let payload = SignedParticipantPayload(data: randomString, sig: signatureStr)
@@ -77,7 +77,7 @@ class BleIdServiceImpl: BleIdService {
         let signedParticipantPayload: SignedParticipantPayload = json.fromJson(json: dataStr)
 
         let randomData = signedParticipantPayload.data.data(using: .utf8)!
-        let signData = signedParticipantPayload.sig.data(using: .utf8)!
+        let signData = Data(fromHexEncodedString: signedParticipantPayload.sig)!
 
         return participants.participants.contains { publicKey in
             crypto.validate(data: randomData, signature: signData, publicKey: publicKey)
