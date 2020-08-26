@@ -5,10 +5,13 @@ protocol Crypto {
     func createKeyPair() -> KeyPair
     func sign(privateKey: PrivateKey, payload: SessionSignedPayload) -> Data
     func validate(data: Data, signature: Data, publicKey: PublicKey) -> Bool
+    func sha256(str: String) -> String
 }
 
 class CryptoImpl: Crypto {
     private let json: Json
+
+    // TODO (low prio) crypto shouldn't depend on JSON
     init(json: Json) {
         self.json = json
     }
@@ -33,9 +36,20 @@ class CryptoImpl: Crypto {
         return signingPublicKey.isValidSignature(p521Signature, for: data)
     }
 
+    func sha256(str: String) -> String {
+        // Force unwrap: used to hash keys, which should have always valid .utf8
+        let data = str.data(using: .utf8)!
+        return SHA256.hash(data: data).data.toHex()
+    }
+
     //    func encrypt(myPrivateKey: PrivateKey, othersPublicKey: PublicKey, payload: SessionSignedPayload) {
     //        let p5121PrivateKey = try! P521.KeyAgreement.PrivateKey(pemRepresentation: myPrivateKey.value)
     //        let othersp5121PublicKey = try! P521.KeyAgreement.PublicKey(pemRepresentation: othersPublicKey.value)
     //        let sharedSecret: SharedSecret = try! p5121PrivateKey.sharedSecretFromKeyAgreement(with: othersp5121PublicKey)
     //    }
+}
+
+private extension Digest {
+    var bytes: [UInt8] { Array(makeIterator()) }
+    var data: Data { Data(bytes) }
 }

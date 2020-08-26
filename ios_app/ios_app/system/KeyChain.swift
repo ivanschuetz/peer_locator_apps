@@ -113,6 +113,7 @@ class KeyChainImpl: KeyChain {
         }
         do {
             try valet.removeAllObjects()
+            log.d("Cleared keychain")
             return .success(())
         } catch (let e) {
             let msg = "Error accessing keychain: \(e)"

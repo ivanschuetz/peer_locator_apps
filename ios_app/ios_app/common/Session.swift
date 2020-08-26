@@ -9,6 +9,12 @@ struct PublicKey: Encodable, Decodable {
     let value: String // P521 PEM representation
 }
 
+extension PublicKey {
+    func toParticipantId(crypto: Crypto) -> ParticipantId {
+        ParticipantId(value: crypto.sha256(str: value))
+    }
+}
+
 struct PrivateKey: Encodable, Decodable {
     let value: String // P521 PEM representation
 }
@@ -19,8 +25,8 @@ struct SessionId: Encodable, Decodable {
 
 extension SessionId {
     func createLink() -> SessionLink {
-        // remeet? vemeet?
-        SessionLink(value: "rebond://\(value)")
+        // remeet? rebond? pre-pair? wemeet?
+        SessionLink(value: "vemeet://\(value)")
     }
 }
 
@@ -29,12 +35,18 @@ struct KeyPair {
     let public_key: PublicKey
 }
 
+// TODO rename (My)ParticipantData or similar, maybe?
 struct MySessionData: Encodable, Decodable {
     let sessionId: SessionId
     let privateKey: PrivateKey
     // TODO (low prio): review: the own public key seems not necessary to store at the moment
     // it may help for debugging? Maybe remove in the future.
     let publicKey: PublicKey
+    let participantId: ParticipantId
+}
+
+struct ParticipantId: Encodable, Decodable {
+    let value: String
 }
 
 struct Participants: Encodable, Decodable {

@@ -24,7 +24,8 @@ class SessionServiceImpl: SessionService {
         self.sessionApi = sessionApi
         self.crypto = crypto
         self.keyChain = keyChain
-//        keyChain.removeAll()
+        
+        keyChain.removeAll()
     }
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
@@ -140,7 +141,7 @@ class SessionServiceImpl: SessionService {
                 switch participatsRes {
                 case .success(let participants):
                     let participantsCount = participants.map { $0.participants.count } ?? 0
-                    return sessionApi.ackAndRequestSessionReady(sessionId: sessionData.sessionId,
+                    return sessionApi.ackAndRequestSessionReady(participantId: sessionData.participantId,
                                                                 storedParticipants: participantsCount)
                 case .failure(let e):
                     return .failure(e)
@@ -163,13 +164,23 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func fetchAndStoreParticipants(sessionId: SessionId) -> Result<(), ServicesError> {
+    private func fetchAndStoreParticipants(sessionId: SessionId) -> Result<FetchAndStoreParticipantsResult, ServicesError> {
         let participantsRes = sessionApi.participants(sessionId: sessionId)
         switch participantsRes {
         case .success(let session):
-            return keyChain.putEncodable(key: .participants, value: session.keys)
+            // We store even if it's empty (shouldn't happen), for overall consistency
+            switch keyChain.putEncodable(key: .participants, value: session.keys) {
+            case .success:
+                if session.keys.isEmpty {
+                    return .success(.fetchedNothing)
+                } else {
+                    return .success(.fetchedSomething)
+                }
+            case .failure(let e):
+                return .failure(.general("Couldn't store participants: \(e)"))
+            }
         case .failure(let e):
-            return .failure(.general("Couldn't store participants: \(e)"))
+            return .failure(.general("Couldn't fetch participants: \(e)"))
         }
     }
 
@@ -196,7 +207,8 @@ class SessionServiceImpl: SessionService {
         let sessionData = MySessionData(
             sessionId: sessionId,
             privateKey: keyPair.private_key,
-            publicKey: keyPair.public_key
+            publicKey: keyPair.public_key,
+            participantId: keyPair.public_key.toParticipantId(crypto: crypto)
         )
         let saveRes = keyChain.putEncodable(key: .mySessionData, value: sessionData)
         switch saveRes {
@@ -206,4 +218,15 @@ class SessionServiceImpl: SessionService {
             return .failure(.general("Couldn't save session data in keychain: \(e)"))
         }
     }
+}
+
+enum FetchAndStoreParticipantsResult {
+    // Note: this currently includes the OWN participant, meaning we'll send an ack
+    // just for our own key
+    // this is not optimal, but for now for simplicty
+    // probably we sould send ack only when we receive participants that are not ourselves
+    // TODO revisit
+    case fetchedSomething
+
+    case fetchedNothing
 }

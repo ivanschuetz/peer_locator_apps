@@ -57,7 +57,6 @@ pub fn create_key_pair() -> Result<KeyPair, ServicesError> {
 
 pub fn ack(uuid: String, stored_participants: i32) -> Result<bool, ServicesError> {
     let api = RemoteSessionApiImpl {};
-    let uuid = Uuid::parse_str(uuid.as_ref())?;
     let res = api
         .ack(uuid, stored_participants)
         .map_err(ServicesError::from);

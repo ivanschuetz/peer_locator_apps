@@ -117,7 +117,7 @@ impl<T> VecExt<T> for Vec<T> {
 
 pub trait RemoteSessionApi {
     fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError>;
-    fn ack(&self, uuid: Uuid, count: i32) -> Result<bool, NetworkingError>;
+    fn ack(&self, uuid: String, count: i32) -> Result<bool, NetworkingError>;
     fn participants(&self, session_id: String) -> Result<Session, NetworkingError>;
 }
 
@@ -188,14 +188,14 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         })
     }
 
-    fn ack(&self, uuid: Uuid, stored_participants: i32) -> Result<bool, NetworkingError> {
+    fn ack(&self, uuid: String, stored_participants: i32) -> Result<bool, NetworkingError> {
         info!(
             "Networking: ack-ing session for: {:?}, participants: {:?}",
             uuid, stored_participants
         );
 
         let params = AckRequestParams {
-            uuid: uuid.to_string(),
+            uuid,
             accepted: stored_participants,
         };
 
