@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class HomeViewModel: ObservableObject {
+class MeetingViewModel: ObservableObject {
     private let central: BleCentral
     private let peripheral: BlePeripheral
 

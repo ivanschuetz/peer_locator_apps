@@ -3,9 +3,9 @@ import SwiftUI
 
 struct RadarView: View {
 
-    @ObservedObject private var viewModel: HomeViewModel
+    @ObservedObject private var viewModel: MeetingViewModel
 
-    init(viewModel: HomeViewModel) {
+    init(viewModel: MeetingViewModel) {
         self.viewModel = viewModel
     }
 

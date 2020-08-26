@@ -2,17 +2,17 @@ import SwiftUI
 import Combine
 
 struct TabsContainerView: View {
-    @ObservedObject private var homeViewModel: HomeViewModel
+    @ObservedObject private var homeViewModel: MeetingViewModel
     @ObservedObject private var sessionViewModel: SessionViewModel
 
-    init(homeViewModel: HomeViewModel, sessionViewModel: SessionViewModel) {
+    init(homeViewModel: MeetingViewModel, sessionViewModel: SessionViewModel) {
         self.homeViewModel = homeViewModel
         self.sessionViewModel = sessionViewModel
     }
 
     var body: some View {
         TabView {
-            HomeView(viewModel: homeViewModel)
+            MeetingView(viewModel: homeViewModel)
                 .tabItem {
 //                    Image(systemName: "")
                     Text("Menu")

@@ -1,10 +1,10 @@
 import SwiftUI
 import Combine
 
-struct HomeView: View {
-    @ObservedObject private var viewModel: HomeViewModel
+struct MeetingView: View {
+    @ObservedObject private var viewModel: MeetingViewModel
 
-    init(viewModel: HomeViewModel) {
+    init(viewModel: MeetingViewModel) {
         self.viewModel = viewModel
     }
 
@@ -27,11 +27,11 @@ struct HomeView: View {
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
+struct MeetingView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(viewModel: HomeViewModel(central: BleCentralNoop(),
-                                          peripheral: BlePeripheralNoop(),
-                                          radarService: RadarUIServiceNoop(),
-                                          notificationPermission: NotificationPermissionImpl()))
+        MeetingView(viewModel: MeetingViewModel(central: BleCentralNoop(),
+                                                peripheral: BlePeripheralNoop(),
+                                                radarService: RadarUIServiceNoop(),
+                                                notificationPermission: NotificationPermissionImpl()))
     }
 }

@@ -39,9 +39,9 @@
 		84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */; };
 		84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1124EFDAAD004CE510 /* Json.swift */; };
 		84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1324F00E9F004CE510 /* Crypto.swift */; };
-		84DC104824B49E340064DEBE /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC104724B49E340064DEBE /* HomeView.swift */; };
+		84DC104824B49E340064DEBE /* MeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC104724B49E340064DEBE /* MeetingView.swift */; };
 		84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105424B4A5AE0064DEBE /* BleCentral.swift */; };
-		84DC105724B4B3EB0064DEBE /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */; };
+		84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105624B4B3EB0064DEBE /* MeetingViewModel.swift */; };
 		84DC105D24B4CCC70064DEBE /* Dip in Frameworks */ = {isa = PBXBuildFile; productRef = 84DC105C24B4CCC70064DEBE /* Dip */; };
 		84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105F24B4CCE80064DEBE /* Dependencies.swift */; };
 		84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106324B502690064DEBE /* BlePeripheral.swift */; };
@@ -125,9 +125,9 @@
 		84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		84BE8E1124EFDAAD004CE510 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
 		84BE8E1324F00E9F004CE510 /* Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto.swift; sourceTree = "<group>"; };
-		84DC104724B49E340064DEBE /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		84DC104724B49E340064DEBE /* MeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingView.swift; sourceTree = "<group>"; };
 		84DC105424B4A5AE0064DEBE /* BleCentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleCentral.swift; sourceTree = "<group>"; };
-		84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		84DC105624B4B3EB0064DEBE /* MeetingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingViewModel.swift; sourceTree = "<group>"; };
 		84DC105F24B4CCE80064DEBE /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		84DC106324B502690064DEBE /* BlePeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlePeripheral.swift; sourceTree = "<group>"; };
 		84DC106524B503CA0064DEBE /* BleUuids.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleUuids.swift; sourceTree = "<group>"; };
@@ -296,9 +296,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		84BEFED824F62D94006E4B61 /* meeting */ = {
+			isa = PBXGroup;
+			children = (
+				84DC104724B49E340064DEBE /* MeetingView.swift */,
+				84DC105624B4B3EB0064DEBE /* MeetingViewModel.swift */,
+				849A850F24C3208A00EDFE5F /* RadarView.swift */,
+			);
+			path = meeting;
+			sourceTree = "<group>";
+		};
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				84BEFED824F62D94006E4B61 /* meeting */,
 				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				8489BAEA24EB1583006D1CD3 /* tabs */,
 				84094EF624EACAAC0028BBDF /* session */,
@@ -319,9 +330,6 @@
 		84DC105224B4A3BD0064DEBE /* home */ = {
 			isa = PBXGroup;
 			children = (
-				84DC104724B49E340064DEBE /* HomeView.swift */,
-				84DC105624B4B3EB0064DEBE /* HomeViewModel.swift */,
-				849A850F24C3208A00EDFE5F /* RadarView.swift */,
 			);
 			path = home;
 			sourceTree = "<group>";
@@ -526,14 +534,14 @@
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,
 				841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */,
-				84DC105724B4B3EB0064DEBE /* HomeViewModel.swift in Sources */,
+				84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */,
 				848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */,
 				8489BAEC24EB1591006D1CD3 /* TabsContainerView.swift in Sources */,
 				84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */,
 				84E3DC7E24C6F64300E2F175 /* Log.swift in Sources */,
 				84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */,
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
-				84DC104824B49E340064DEBE /* HomeView.swift in Sources */,
+				84DC104824B49E340064DEBE /* MeetingView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
 				841C331A24F53AD300F99B93 /* UINotifications.swift in Sources */,
 				84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */,
