@@ -74,5 +74,4 @@ class ios_appTests: XCTestCase {
             XCTAssertEqual(str, "Hello callback!")
         }
     }
-
 }

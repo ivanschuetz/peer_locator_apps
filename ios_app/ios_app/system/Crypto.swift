@@ -26,11 +26,12 @@ class CryptoImpl: Crypto {
     }
 
     func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool {
-        log.v("Validating payload: \(payload), signature: \(signature.toHex()), public key: \(publicKey)")
         let data = payload.data(using: .utf8)!
         let signingPublicKey = try! P521.Signing.PublicKey(pemRepresentation: publicKey.value)
         let p521Signature = try! P521.Signing.ECDSASignature(rawRepresentation: signature)
-        return signingPublicKey.isValidSignature(p521Signature, for: data)
+        let res = signingPublicKey.isValidSignature(p521Signature, for: data)
+        log.v("Validated payload: \(payload), signature: \(signature.toHex()), public key: \(publicKey), res: \(res)")
+        return res
     }
 
     func sha256(str: String) -> String {

@@ -52,7 +52,7 @@ class BleIdServiceImpl: BleIdService {
         let signatureStr = signature.toHex()
 
         // The total data sent to participants: "data"(useless) with the corresponding signature
-        let payload = SignedParticipantPayload(data: randomString, sig: signatureStr)
+        let payload = SignedParticipantPayload(data: payloadToSignStr, sig: signatureStr)
         let payloadStr = json.toJson(encodable: payload)
         return BleId(data: payloadStr.data(using: .utf8)!)
     }
@@ -81,6 +81,8 @@ class BleIdServiceImpl: BleIdService {
 
         let signedParticipantPayload: SignedParticipantPayload = json.fromJson(json: dataStr)
         let payloadToSign = signedParticipantPayload.data
+
+        log.v("Will validate participant payload: \(signedParticipantPayload)")
 
         let signData = Data(fromHexEncodedString: signedParticipantPayload.sig)!
 
