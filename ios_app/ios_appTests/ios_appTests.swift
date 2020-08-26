@@ -1,5 +1,5 @@
 import XCTest
-@testable import ios_app
+@testable import Match
 
 class ios_appTests: XCTestCase {
 
