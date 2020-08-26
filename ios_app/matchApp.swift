@@ -7,7 +7,11 @@ struct matchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView(viewModel: try! container.resolve())
+            HomeView(viewModel: try! container.resolve(),
+                     sessionViewModel: try! container.resolve(),
+                     meetingCreatedViewModel: try! container.resolve(),
+                     meetingJoinedViewModel: try! container.resolve(),
+                     meetingViewModel: try! container.resolve())
         }
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 
+// TODO rename in Meeting (and related)
 struct Session {
     let id: SessionId
     let keys: [PublicKey]
@@ -43,6 +44,7 @@ struct MySessionData: Encodable, Decodable {
     // it may help for debugging? Maybe remove in the future.
     let publicKey: PublicKey
     let participantId: ParticipantId
+    let createdByMe: Bool
 }
 
 struct ParticipantId: Encodable, Decodable {
@@ -77,6 +79,7 @@ struct SessionSignedPayload: Encodable, Decodable {
 struct SharedSessionData {
     let id: SessionId
     let isReady: SessionReady
+    let createdByMe: Bool
 }
 
 // TODO maybe replace with SessionStatus { ready, notReady } ?

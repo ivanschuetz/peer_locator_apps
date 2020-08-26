@@ -17,12 +17,14 @@ struct SessionView: View {
             Button("Create session", action: {
                 viewModel.createSession()
             })
+            .padding(.bottom, 30)
             HStack {
                 Text(viewModel.createdSessionLink)
                 Button("Copy", action: {
                     viewModel.onCopyLinkTap()
                 })
             }
+            .padding(.bottom, 30)
             HStack {
                 TextField("", text: $viewModel.sessionLinkInput)
                     .multilineTextAlignment(.center)
@@ -33,9 +35,11 @@ struct SessionView: View {
                     viewModel.onPasteLinkTap()
                 })
             }
+            .padding(.bottom, 30)
             Button("Join session", action: {
                 viewModel.joinSession()
             })
+            .padding(.bottom, 30)
             Text(viewModel.sessionStartedMessage)
             Button("Activate session", action: {
                 viewModel.activateSession()
@@ -60,15 +64,15 @@ class NoopUINotifier: UINotifier {
 class NoopSessionService: SessionService {
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no))
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: true))
     }
 
     func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: try! link.extractSessionId().get(), isReady: .no))
+        .success(SharedSessionData(id: try! link.extractSessionId().get(), isReady: .no, createdByMe: false))
     }
 
     func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no))
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: false))
     }
 
     func currentSession() -> Result<SharedSessionData?, ServicesError> {

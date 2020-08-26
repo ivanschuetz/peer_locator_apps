@@ -2,51 +2,65 @@ import Foundation
 import Combine
 import SwiftUI
 
+enum HomeViewState {
+    case noMeeting
+
+    // For now only a "waiting" screen, for simplicity
+    // maybe we can integrate creating/joined only as text
+//    case meetingWaiting
+    case meetingCreated // "Session created!" "Waiting for the other participant to accept"
+    case meetingJoined // "Session joined!" "Waiting for the other participant to acknowledge"
+
+//    case meetingReady "the meeting is ready!" but should probably be a dialog/notification
+
+    case meetingActive
+}
+
 class HomeViewModel: ObservableObject {
-    private let central: BleCentral
-    private let peripheral: BlePeripheral
+    private let sessionService: CurrentSessionService
+    private let uiNotifier: UINotifier
 
-    @Published var labelValue: String = ""
-    @Published var myId: String = ""
-    @Published var detectedDevices: [BleIdRow] = []
+    @Published var state: HomeViewState = .noMeeting
 
-    @Published var radarItems: [RadarItem] = []
+    private var stateCancellable: AnyCancellable?
 
-    private let timer = Timer.TimerPublisher(interval: 2.0, runLoop: .main, mode: .default).autoconnect()
+    init(sessionService: CurrentSessionService, uiNotifier: UINotifier) {
+        self.sessionService = sessionService
+        self.uiNotifier = uiNotifier
 
-    private var radarCancellable: AnyCancellable?
-    private var statusCancellable: AnyCancellable?
-    private var myIdCancellable: AnyCancellable?
-    private var discoveredCancellable: AnyCancellable?
-
-    init(central: BleCentral, peripheral: BlePeripheral, radarService: RadarUIService,
-         notificationPermission: NotificationPermission) {
-        self.central = central
-        self.peripheral = peripheral
-
-        notificationPermission.request()
-
-        statusCancellable = central.statusMsg
-            .sink(receiveCompletion: { completion in }) { [weak self] status in
-                self?.labelValue = "\(status)"
+        stateCancellable = sessionService.session.sink { [weak self] sessionRes in
+            self?.handleSessionState(sessionRes)
         }
+    }
 
-        myIdCancellable = peripheral.readMyId.merge(with: central.writtenMyId)
-            .sink(receiveCompletion: { completion in }) { [weak self] myId in
-                self?.myId = myId.str()
+    private func handleSessionState(_ sessionRes: Result<SharedSessionData?, ServicesError>) {
+        let viewState = toViewState(sessionRes: sessionRes)
+        log.d("New session state in home: \(sessionRes), view state: \(viewState)", .session)
+        state = viewState
+
+        if case .failure(let e) = sessionRes {
+            uiNotifier.show(.error("Error retrieving session: \(e)"))
         }
+    }
+}
 
-        discoveredCancellable = central.discovered
-            .removeDuplicates(by: { t1, t2 in
-                t1.id.data == t2.id.data
-            })
-            .scan([], { acc, peer in acc + [peer.id] })
-            .sink(receiveCompletion: { completion in }) { [weak self] ids in
-                self?.detectedDevices = ids.map { BleIdRow(id: UUID(), bleId: $0) }
+private func toViewState(sessionRes: Result<SharedSessionData?, ServicesError>) -> HomeViewState {
+    switch sessionRes {
+    case .success(let session):
+        if let session = session {
+            switch session.isReady {
+            case .yes: return .meetingActive
+            case .no:
+                if session.createdByMe {
+                    return .meetingCreated
+                } else {
+                    return .meetingJoined
+                }
             }
-
-        radarCancellable = radarService.radar.sink { [weak self] radarItems in
-            self?.radarItems = radarItems
+        } else {
+            return .noMeeting
         }
+    case .failure:
+        return .noMeeting // TODO error view state
     }
 }

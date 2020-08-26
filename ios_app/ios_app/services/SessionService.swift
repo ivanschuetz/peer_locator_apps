@@ -32,11 +32,12 @@ class SessionServiceImpl: SessionService {
 //        guard !hasActiveSession() else {
 //            return .failure(.general("Can't create session: there's already one."))
 //        }
-        switch loadOrCreateSessionData(sessionIdGenerator: { SessionId(value: UUID().uuidString) }) {
+        switch loadOrCreateSessionData(isCreate: true, sessionIdGenerator: { SessionId(value: UUID().uuidString) }) {
         case .success(let sessionData):
             return sessionApi
                 .createSession(sessionId: sessionData.sessionId, publicKey: sessionData.publicKey)
-                .map { _ in SharedSessionData(id: sessionData.sessionId, isReady: .no) }
+                .map { _ in SharedSessionData(id: sessionData.sessionId, isReady: .no,
+                                              createdByMe: sessionData.createdByMe) }
         case .failure(let e):
             return .failure(e)
         }
@@ -63,7 +64,8 @@ class SessionServiceImpl: SessionService {
     }
 
     private func joinSession(sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
-        switch loadOrCreateSessionData(sessionIdGenerator: { sessionId }) {
+        log.d("Joining session: \(sessionId)", .session)
+        switch loadOrCreateSessionData(isCreate: false, sessionIdGenerator: { sessionId }) {
         case .success(let sessionData):
             let joinRes = sessionApi
                 .joinSession(id: sessionId, publicKey: sessionData.publicKey)
@@ -71,9 +73,11 @@ class SessionServiceImpl: SessionService {
             switch joinRes {
             case .success(let session):
                 let readyRes = storeParticipantsAndAck(session: session)
+                log.d("Session ready: \(readyRes)", .session)
                 switch readyRes {
                 case .success(let ready):
-                    return .success(SharedSessionData(id: sessionId, isReady: ready))
+                    return .success(SharedSessionData(id: sessionId, isReady: ready,
+                                                      createdByMe: sessionData.createdByMe))
                 case .failure(let e):
                     return .failure(e)
                 }
@@ -96,7 +100,7 @@ class SessionServiceImpl: SessionService {
                 switch fetchAndStoreRes {
                 // Ack the participants and see whether session is ready (everyone acked all the participants)
                 case .success: return ackAndRequestSessionReady().map {
-                    SharedSessionData(id: sessionData.sessionId, isReady: $0)
+                    SharedSessionData(id: sessionData.sessionId, isReady: $0, createdByMe: sessionData.createdByMe)
                 }
                 case .failure(let e): return .failure(.general("Couldn't fetch or store participants: \(e)"))
                 }
@@ -114,16 +118,21 @@ class SessionServiceImpl: SessionService {
 
     func currentSession() -> Result<SharedSessionData?, ServicesError> {
         let res: Result<MySessionData?, ServicesError> = currentSession()
-        let participantsRes: Result<Participants?, ServicesError> = keyChain.getDecodable(key: .participants)
         return res.flatMap { sessionData in
-            switch participantsRes {
-            case .success(let participants):
-                return .success(sessionData.map {
-                    SharedSessionData(id: $0.sessionId,
-                                      isReady: participants.map { $0.participants.isEmpty ? .yes : .no } ?? .no)
-                })
-            case .failure(let e):
-                return .failure(e)
+            if let sessionData = sessionData {
+                let participantsRes: Result<Participants?, ServicesError> = keyChain.getDecodable(key: .participants)
+                switch participantsRes {
+                case .success(let participants):
+                    return .success(
+                        SharedSessionData(id: sessionData.sessionId,
+                                          isReady: participants.map { $0.participants.isEmpty ? .yes : .no } ?? .no,
+                                          createdByMe: sessionData.createdByMe)
+                    )
+                case .failure(let e):
+                    return .failure(e)
+                }
+            } else { // No session
+                return .success(nil)
             }
         }
     }
@@ -156,6 +165,7 @@ class SessionServiceImpl: SessionService {
     }
 
     private func storeParticipantsAndAck(session: Session) -> Result<SessionReady, ServicesError> {
+        log.d("Storing participants", .session)
         switch keyChain.putEncodable(key: .participants, value: Participants(participants: session.keys)) {
         case .success:
             return ackAndRequestSessionReady()
@@ -169,7 +179,7 @@ class SessionServiceImpl: SessionService {
         switch participantsRes {
         case .success(let session):
             // We store even if it's empty (shouldn't happen), for overall consistency
-            switch keyChain.putEncodable(key: .participants, value: session.keys) {
+            switch keyChain.putEncodable(key: .participants, value: Participants(participants: session.keys)) {
             case .success:
                 if session.keys.isEmpty {
                     return .success(.fetchedNothing)
@@ -184,7 +194,7 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func loadOrCreateSessionData(sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
+    private func loadOrCreateSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
         let loadRes: Result<MySessionData?, ServicesError> =
             keyChain.getDecodable(key: .mySessionData)
         switch loadRes {
@@ -193,14 +203,14 @@ class SessionServiceImpl: SessionService {
                 log.d("Loaded session data: \(data)", .session)
                 return .success(data)
             } else {
-                return createAndStoreSessionData(sessionIdGenerator: sessionIdGenerator)
+                return createAndStoreSessionData(isCreate: isCreate, sessionIdGenerator: sessionIdGenerator)
             }
         case .failure(let e):
             return .failure(.general("Couldn't access keychain to load session data: \(e)"))
         }
     }
 
-    private func createAndStoreSessionData(sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
+    private func createAndStoreSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
         let keyPair = crypto.createKeyPair()
         log.d("Created key pair: \(keyPair)", .session)
         let sessionId = sessionIdGenerator()
@@ -208,7 +218,8 @@ class SessionServiceImpl: SessionService {
             sessionId: sessionId,
             privateKey: keyPair.private_key,
             publicKey: keyPair.public_key,
-            participantId: keyPair.public_key.toParticipantId(crypto: crypto)
+            participantId: keyPair.public_key.toParticipantId(crypto: crypto),
+            createdByMe: isCreate
         )
         let saveRes = keyChain.putEncodable(key: .mySessionData, value: sessionData)
         switch saveRes {

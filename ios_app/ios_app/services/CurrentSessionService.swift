@@ -10,17 +10,20 @@ protocol CurrentSessionService {
 class CurrentSessionServiceImpl: CurrentSessionService {
     private let sessionSubject: CurrentValueSubject<Result<SharedSessionData?, ServicesError>, Never>
 
-    lazy var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> = sessionSubject
-        .eraseToAnyPublisher()
+    let session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never>
 
     private let sessionService: SessionService
 
     init(sessionService: SessionService) {
         self.sessionService = sessionService
-//        sessionSubject.send(completion: .failure(.general("")))
         sessionSubject = CurrentValueSubject(sessionService.currentSession())
+        session = sessionSubject
+            .handleEvents(receiveOutput: { sessionData in
+                log.d("Current session was updated to: \(sessionData)", .session)
+            })
+            .eraseToAnyPublisher()
     }
-
+ 
     func create() {
         sessionSubject.send(sessionService.createSession().map { $0 } )
     }
