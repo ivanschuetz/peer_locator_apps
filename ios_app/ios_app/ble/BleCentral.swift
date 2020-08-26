@@ -101,8 +101,11 @@ extension BleCentralImpl: CBCentralManagerDelegate {
             peripheralsToWriteTCNTo.insert(peripheral)
         }
 
-        // TODO connection count limit?
-        centralManager.connect(peripheral)
+        if peripheral.state != .connected && peripheral.state != .connecting {
+            // TODO connection count limit?
+            log.v("Connecting to peripheral", .ble)
+            centralManager.connect(peripheral)
+        }
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
