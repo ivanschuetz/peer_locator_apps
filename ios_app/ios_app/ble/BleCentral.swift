@@ -23,8 +23,6 @@ class BleCentralImpl: NSObject, BleCentral {
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
 
-    private var peripheralsToWriteTCNTo = Set<CBPeripheral>()
-
     private let status = PassthroughSubject<CBManagerState, Never>()
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
@@ -52,7 +50,6 @@ class BleCentralImpl: NSObject, BleCentral {
     }
 
     func stop() {
-        peripheralsToWriteTCNTo.removeAll()
         if centralManager?.isScanning ?? false {
             centralManager?.stopScan()
         }
@@ -65,9 +62,7 @@ class BleCentralImpl: NSObject, BleCentral {
         ])
     }
 
-    private func flush(_ peripheral: CBPeripheral) {
-        self.peripheralsToWriteTCNTo.remove(peripheral)
-    }
+    private func flush(_ peripheral: CBPeripheral) {}
 }
 
 extension BleCentralImpl: CBCentralManagerDelegate {
@@ -79,27 +74,6 @@ extension BleCentralImpl: CBCentralManagerDelegate {
                         advertisementData: [String : Any], rssi: NSNumber) {
         self.peripheral = peripheral
         peripheral.delegate = self
-
-        if
-            let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID : Data],
-            let serviceData = advertisementDataServiceData[.serviceCBUUID] {
-
-            if let id = BleId(data: serviceData) {
-
-                let txPowerLevel: Int? = (advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber)?.intValue
-                // TODO: Android should send max possible bytes. Currently 17.
-                let distance = estimateDistance(rssi: rssi.doubleValue, txPowerLevelMaybe: txPowerLevel)
-
-                log.d("Ble id: \(id), rssi: \(rssi), txPowerLevel: \(String(describing: txPowerLevel)), " +
-                      "distance: \(distance), device: \(peripheral.identifier)", .ble)
-                discovered.send(BleParticipant(id: id, distance: distance))
-
-            } else {
-                log.e("Service data is not a valid id: \(serviceData), length: \(serviceData.count)", .ble)
-            }
-
-            peripheralsToWriteTCNTo.insert(peripheral)
-        }
 
         if peripheral.state != .connected && peripheral.state != .connecting {
             // TODO connection count limit?
@@ -114,7 +88,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        peripheralsToWriteTCNTo.remove(peripheral)
+        log.v("Did fail to connect to peripheral", .ble)
     }
 }
 
@@ -142,26 +116,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
         if let characteristic = service.characteristics?.first(where: {
             $0.uuid == .characteristicCBUUID
         }) {
-            if peripheralsToWriteTCNTo.contains(peripheral) {
-                if let bleId = idService.id() {
-                    writtenMyId.send(bleId)
-
-                    log.d("Writing bldId: \(bleId) to: \(peripheral)", .ble)
-
-                    peripheral.writeValue(
-                        bleId.data,
-                        for: characteristic,
-                        type: .withResponse
-                    )
-                } else {
-                    // TODO review handling
-                    log.e("Illegal state: central shouldn't be on without an available id. Ignoring (for now)")
-                    return
-                }
-
-            } else {
-                peripheral.readValue(for: characteristic)
-            }
+            peripheral.readValue(for: characteristic)
         }
     }
 
