@@ -4,7 +4,6 @@ import SwiftUI
 
 class SessionViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
-    private let p2pService: P2pService
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
 
@@ -14,10 +13,8 @@ class SessionViewModel: ObservableObject {
 
     private var sessionCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, p2pService: P2pService, clipboard: Clipboard,
-         uiNotifier: UINotifier) {
+    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier) {
         self.sessionService = sessionService
-        self.p2pService = p2pService
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
 
@@ -67,9 +64,5 @@ class SessionViewModel: ObservableObject {
 
     func onPasteLinkTap() {
         sessionLinkInput = clipboard.getFromClipboard()
-    }
-
-    func activateSession() {
-        p2pService.activateSession()
     }
 }

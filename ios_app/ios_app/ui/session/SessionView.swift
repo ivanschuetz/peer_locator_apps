@@ -39,11 +39,6 @@ struct SessionView: View {
             Button("Join session", action: {
                 viewModel.joinSession()
             })
-            .padding(.bottom, 30)
-            Text(viewModel.sessionStartedMessage)
-            Button("Activate session", action: {
-                viewModel.activateSession()
-            })
         }
     }
 }
@@ -51,7 +46,6 @@ struct SessionView: View {
 struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
         SessionView(viewModel: SessionViewModel(sessionService: NoopCurrentSessionService(),
-                                                p2pService: P2pServiceImpl(bleManager: BleManagerNoop()),
                                                 clipboard: NoopClipboard(),
                                                 uiNotifier: NoopUINotifier()))
     }

@@ -54,13 +54,11 @@ struct HomeView_Previews: PreviewProvider {
         let sessionService = NoopCurrentSessionService()
         let uiNotifier = NoopUINotifier()
         let clipboard = NoopClipboard()
-        let p2pService = P2pServiceImpl(bleManager: BleManagerNoop())
 
         HomeView(viewModel: HomeViewModel(
                     sessionService: NoopCurrentSessionService(),
                     uiNotifier: NoopUINotifier()),
                  sessionViewModel: SessionViewModel(sessionService: sessionService,
-                                                    p2pService: p2pService,
                                                     clipboard: clipboard,
                                                     uiNotifier: uiNotifier),
                  meetingCreatedViewModel: MeetingCreatedViewModel(sessionService: sessionService, clipboard: clipboard,
