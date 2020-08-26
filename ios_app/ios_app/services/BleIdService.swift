@@ -56,17 +56,20 @@ class BleIdServiceImpl: BleIdService {
     }
 
     func validate(bleId: BleId) -> Bool {
+        log.d("Will validate: \(bleId)", .val)
         switch sessionService.currentSessionParticipants() {
         case .success(let participants):
             if let participants = participants {
-                return validate(bleId: bleId, participants: participants)
+                let res = validate(bleId: bleId, participants: participants)
+                log.d("Validation result: \(res)", .val)
+                return res
             } else {
-                log.e("Invalid state?: validating, but no current session. bleId: \(bleId)")
+                log.e("Invalid state?: validating, but no current session. bleId: \(bleId)", .val)
                 return false
             }
 
         case .failure(let e):
-            log.e("Error retrieving participants: \(e), returning validate = false")
+            log.e("Error retrieving participants: \(e), returning validate = false", .val)
             return false
         }
     }
