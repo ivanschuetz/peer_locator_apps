@@ -28,7 +28,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
             .combineLatest(status)
             .map { _, status in status }
             .removeDuplicates(by: { tuple1, tuple2 in
-                tuple1.0 != tuple2.0 // status change
+                tuple1.0 == tuple2.0 // status change
             })
             .sink(receiveValue: {[weak self] (status, peripheralManager) in
                 if status == .poweredOn {
