@@ -7,8 +7,7 @@ struct matchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TabsContainerView(homeViewModel: try! container.resolve(),
-                              sessionViewModel: try! container.resolve())
+            HomeView(viewModel: try! container.resolve())
         }
     }
 }
