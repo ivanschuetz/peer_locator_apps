@@ -5,7 +5,7 @@ import Combine
 protocol BleCentral {
     var statusMsg: PassthroughSubject<String, Never> { get }
     var writtenMyId: PassthroughSubject<BleId, Never> { get }
-    var discovered: PassthroughSubject<BleParticipant, Never> { get }
+    var discovered: AnyPublisher<BleParticipant, Never> { get }
 
     // Starts central if status is powered on. If request is sent before status is on, it will be
     // processed when status in on.
@@ -16,7 +16,9 @@ protocol BleCentral {
 class BleCentralImpl: NSObject, BleCentral {
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
-    let discovered = PassthroughSubject<BleParticipant, Never>()
+
+    let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
+    lazy var discovered = discoveredSubject.eraseToAnyPublisher()
 
     private let idService: BleIdService
 
@@ -26,6 +28,8 @@ class BleCentralImpl: NSObject, BleCentral {
     private let status = PassthroughSubject<CBManagerState, Never>()
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
+
+    private var discoveredByUuid: [UUID : BleId] = [:]
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -53,6 +57,7 @@ class BleCentralImpl: NSObject, BleCentral {
         if centralManager?.isScanning ?? false {
             centralManager?.stopScan()
         }
+        discoveredByUuid = [:]
     }
 
     private func start() {
@@ -74,6 +79,16 @@ extension BleCentralImpl: CBCentralManagerDelegate {
                         advertisementData: [String : Any], rssi: NSNumber) {
         self.peripheral = peripheral
         peripheral.delegate = self
+
+        if let id = discoveredByUuid[peripheral.identifier] {
+            let powerLevelMaybe = (advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber)?.intValue
+            let estimatedDistanceMeters = estimateDistance(
+                rssi: rssi.doubleValue,
+                powerLevelMaybe: powerLevelMaybe
+            )
+            log.d("Distance: \(estimatedDistanceMeters)", .ble)
+            discoveredSubject.send(BleParticipant(id: id, distance: estimatedDistanceMeters))
+        }
 
         if peripheral.state != .connected && peripheral.state != .connecting {
             // TODO connection count limit?
@@ -126,9 +141,10 @@ extension BleCentralImpl: CBPeripheralDelegate {
             if let value = characteristic.value {
                 // Unwrap: We send BleId, so we always expect BleId
                 let id = BleId(data: value)!
-                log.d("Received id: \(id)", .ble)
+                log.d("Received id: \(id), device uuid: \(peripheral.identifier)", .ble)
+                discoveredByUuid[peripheral.identifier] = id
                 // Did read id (from iOS, Android can broadcast it in advertisement, so it doesn't expose characteristic to read)
-                discovered.send(BleParticipant(id: id, distance: -1)) // TODO distance
+                discoveredSubject.send(BleParticipant(id: id, distance: -1)) // TODO distance
             } else {
                 log.w("Characteristic had no value", .ble)
             }
@@ -153,36 +169,45 @@ extension CBManagerState {
 }
 
 class BleCentralNoop: NSObject, BleCentral {
-    let discovered = PassthroughSubject<BleParticipant, Never>()
+    let discovered = PassthroughSubject<BleParticipant, Never>().eraseToAnyPublisher()
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
 }
 
-func estimateDistance(rssi: Double, txPowerLevelMaybe: Int?) -> Double {
-    estimatedDistance(
+func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {
+    log.d("Estimating distance for rssi: \(rssi), power level: \(String(describing: powerLevelMaybe))")
+    return estimatedDistance(
         rssi: rssi,
-        measuredRSSIAtOneMeter: rssiAtOneMeter(txPowerLevelMaybe: txPowerLevelMaybe)
-    ) * 100 // cm
+        powerLevel: powerLevel(powerLevelMaybe: powerLevelMaybe)
+    )
 }
 
-func rssiAtOneMeter(txPowerLevelMaybe: Int?) -> Double {
+func powerLevel(powerLevelMaybe: Int?) -> Double {
     // It seems we have to hardcode this, at least for Android
     // TODO do we have to differentiate between device brands? maybe we need a "handshake" where device
     // communicates it's power level via custom advertisement or gatt?
-    return txPowerLevelMaybe.map { Double($0) } ?? -80 // measured with Android (pixel 3)
+    return powerLevelMaybe.map { Double($0) } ?? -80 // measured with Android (pixel 3)
 }
 
-func estimatedDistance(rssi: Double, measuredRSSIAtOneMeter: Double) -> Double {
+// The power level is the RSSI at one meter. RSSI is negative, so we make it negative too
+// the results seem also not correct, so adjusted
+func powerLevelToUse(_ powerLevel: Double) -> Double {
+    switch powerLevel {
+        case 12...20:
+            return -58
+        case 9..<12:
+            return -72
+        default:
+            return -87
+    }
+}
+
+func estimatedDistance(rssi: Double, powerLevel: Double) -> Double {
     guard rssi != 0 else {
         return -1
     }
-
-    let ratio = rssi / measuredRSSIAtOneMeter;
-    if (ratio < 1.0) {
-      return pow(ratio, 10)
-    } else {
-      return 0.89976 * pow(ratio, 7.7095) + 0.111
-    }
+    let pw = powerLevelToUse(powerLevel)
+    return pow(10, (pw - rssi) / 20)  // TODO environment factor
 }
