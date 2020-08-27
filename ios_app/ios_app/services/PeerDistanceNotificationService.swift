@@ -13,11 +13,7 @@ class PeerDistanceNotificationService {
         self.peerService = peerService
         self.notificationService = notificationService
 
-        closePeerCancellable = peerService.peers
-            .compactMap { (peers) -> Peer? in
-                // For now only one peer supported, so get first
-                return Array(peers).first
-            }
+        closePeerCancellable = peerService.peer
             .filter { [weak self] peer in guard let self = self else { return false }
                 if let dist = peer.dist {
                     // != 0: sometimes we get 0 unexpectedly TODO investigate

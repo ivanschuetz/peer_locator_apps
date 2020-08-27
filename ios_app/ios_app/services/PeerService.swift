@@ -3,11 +3,11 @@ import Combine
 
 // TODO we also have p2pservice now: isn't it the same thing? merge?
 protocol PeerService {
-    var peers: AnyPublisher<Set<Peer>, Never> { get }
+    var peer: AnyPublisher<Peer, Never> { get }
 }
 
 class PeerServiceImpl: PeerService {
-    let peers: AnyPublisher<Set<Peer>, Never>
+    let peer: AnyPublisher<Peer, Never>
 
     private let nearby: Nearby
     private let bleManager: BleManager
@@ -18,7 +18,7 @@ class PeerServiceImpl: PeerService {
         self.bleManager = bleManager
         self.bleIdService = bleIdService
 
-        let validatedBlePeers = bleManager.discovered
+        let validatedBlePeer = bleManager.discovered
             .filter { bleIdService.validate(bleId: $0.id) }
 
         // TODO handling of invalid peer
@@ -32,31 +32,24 @@ class PeerServiceImpl: PeerService {
         // best priv is variable serv/char + asymmetric encrypted data (peers offer different payload)
         // TODO review whetehr this privacy level is needed at this stage
 
-        let blePeers = validatedBlePeers
-            .map { bleParticipant in
+        let blePeer: AnyPublisher<Peer, Never> = validatedBlePeer
+            .map { blePeer in
                 // TODO generate peer's name when creating/joining session, allow user to override (the peer)
-                Peer(name: "TODO BLE participant name",
-                     dist: Float(bleParticipant.distance),
+                Peer(name: "TODO BLE peer name",
+                     dist: Float(blePeer.distance),
                      loc: nil,
                      dir: nil,
                      src: .ble
                 )
             }
-            .scan(Dictionary<String, Peer>(), { acc, peer in
-                var dict: Dictionary<String, Peer> = acc
-                dict[peer.name] = peer
-
-                return dict
-            })
-            .map { Set($0.values) }
-            .handleEvents(receiveOutput: { peers in
-                log.d("Updated peers: \(peers)", .nearby)
+            .handleEvents(receiveOutput: { peer in
+                log.d("Updated peer: \(peer)", .ble)
             })
             .share()
             .eraseToAnyPublisher()
 
         // TODO: Nearby distance unit unclear. 
-        let nearbyPeers = nearby.discovered
+        let nearbyPeer: AnyPublisher<Peer, Never> = nearby.discovered
             .map { nearbyObj in
                 Peer(name: nearbyObj.name,
                      dist: nearbyObj.dist,
@@ -65,15 +58,8 @@ class PeerServiceImpl: PeerService {
                      src: .nearby
                 )
             }
-            .scan(Dictionary<String, Peer>(), { acc, peer in
-                var dict: Dictionary<String, Peer> = acc
-                dict[peer.name] = peer
-
-                return dict
-            })
-            .map { Set($0.values) }
-            .handleEvents(receiveOutput: { peers in
-                log.d("Updated peers: \(peers)", .nearby)
+            .handleEvents(receiveOutput: { peer in
+                log.d("Updated peers: \(peer)", .nearby)
             })
             .share()
             .eraseToAnyPublisher()
@@ -82,19 +68,19 @@ class PeerServiceImpl: PeerService {
         // after that always nearby.
         // TODO switch to ble on threshold (> x nearby events / second?) and back
         // and reduce intermittency somehow: ranges/tolerance?
-        let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeers
+        let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeer
             .map { _ in .nearby }
             .prepend(.ble)
             .eraseToAnyPublisher()
 
-        peers = blePeers
-            .merge(with: nearbyPeers)
+        peer = blePeer
+            .merge(with: nearbyPeer)
             .combineLatest(peerFilter)
-            .map { peers, filter in
-                // TODO consider handling only a peer (not Set<Peer>)
-                // we will not support multiple peers initially and it may confuse things
-                peers.filter { $0.src == filter }
+            .filter { peer, filter in
+                log.v("Filtering peer: \(peer) with: \(filter)", .ble, .nearby, .peer)
+                return peer.src == filter
             }
+            .map { peer, _ in peer }
             .eraseToAnyPublisher()
     }
 }

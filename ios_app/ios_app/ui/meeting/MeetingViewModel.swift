@@ -7,9 +7,10 @@ class MeetingViewModel: ObservableObject {
 
     private var discoveredCancellable: AnyCancellable?
 
-    init(bleManager: BleManager) {
-        discoveredCancellable = bleManager.discovered.sink { [weak self] discovered in
-            self?.distance = "\(discovered.distance)m"
+    init(peerService: PeerService) {
+        discoveredCancellable = peerService.peer.sink { [weak self] peer in
+            // TODO handle optional
+            self?.distance = "\(peer.dist)m"
         }
     }
 }

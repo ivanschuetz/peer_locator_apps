@@ -54,11 +54,10 @@ class Dependencies {
 
     private func registerServices(container: DependencyContainer) {
         container.register(.singleton) { TokenService() }
-        container.register(.eagerSingleton) { Nearby(tokenService: try container.resolve()) }
+        container.register(.eagerSingleton) { NearbyImpl(tokenService: try container.resolve()) as Nearby }
         container.register(.eagerSingleton) { PeerServiceImpl(nearby: try container.resolve(),
                                              bleManager: try container.resolve(),
                                              bleIdService: try container.resolve()) as PeerService }
-        container.register(.singleton) { RadarUIServiceImpl(peerService: try container.resolve()) as RadarUIService }
         container.register(.singleton) { NotificationServiceImpl() as NotificationService }
         container.register(.singleton) { NotificationPermissionImpl() as NotificationPermission }
         container.register(.eagerSingleton) { NotificationsDelegate() }
@@ -79,7 +78,7 @@ class Dependencies {
     }
 
     private func registerViewModels(container: DependencyContainer) {
-        container.register { MeetingViewModel(bleManager: try container.resolve()) }
+        container.register { MeetingViewModel(peerService: try container.resolve()) }
         container.register { SessionViewModel(sessionService: try container.resolve(),
                                               clipboard: try container.resolve(),
                                               uiNotifier: try container.resolve()) }

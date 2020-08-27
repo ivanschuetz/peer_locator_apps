@@ -26,11 +26,16 @@ extension NearbyObj: Hashable {
     }
 }
 
-class Nearby: NSObject, ObservableObject {
+protocol Nearby {
+    var discovered: AnyPublisher<NearbyObj, Never> { get }
+}
+
+class NearbyImpl: NSObject, Nearby, ObservableObject {
 
     var session: NISession?
 
-    let discovered: PassthroughSubject<NearbyObj, Never> = PassthroughSubject()
+    let discoveredSubject: PassthroughSubject<NearbyObj, Never> = PassthroughSubject()
+    lazy var discovered: AnyPublisher<NearbyObj, Never> = discoveredSubject.eraseToAnyPublisher()
 
     private let tokenService: TokenService
 
@@ -75,7 +80,7 @@ class Nearby: NSObject, ObservableObject {
     }
 }
 
-extension Nearby: TokenServiceDelegate {
+extension NearbyImpl: TokenServiceDelegate {
 
     func sessionReady() {
         sendMyTokenToPeer()
@@ -106,7 +111,7 @@ extension Nearby: TokenServiceDelegate {
     }
 }
 
-extension Nearby: NISessionDelegate {
+extension NearbyImpl: NISessionDelegate {
 
     func session(_ session: NISession, didUpdate nearbyObjects: [NINearbyObject]) {
         log.d("Session did update, objects: \(nearbyObjects)", .nearby)
@@ -115,7 +120,7 @@ extension Nearby: NISessionDelegate {
 
         let discovered = NearbyObj(name: obj.discoveryToken.description, dist: obj.distance.map { $0 * 100 } /*cm*/,
                                    dir: obj.direction)
-        self.discovered.send(discovered)
+        self.discoveredSubject.send(discovered)
     }
 
     // Peer gone

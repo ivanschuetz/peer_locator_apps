@@ -1,8 +1,11 @@
 import SwiftUI
 import Combine
+import Foundation
+import NearbyInteraction // leaky abstraction: TODO map nearby simd_float3 to own type
 
 struct MeetingView: View {
     @ObservedObject private var viewModel: MeetingViewModel
+    @Environment(\.colorScheme) var colorScheme
 
     init(viewModel: MeetingViewModel) {
         self.viewModel = viewModel
@@ -12,7 +15,7 @@ struct MeetingView: View {
         VStack(alignment: .center) {
             Text(viewModel.distance)
                 .font(.system(size: 50, weight: .heavy))
-                .foregroundColor(.white)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
         }
     }
 }
@@ -20,7 +23,8 @@ struct MeetingView: View {
 struct MeetingView_Previews: PreviewProvider {
     static var previews: some View {
         let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
-        MeetingView(viewModel: MeetingViewModel(bleManager: bleManager))
+        let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
+        MeetingView(viewModel: MeetingViewModel(peerService: peerService))
     }
 }
 
@@ -31,4 +35,19 @@ class BleCentralFixedDistance: NSObject, BleCentral {
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
+}
+
+class BleIdServiceNoop: BleIdService {
+    func id() -> BleId? {
+        nil
+    }
+
+    func validate(bleId: BleId) -> Bool {
+        false
+    }
+}
+
+class NearbyNoop: Nearby {
+    var discovered: AnyPublisher<NearbyObj, Never> =
+        Just(NearbyObj(name: "foo", dist: 1.2, dir: simd_float3(1, 1, 0))).eraseToAnyPublisher()
 }
