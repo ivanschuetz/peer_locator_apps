@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MeetingCreatedView: View {
-    private let viewModel: MeetingCreatedViewModel
+    @ObservedObject var viewModel: MeetingCreatedViewModel
 
     init(viewModel: MeetingCreatedViewModel) {
         self.viewModel = viewModel
@@ -17,6 +17,11 @@ struct MeetingCreatedView: View {
             })
         }
         .padding(.bottom, 30)
+        TextField(viewModel.link, text: $viewModel.sessionLinkInput)
+            .multilineTextAlignment(.center)
+            .padding(.top, 20)
+            .padding(.bottom, 20)
+            .background(Color.yellow)
         Text("Send this link to your peer using a medium of your choice")
             .padding(.bottom, 30)
         Button("Check session status", action: {

@@ -13,6 +13,11 @@ struct MeetingView: View {
 
     var body: some View {
         VStack(alignment: .center) {
+            Triangle()
+                .fill(Color.black)
+                .frame(width: 60, height: 60)
+                .padding(.bottom, 30)
+                .rotationEffect(viewModel.directionAngle)
             Text(viewModel.distance)
                 .font(.system(size: 50, weight: .heavy))
                 .foregroundColor(colorScheme == .dark ? .white : .black)
@@ -50,4 +55,16 @@ class BleIdServiceNoop: BleIdService {
 class NearbyNoop: Nearby {
     var discovered: AnyPublisher<NearbyObj, Never> =
         Just(NearbyObj(name: "foo", dist: 1.2, dir: simd_float3(1, 1, 0))).eraseToAnyPublisher()
+}
+
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+        return path
+    }
 }
