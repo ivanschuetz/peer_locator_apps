@@ -27,6 +27,7 @@
 		848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */; };
 		848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F5024CCA8E800F2D80B /* PeerDistanceNotificationService.swift */; };
 		848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F5224CCCADE00F2D80B /* NotificationsPermission.swift */; };
+		8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
 		849B612924EDB99400D321D1 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* SessionService.swift */; };
@@ -111,6 +112,7 @@
 		848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsDelegate.swift; sourceTree = "<group>"; };
 		848D5F5024CCA8E800F2D80B /* PeerDistanceNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerDistanceNotificationService.swift; sourceTree = "<group>"; };
 		848D5F5224CCCADE00F2D80B /* NotificationsPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsPermission.swift; sourceTree = "<group>"; };
+		8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatters.swift; sourceTree = "<group>"; };
 		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
 		849B612824EDB99400D321D1 /* SessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionService.swift; sourceTree = "<group>"; };
@@ -209,6 +211,14 @@
 				848D5F5224CCCADE00F2D80B /* NotificationsPermission.swift */,
 			);
 			path = notifications;
+			sourceTree = "<group>";
+		};
+		8490C24D24F7FD74002FAFE9 /* formatters */ = {
+			isa = PBXGroup;
+			children = (
+				8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */,
+			);
+			path = formatters;
 			sourceTree = "<group>";
 		};
 		84993A1624B5C05F0044AA27 /* system */ = {
@@ -326,6 +336,7 @@
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				8490C24D24F7FD74002FAFE9 /* formatters */,
 				84BEFEE224F66CEE006E4B61 /* meeting joined */,
 				84BEFEE124F66CDE006E4B61 /* meeting created */,
 				84BEFED824F62D94006E4B61 /* meeting */,
@@ -551,6 +562,7 @@
 				848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */,
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
 				848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */,
+				8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */,
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84BEFEE424F66CF7006E4B61 /* MeetingJoinedView.swift in Sources */,
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,

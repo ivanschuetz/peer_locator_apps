@@ -10,8 +10,9 @@ class MeetingViewModel: ObservableObject {
 
     init(peerService: PeerService) {
         discoveredCancellable = peerService.peer.sink { [weak self] peer in
-            // TODO handle optional
-            self?.distance = "\(peer.dist)m"
+            let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
+            // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
+            self?.distance = formattedDistance.map { "\($0)m" } ?? "?"
             if let dir = peer.dir {
                 self?.directionAngle.radians = toAngle(dir: dir)
             }
