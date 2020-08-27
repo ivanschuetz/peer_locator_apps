@@ -54,6 +54,7 @@ struct HomeView_Previews: PreviewProvider {
         let sessionService = NoopCurrentSessionService()
         let uiNotifier = NoopUINotifier()
         let clipboard = NoopClipboard()
+        let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralNoop())
 
         HomeView(viewModel: HomeViewModel(
                     sessionService: NoopCurrentSessionService(),
@@ -65,10 +66,7 @@ struct HomeView_Previews: PreviewProvider {
                                                                   uiNotifier: uiNotifier),
                  meetingJoinedViewModel: MeetingJoinedViewModel(sessionService: sessionService, clipboard: clipboard,
                                                                 uiNotifier: uiNotifier),
-                 meetingViewModel: MeetingViewModel(central: BleCentralNoop(),
-                                                    peripheral: BlePeripheralNoop(),
-                                                    radarService: RadarUIServiceNoop(),
-                                                    notificationPermission: NotificationPermissionImpl())
+                 meetingViewModel: MeetingViewModel(bleManager: bleManager)
         )
     }
 }

@@ -9,29 +9,26 @@ struct MeetingView: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            VStack {
-                RadarView(viewModel: viewModel).frame(width: 300, height: 300)
-                Text("Ble Status:")
-                Text(viewModel.labelValue)
-                Divider()
-                Text("My id:")
-                Text(viewModel.myId)
-                Divider()
-                Text("Discovered ids:")
-                List(viewModel.detectedDevices) { bleId in
-                    Text(bleId.bleId.str())
-                }
-            }
+        VStack(alignment: .center) {
+            Text(viewModel.distance)
+                .font(.system(size: 50, weight: .heavy))
+                .foregroundColor(.white)
         }
     }
 }
 
 struct MeetingView_Previews: PreviewProvider {
     static var previews: some View {
-        MeetingView(viewModel: MeetingViewModel(central: BleCentralNoop(),
-                                                peripheral: BlePeripheralNoop(),
-                                                radarService: RadarUIServiceNoop(),
-                                                notificationPermission: NotificationPermissionImpl()))
+        let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
+        MeetingView(viewModel: MeetingViewModel(bleManager: bleManager))
     }
+}
+
+class BleCentralFixedDistance: NSObject, BleCentral {
+    let discovered = Just(BleParticipant(id: BleId(str: "123")!,
+                                         distance: 10.2)).eraseToAnyPublisher()
+    let statusMsg = PassthroughSubject<String, Never>()
+    let writtenMyId = PassthroughSubject<BleId, Never>()
+    func requestStart() {}
+    func stop() {}
 }

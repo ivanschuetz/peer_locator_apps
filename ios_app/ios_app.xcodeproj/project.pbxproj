@@ -29,7 +29,6 @@
 		848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F5224CCCADE00F2D80B /* NotificationsPermission.swift */; };
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
-		849A851024C3208A00EDFE5F /* RadarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849A850F24C3208A00EDFE5F /* RadarView.swift */; };
 		849B612924EDB99400D321D1 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* SessionService.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
 		84B0672D22F9B3FF006DDC18 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */; };
@@ -114,7 +113,6 @@
 		848D5F5224CCCADE00F2D80B /* NotificationsPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsPermission.swift; sourceTree = "<group>"; };
 		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
-		849A850F24C3208A00EDFE5F /* RadarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarView.swift; sourceTree = "<group>"; };
 		849B612824EDB99400D321D1 /* SessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionService.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B0672922F9B3FF006DDC18 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -303,7 +301,6 @@
 			children = (
 				84DC104724B49E340064DEBE /* MeetingView.swift */,
 				84DC105624B4B3EB0064DEBE /* MeetingViewModel.swift */,
-				849A850F24C3208A00EDFE5F /* RadarView.swift */,
 			);
 			path = meeting;
 			sourceTree = "<group>";
@@ -573,7 +570,6 @@
 				841CBBF424F3DC39003E2A60 /* CurrentSessionService.swift in Sources */,
 				84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */,
 				843F7EF124F10477002AA5F8 /* BleId.swift in Sources */,
-				849A851024C3208A00EDFE5F /* RadarView.swift in Sources */,
 				8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */,
 				84BEFEDE24F63B31006E4B61 /* MeetingCreatedView.swift in Sources */,
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
