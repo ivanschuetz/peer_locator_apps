@@ -15,7 +15,7 @@ struct NearbyObj {
         else { return nil }
 
         let loc = Location(x: dir.x * dist, y: dir.y * dist)
-        log.d("Location: \(loc) calculated from dist: \(dist), dir: \(dir)")
+        log.d("Location: \(loc) calculated from dist: \(dist), dir: \(dir)", .nearby)
         return loc
     }
 }
@@ -44,7 +44,7 @@ class Nearby: NSObject, ObservableObject {
     // Starts the token service to exchange tokens and nearby when token available
     private func start() {
         guard NISession.isSupported else {
-            log.w("This device doesn't support nearby")
+            log.w("This device doesn't support nearby", .nearby)
             return
         }
 
@@ -97,7 +97,7 @@ extension Nearby: TokenServiceDelegate {
             log.v("Deserialized peer Nearby token: \(String(describing: nearbyToken))", .nearby)
 
             let config = NINearbyPeerConfiguration(peerToken: nearbyToken)
-            log.d("Running Nearby session")
+            log.d("Will run nearby session", .nearby)
             session.run(config)
 
         } catch (let e) {
