@@ -73,12 +73,14 @@ class Dependencies {
         container.register(.eagerSingleton) { P2pServiceImpl(bleManager: try container.resolve(),
                                                              sessionService: try container.resolve()) as P2pService }
         container.register(.singleton) {
-            CurrentSessionServiceImpl(sessionService: try container.resolve()) as CurrentSessionService
+            CurrentSessionServiceImpl(sessionService: try container.resolve(),
+                                      uiNotifier: try container.resolve()) as CurrentSessionService
         }
     }
 
     private func registerViewModels(container: DependencyContainer) {
-        container.register { MeetingViewModel(peerService: try container.resolve()) }
+        container.register { MeetingViewModel(peerService: try container.resolve(),
+                                              sessionService: try container.resolve()) }
         container.register { SessionViewModel(sessionService: try container.resolve(),
                                               clipboard: try container.resolve(),
                                               uiNotifier: try container.resolve()) }

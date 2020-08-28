@@ -5,6 +5,10 @@ protocol CurrentSessionService {
     func create()
     func join(link: SessionLink)
     func refresh()
+
+    // Locally opposed to the automatic deletion in the backend after participants have exchanged data
+    // Here the user isn't interested in the session anymore: the session data / keys / participants data are removed
+    func deleteSessionLocally()
 }
 
 class CurrentSessionServiceImpl: CurrentSessionService {
@@ -13,9 +17,11 @@ class CurrentSessionServiceImpl: CurrentSessionService {
     let session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never>
 
     private let sessionService: SessionService
+    private let uiNotifier: UINotifier
 
-    init(sessionService: SessionService) {
+    init(sessionService: SessionService, uiNotifier: UINotifier) {
         self.sessionService = sessionService
+        self.uiNotifier = uiNotifier
         sessionSubject = CurrentValueSubject(sessionService.currentSession())
         session = sessionSubject
             .handleEvents(receiveOutput: { sessionData in
@@ -34,5 +40,16 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 
     func refresh() {
         sessionSubject.send(sessionService.refreshSessionData().map { $0 } )
+    }
+
+    func deleteSessionLocally() {
+        switch sessionService.deleteSessionLocally() {
+        case .success:
+            sessionSubject.send(.success(nil))
+            uiNotifier.show(.success("Session deleted"))
+        case .failure(let e):
+            log.e("Couldn't delete session locally: \(e)")
+            uiNotifier.show(.error("Error deleting sesion: \(e)"))
+        }
     }
 }

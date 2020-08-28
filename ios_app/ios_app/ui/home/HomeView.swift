@@ -67,7 +67,7 @@ struct HomeView_Previews: PreviewProvider {
                                                                   uiNotifier: uiNotifier),
                  meetingJoinedViewModel: MeetingJoinedViewModel(sessionService: sessionService, clipboard: clipboard,
                                                                 uiNotifier: uiNotifier),
-                 meetingViewModel: MeetingViewModel(peerService: peerService)
+                 meetingViewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService)
         )
     }
 }

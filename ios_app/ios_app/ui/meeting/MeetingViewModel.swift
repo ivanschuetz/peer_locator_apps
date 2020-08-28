@@ -8,7 +8,11 @@ class MeetingViewModel: ObservableObject {
 
     private var discoveredCancellable: AnyCancellable?
 
-    init(peerService: PeerService) {
+    private let sessionService: CurrentSessionService
+
+    init(peerService: PeerService, sessionService: CurrentSessionService) {
+        self.sessionService = sessionService
+
         discoveredCancellable = peerService.peer.sink { [weak self] peer in
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
             // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
@@ -19,6 +23,9 @@ class MeetingViewModel: ObservableObject {
         }
     }
 
+    func deleteSession() {
+        sessionService.deleteSessionLocally()
+    }
 }
 
 struct BleIdRow: Identifiable {

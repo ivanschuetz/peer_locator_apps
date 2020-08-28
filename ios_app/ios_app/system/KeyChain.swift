@@ -13,6 +13,7 @@ protocol KeyChain {
     func putEncodable<T: Encodable>(key: KeyChainKey, value: T) -> Result<(), ServicesError>
     func getDecodable<T: Decodable>(key: KeyChainKey) -> Result<T?, ServicesError>
 
+    func remove(_ key: KeyChainKey) -> Result<(), ServicesError>
     func removeAll() -> Result<(), ServicesError>
 }
 

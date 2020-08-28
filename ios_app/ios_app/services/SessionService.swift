@@ -13,6 +13,7 @@ protocol SessionService {
     func currentSession() -> Result<SharedSessionData?, ServicesError>
 
     func currentSessionParticipants() -> Result<Participants?, ServicesError>
+    func deleteSessionLocally() -> Result<(), ServicesError>
 }
 
 class SessionServiceImpl: SessionService {
@@ -41,6 +42,14 @@ class SessionServiceImpl: SessionService {
         case .failure(let e):
             return .failure(e)
         }
+    }
+
+    func deleteSessionLocally() -> Result<(), ServicesError> {
+        let res = keyChain.remove(.mySessionData).flatMap {
+            keyChain.remove(.participants)
+        }
+        log.d("Delete session locally result: \(res)")
+        return res
     }
 
     private func hasActiveSession() -> Bool {

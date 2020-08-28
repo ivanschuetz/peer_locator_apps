@@ -21,6 +21,10 @@ struct MeetingView: View {
             Text(viewModel.distance)
                 .font(.system(size: 50, weight: .heavy))
                 .foregroundColor(colorScheme == .dark ? .white : .black)
+                .padding(.bottom, 50)
+            Button("Delete session") {
+                viewModel.deleteSession()
+            }
         }
     }
 }
@@ -29,7 +33,9 @@ struct MeetingView_Previews: PreviewProvider {
     static var previews: some View {
         let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
         let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
-        MeetingView(viewModel: MeetingViewModel(peerService: peerService))
+        let sessionService = NoopCurrentSessionService()
+        let uiNotifier = NoopUINotifier()
+        MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService))
     }
 }
 

@@ -56,6 +56,9 @@ class NoopUINotifier: UINotifier {
 }
 
 class NoopSessionService: SessionService {
+    func deleteSessionLocally() -> Result<(), ServicesError> {
+        .success(())
+    }
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
         .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: true))
@@ -79,6 +82,8 @@ class NoopSessionService: SessionService {
 }
 
 class NoopCurrentSessionService: CurrentSessionService {
+    func deleteSessionLocally() {}
+
     var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> = Just(.success(nil))
         .eraseToAnyPublisher()
 
