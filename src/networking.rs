@@ -37,6 +37,11 @@ pub struct ParticipantsRequestParams {
     pub session_id: String,
     // TODO send uuid+signature too, so not anyone that has the session id can download the participants
 }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DeleteRequestParams {
+    pub peer_id: String,
+    // TODO send uuid+signature too, so not anyone that has the session id can download the participants
+}
 
 #[derive(Debug, Clone)]
 pub struct SessionKey {
@@ -119,6 +124,7 @@ pub trait RemoteSessionApi {
     fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError>;
     fn ack(&self, uuid: String, count: i32) -> Result<bool, NetworkingError>;
     fn participants(&self, session_id: String) -> Result<Session, NetworkingError>;
+    fn delete(&self, peer_id: String) -> Result<(), NetworkingError>;
 }
 
 pub struct RemoteSessionApiImpl {}
@@ -244,6 +250,26 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
             keys: r.keys,
         })
     }
+
+    fn delete(&self, peer_id: String) -> Result<(), NetworkingError> {
+        info!("Networking: marking as deleted, peer id: {:?}", peer_id);
+
+        let params = DeleteRequestParams {
+            peer_id: peer_id.clone(),
+        };
+
+        let url: &str = &format!("{}del", BASE_URL.to_owned())[..];
+        let params_str = serde_json::to_string(&params).unwrap();
+
+        let client = Self::create_client()?;
+        client
+            .post(url)
+            .header("Content-Type", "application/json")
+            .body(params_str)
+            .send()?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -280,6 +306,7 @@ mod tests {
     // so state accumulates between tests. Current tests fail when run together.
 
     use super::*;
+    use uuid::Uuid;
 
     //To run these tests use: 'cargo test -- --ignored'
     #[test]
@@ -366,7 +393,7 @@ mod tests {
     fn ack_session_is_err() {
         let api = RemoteSessionApiImpl {};
         // random uuid, so it will not find anything
-        let res1 = api.ack(Uuid::new_v4(), 1);
+        let res1 = api.ack(Uuid::new_v4().to_string(), 1);
         assert!(res1.is_err());
     }
 

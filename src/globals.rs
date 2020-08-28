@@ -4,7 +4,6 @@ use crate::networking::{
 // use openssl::rsa::Rsa;
 
 use log::*;
-use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct KeyPair {
@@ -69,5 +68,12 @@ pub fn participants(session_id: String) -> Result<Session, ServicesError> {
     let api = RemoteSessionApiImpl {};
     let res = api.participants(session_id).map_err(ServicesError::from);
     debug!("Participants res: {:?}", res);
+    res
+}
+
+pub fn delete(peer_id: String) -> Result<(), ServicesError> {
+    let api = RemoteSessionApiImpl {};
+    let res = api.delete(peer_id).map_err(ServicesError::from);
+    debug!("Mark as deleted res: {:?}", res);
     res
 }

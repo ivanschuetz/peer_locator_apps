@@ -34,6 +34,12 @@ typedef struct {
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
 typedef struct {
   int32_t status;
+} FFIDeleteResult;
+#endif
+
+#if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
+typedef struct {
+  int32_t status;
   CFStringRef session_json;
 } FFIParticipantsResult;
 #endif
@@ -78,6 +84,10 @@ FFIKeyPairResult ffi_create_key_pair(void);
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
 FFISessionResult ffi_create_session(const char *session_id, const char *key);
+#endif
+
+#if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))
+FFIDeleteResult ffi_delete(const char *peer_id);
 #endif
 
 #if (defined(TARGET_OS_IOS) || defined(TARGET_OS_MACOS))

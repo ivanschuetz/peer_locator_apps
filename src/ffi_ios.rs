@@ -1,6 +1,6 @@
 use crate::globals::ack;
 use crate::globals::join_session_with_id;
-use crate::globals::{create_key_pair, participants, start_session};
+use crate::globals::{create_key_pair, delete, participants, start_session};
 use crate::logger;
 use crate::{
     logger::{CoreLogLevel, CoreLogMessageThreadSafe, SENDER},
@@ -49,6 +49,11 @@ pub struct FFIAckResult {
 pub struct FFIParticipantsResult {
     status: i32, // 1 -> success, 0 -> unknown error
     session_json: CFStringRef,
+}
+
+#[repr(C)]
+pub struct FFIDeleteResult {
+    status: i32, // 1 -> success, 0 -> unknown error
 }
 
 #[no_mangle]
@@ -207,6 +212,20 @@ pub unsafe extern "C" fn ffi_participants(session_id: *const c_char) -> FFIParti
                 status: 0,
                 session_json: cf_string_ref,
             }
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ffi_delete(peer_id: *const c_char) -> FFIDeleteResult {
+    let session_id_str: String = cstring_to_str(&peer_id).into();
+    let res = delete(session_id_str);
+
+    match res {
+        Ok(_) => FFIDeleteResult { status: 1 },
+        Err(e) => {
+            error!("Error marking as deleted: {:?}", e);
+            FFIDeleteResult { status: 0 }
         }
     }
 }
