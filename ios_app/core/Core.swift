@@ -14,6 +14,7 @@ protocol SessionApi {
     func joinSession(id: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
     func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<SessionReady, ServicesError>
     func participants(sessionId: SessionId) -> Result<Session, ServicesError>
+    func delete(peerId: ParticipantId) -> Result<(), ServicesError>
 }
 
 class CoreImpl: SessionApi, Bootstrapper {
@@ -63,6 +64,14 @@ class CoreImpl: SessionApi, Bootstrapper {
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
         default: return .failure(.general("Fetch participants error: \(res)"))
+        }
+    }
+
+    func delete(peerId: ParticipantId) -> Result<(), ServicesError> {
+        let res = ffi_delete(peerId.value)
+        switch res.status {
+        case 1: return .success(())
+        default: return .failure(.general("Mark peer as deleted error: \(res)"))
         }
     }
 

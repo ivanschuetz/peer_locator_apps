@@ -76,8 +76,18 @@ class SessionServiceImpl: SessionService {
                 log.d("Session ready: \(readyRes)", .session)
                 switch readyRes {
                 case .success(let ready):
-                    return .success(SharedSessionData(id: sessionId, isReady: ready,
-                                                      createdByMe: sessionData.createdByMe))
+                    switch ready {
+                    case .yes:
+                        let markDeletedRes = markDeleted(sessionData: sessionData)
+                        switch markDeletedRes {
+                        case .success: return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
+                                                                         createdByMe: sessionData.createdByMe))
+                        case .failure(let e): return .failure(e)
+                        }
+                    case .no:
+                        return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
+                                                          createdByMe: sessionData.createdByMe))
+                    }
                 case .failure(let e):
                     return .failure(e)
                 }
@@ -99,9 +109,25 @@ class SessionServiceImpl: SessionService {
                 let fetchAndStoreRes = fetchAndStoreParticipants(sessionId: sessionData.sessionId)
                 switch fetchAndStoreRes {
                 // Ack the participants and see whether session is ready (everyone acked all the participants)
-                case .success: return ackAndRequestSessionReady().map {
-                    SharedSessionData(id: sessionData.sessionId, isReady: $0, createdByMe: sessionData.createdByMe)
-                }
+                case .success:
+                    let readyRes = ackAndRequestSessionReady()
+                    switch readyRes {
+                    case .success(let ready):
+                        switch ready {
+                        case .yes:
+                            let markDeletedRes = markDeleted(sessionData: sessionData)
+                            switch markDeletedRes {
+                            case .success: return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
+                                                                             createdByMe: sessionData.createdByMe))
+                            case .failure(let e): return .failure(e)
+                            }
+                        case .no:
+                            return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
+                                                              createdByMe: sessionData.createdByMe))
+                        }
+                    case .failure(let e):
+                        return .failure(e)
+                    }
                 case .failure(let e): return .failure(.general("Couldn't fetch or store participants: \(e)"))
                 }
             } else {
@@ -139,6 +165,14 @@ class SessionServiceImpl: SessionService {
 
     func currentSessionParticipants() -> Result<Participants?, ServicesError> {
         keyChain.getDecodable(key: .participants)
+    }
+
+    private func markDeleted(sessionData: MySessionData) -> Result<(), ServicesError> {
+        // TODO keep retrying if fails. It's important that the session is deleted.
+        let peerId = sessionData.participantId
+        let res = sessionApi.delete(peerId: peerId)
+        log.d("Mark deleted result: \(res) for peer id: \(peerId)")
+        return res
     }
 
     private func ackAndRequestSessionReady() -> Result<SessionReady, ServicesError> {
