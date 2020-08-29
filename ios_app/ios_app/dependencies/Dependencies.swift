@@ -35,6 +35,7 @@ class Dependencies {
         container.register(.singleton) { CryptoImpl() as Crypto }
         container.register(.singleton) { ClipboardImpl() as Clipboard }
         container.register(.singleton) { UINotifierImpl() as UINotifier }
+        container.register(.singleton) { DeeplinkHandlerImpl(sessionService: try container.resolve()) as DeeplinkHandler }
     }
 
     private func registerBle(container: DependencyContainer) {

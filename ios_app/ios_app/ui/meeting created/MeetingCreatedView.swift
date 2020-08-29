@@ -33,7 +33,7 @@ struct MeetingCreatedView: View {
         // TODO don't allow to show modal if there's no link
         .sheet(isPresented: $showShareSheet) {
             // TODO no optional (viewModel.link)
-            ShareSheet(activityItems: [viewModel.link!])
+            ShareSheet(activityItems: [viewModel.link])
         }
         Button("Check session status", action: {
             viewModel.updateSession()

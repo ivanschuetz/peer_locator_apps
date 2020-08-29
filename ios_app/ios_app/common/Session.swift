@@ -56,13 +56,13 @@ struct Participants: Encodable, Decodable {
 
 struct SessionLink {
     let value: URL
+    // TODO validate URL on initialization
 }
 
 extension SessionLink {
     func extractSessionId() -> Result<SessionId, ServicesError> {
-        // TODO check that baseURL/absoluteString returns id
-        if let id = value.baseURL {
-            return .success(SessionId(value: id.absoluteString))
+        if let id = value.host {
+            return .success(SessionId(value: id))
         } else {
             return .failure(.general("Invalid session link: \(self)"))
         }

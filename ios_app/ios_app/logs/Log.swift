@@ -1,5 +1,5 @@
 enum LogTag {
-    case ble, ui, peer, nearby, notifications, session, env, core, val
+    case ble, ui, peer, nearby, notifications, session, env, core, val, deeplink
 }
 
 protocol Log {
