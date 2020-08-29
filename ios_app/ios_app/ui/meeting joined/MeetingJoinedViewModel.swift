@@ -20,7 +20,7 @@ class MeetingJoinedViewModel: ObservableObject {
             switch sharedSessionDataRes {
             case .success(let sessionData):
                 if let sessionData = sessionData {
-                    self?.link = sessionData.id.createLink().value
+                    self?.link = sessionData.id.createLink().value.absoluteString
                 }
             case .failure(let e):
                 // If there are issues retrieving session this screen normally shouldn't be presented

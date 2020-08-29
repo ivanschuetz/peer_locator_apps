@@ -26,8 +26,7 @@ struct SessionId: Encodable, Decodable {
 
 extension SessionId {
     func createLink() -> SessionLink {
-        // remeet? rebond? pre-pair? wemeet?
-        SessionLink(value: "vemeet://\(value)")
+        SessionLink(value: URL(string: "ploc://\(value)")!)
     }
 }
 
@@ -56,15 +55,14 @@ struct Participants: Encodable, Decodable {
 }
 
 struct SessionLink {
-    let value: String
+    let value: URL
 }
 
 extension SessionLink {
     func extractSessionId() -> Result<SessionId, ServicesError> {
-        let comps = value.components(separatedBy: CharacterSet(charactersIn: "//"))
-        // 1: schema, 2: empty string, 3: id
-        if comps.count == 3 {
-            return .success(SessionId(value: comps[2]))
+        // TODO check that baseURL/absoluteString returns id
+        if let id = value.baseURL {
+            return .success(SessionId(value: id.absoluteString))
         } else {
             return .failure(.general("Invalid session link: \(self)"))
         }

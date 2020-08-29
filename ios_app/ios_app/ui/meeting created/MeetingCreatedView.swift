@@ -3,6 +3,8 @@ import SwiftUI
 struct MeetingCreatedView: View {
     @ObservedObject var viewModel: MeetingCreatedViewModel
 
+    @State private var showShareSheet = false
+
     init(viewModel: MeetingCreatedViewModel) {
         self.viewModel = viewModel
     }
@@ -11,19 +13,28 @@ struct MeetingCreatedView: View {
         Text("Meeting link")
             .padding(.bottom, 30)
         HStack {
-            Text(viewModel.link)
+            Text(viewModel.linkText)
             Button("Copy", action: {
                 viewModel.onCopyLinkTap()
             })
         }
         .padding(.bottom, 30)
-        TextField(viewModel.link, text: $viewModel.sessionLinkInput)
+        TextField(viewModel.linkText, text: $viewModel.sessionLinkInput)
             .multilineTextAlignment(.center)
             .padding(.top, 20)
             .padding(.bottom, 20)
             .background(Color.yellow)
         Text("Send this link to your peer using a medium of your choice")
             .padding(.bottom, 30)
+        Button("Share", action: {
+            showShareSheet = true
+        })
+        .padding(.bottom, 30)
+        // TODO don't allow to show modal if there's no link
+        .sheet(isPresented: $showShareSheet) {
+            // TODO no optional (viewModel.link)
+            ShareSheet(activityItems: [viewModel.link!])
+        }
         Button("Check session status", action: {
             viewModel.updateSession()
         })

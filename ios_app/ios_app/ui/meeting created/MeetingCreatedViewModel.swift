@@ -3,13 +3,16 @@ import SwiftUI
 import Combine
 
 class MeetingCreatedViewModel: ObservableObject {
-    @Published var link: String = ""
+    @Published var linkText: String = ""
+    @Published var link: URL? = nil
 
     private let sessionService: CurrentSessionService
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
 
     private var sessionCancellable: Cancellable?
+
+    @Published var sessionLinkInput: String = ""
 
     init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier) {
         self.sessionService = sessionService
@@ -20,7 +23,9 @@ class MeetingCreatedViewModel: ObservableObject {
             switch sharedSessionDataRes {
             case .success(let sessionData):
                 if let sessionData = sessionData {
-                    self?.link = sessionData.id.createLink().value
+                    let link = sessionData.id.createLink()
+                    self?.link = link.value
+                    self?.linkText = link.value.absoluteString
                 }
             case .failure(let e):
                 // If there are issues retrieving session this screen normally shouldn't be presented
@@ -34,7 +39,7 @@ class MeetingCreatedViewModel: ObservableObject {
 
     func onCopyLinkTap() {
         // TODO check that link isn't empty
-        clipboard.putInClipboard(text: link)
+        clipboard.putInClipboard(text: linkText)
         // TODO notification
         uiNotifier.show(.success("Copied link to clipboard: \(link)"))
         log.d("Copied link to clipboard: \(link)", .ui)

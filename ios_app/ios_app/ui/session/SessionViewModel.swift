@@ -9,6 +9,7 @@ class SessionViewModel: ObservableObject {
 
     @Published var createdSessionLink: String = ""
     @Published var sessionStartedMessage: String = ""
+//    @Published var sessionLinkInput: String = "vemeet://54D3B240-29DA-4569-80B3-1B07DE045000"
     @Published var sessionLinkInput: String = ""
 
     private var sessionCancellable: AnyCancellable?
@@ -22,7 +23,7 @@ class SessionViewModel: ObservableObject {
             .sink(receiveCompletion: { completion in }) { [weak self] sessionRes in
                 switch sessionRes {
                 case .success(let session):
-                    self?.createdSessionLink = session?.id.createLink().value ?? ""
+                    self?.createdSessionLink = session?.id.createLink().value.absoluteString ?? ""
                 case .failure(let e):
                     log.e("Current session error: \(e)", .session)
                     uiNotifier.show(.error("Current session error: \(e)"))
@@ -41,9 +42,14 @@ class SessionViewModel: ObservableObject {
             uiNotifier.show(.error("Session link is empty. Nothing to join"))
             // TODO this state should be impossible: if there's no link in input, don't allow to press join
             return
-            // TODO failable SessionLink initializer
         }
-        sessionService.join(link: SessionLink(value: sessionLinkInput))
+        guard let url = URL(string: sessionLinkInput) else {
+            log.e("Invalid session link input: \(sessionLinkInput). Nothing to join", .session)
+            uiNotifier.show(.error("Invalid session link input: \(sessionLinkInput). Nothing to join"))
+            return
+        }
+
+        sessionService.join(link: SessionLink(value: url))
     }
 
     // TODO call when opening the screen, maybe also pull to refresh "update participants status..."
