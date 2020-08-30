@@ -12,6 +12,7 @@ class Dependencies {
         registerBle(container: container)
         registerServices(container: container)
         registerViewModels(container: container)
+        registerWatch(container: container)
 
         // Throws if components fail to instantiate
         try! container.bootstrap()
@@ -93,5 +94,13 @@ class Dependencies {
         container.register { MeetingJoinedViewModel(sessionService: try container.resolve(),
                                                     clipboard: try container.resolve(),
                                                     uiNotifier: try container.resolve()) }
+    }
+
+    private func registerWatch(container: DependencyContainer) {
+        container.register(.eagerSingleton) { ConnectivityHandler() as WatchBridge }
+        container.register(.eagerSingleton) { WatchEventsForwarderImpl(
+            sessionService: try container.resolve(),
+            watchBridge: try container.resolve(),
+            peerService: try container.resolve()) as WatchEventsForwarder }
     }
 }

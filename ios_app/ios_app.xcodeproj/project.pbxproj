@@ -46,6 +46,27 @@
 		84B6DC8B24FBA33000AA7E6D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B6DC8A24FBA33000AA7E6D /* Assets.xcassets */; };
 		84B6DC8E24FBA33000AA7E6D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B6DC8D24FBA33000AA7E6D /* Preview Assets.xcassets */; };
 		84B6DC9324FBA33000AA7E6D /* ploc_watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 84B6DC7224FBA32E00AA7E6D /* ploc_watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		84B6DC9D24FBA4EF00AA7E6D /* PhoneBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DC9C24FBA4EF00AA7E6D /* PhoneBridge.swift */; };
+		84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DC9F24FBA5A600AA7E6D /* WatchBridge.swift */; };
+		84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCA224FBA6FC00AA7E6D /* WatchEventsForwarder.swift */; };
+		84B6DCA724FBA88C00AA7E6D /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCA624FBA88C00AA7E6D /* Dependencies.swift */; };
+		84B6DCA924FBA8E500AA7E6D /* Dip in Frameworks */ = {isa = PBXBuildFile; productRef = 84B6DCA824FBA8E500AA7E6D /* Dip */; };
+		84B6DCAB24FBAB1800AA7E6D /* SessionDataDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCAA24FBAB1800AA7E6D /* SessionDataDispatcher.swift */; };
+		84B6DCAD24FBAC5700AA7E6D /* Peer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCAC24FBAC5700AA7E6D /* Peer.swift */; };
+		84B6DCAE24FBAC7C00AA7E6D /* Peer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCAC24FBAC5700AA7E6D /* Peer.swift */; };
+		84B6DCB024FBAFA300AA7E6D /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
+		84B6DCB224FBB00E00AA7E6D /* SharedSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */; };
+		84B6DCB324FBB01D00AA7E6D /* SharedSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */; };
+		84B6DCB524FBB03500AA7E6D /* SessionId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB424FBB03500AA7E6D /* SessionId.swift */; };
+		84B6DCB624FBB04200AA7E6D /* SessionId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB424FBB03500AA7E6D /* SessionId.swift */; };
+		84B6DCB824FBC13900AA7E6D /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */; };
+		84B6DCB924FBC1AB00AA7E6D /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
+		84B6DCBB24FBC26800AA7E6D /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCBA24FBC26800AA7E6D /* Triangle.swift */; };
+		84B6DCBC24FBC28400AA7E6D /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCBA24FBC26800AA7E6D /* Triangle.swift */; };
+		84B6DCBD24FBC39100AA7E6D /* CompositeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7B24C6F64300E2F175 /* CompositeLog.swift */; };
+		84B6DCBE24FBC39100AA7E6D /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7A24C6F64300E2F175 /* Log.swift */; };
+		84B6DCBF24FBC39100AA7E6D /* ConsoleLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */; };
+		84B6DCC024FBC39100AA7E6D /* CachingLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7D24C6F64300E2F175 /* CachingLog.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
 		84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */; };
 		84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1124EFDAAD004CE510 /* Json.swift */; };
@@ -188,6 +209,16 @@
 		84B6DC8D24FBA33000AA7E6D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		84B6DC8F24FBA33000AA7E6D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		84B6DC9024FBA33000AA7E6D /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		84B6DC9C24FBA4EF00AA7E6D /* PhoneBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneBridge.swift; sourceTree = "<group>"; };
+		84B6DC9F24FBA5A600AA7E6D /* WatchBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
+		84B6DCA224FBA6FC00AA7E6D /* WatchEventsForwarder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchEventsForwarder.swift; sourceTree = "<group>"; };
+		84B6DCA624FBA88C00AA7E6D /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
+		84B6DCAA24FBAB1800AA7E6D /* SessionDataDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDataDispatcher.swift; sourceTree = "<group>"; };
+		84B6DCAC24FBAC5700AA7E6D /* Peer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Peer.swift; sourceTree = "<group>"; };
+		84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedSessionData.swift; sourceTree = "<group>"; };
+		84B6DCB424FBB03500AA7E6D /* SessionId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionId.swift; sourceTree = "<group>"; };
+		84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
+		84B6DCBA24FBC26800AA7E6D /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
 		84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		84BE8E1124EFDAAD004CE510 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
@@ -238,6 +269,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84B6DCA924FBA8E500AA7E6D /* Dip in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,6 +300,9 @@
 			children = (
 				8489BAE624EAF439006D1CD3 /* ServicesError.swift */,
 				8489BAE824EAF453006D1CD3 /* Session.swift */,
+				84B6DCAC24FBAC5700AA7E6D /* Peer.swift */,
+				84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */,
+				84B6DCB424FBB03500AA7E6D /* SessionId.swift */,
 			);
 			path = common;
 			sourceTree = "<group>";
@@ -349,6 +384,7 @@
 		84B0672122F9B3FE006DDC18 /* ios_app */ = {
 			isa = PBXGroup;
 			children = (
+				84B6DC9E24FBA59A00AA7E6D /* watch */,
 				8489BAE524EAF42F006D1CD3 /* common */,
 				84E3DC8224C6F9A100E2F175 /* nearby */,
 				84E3DC7924C6F64300E2F175 /* logs */,
@@ -402,6 +438,10 @@
 				84B6DC8F24FBA33000AA7E6D /* Info.plist */,
 				84B6DC9024FBA33000AA7E6D /* PushNotificationPayload.apns */,
 				84B6DC8C24FBA33000AA7E6D /* Preview Content */,
+				84B6DC9C24FBA4EF00AA7E6D /* PhoneBridge.swift */,
+				84B6DCA624FBA88C00AA7E6D /* Dependencies.swift */,
+				84B6DCAA24FBAB1800AA7E6D /* SessionDataDispatcher.swift */,
+				84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */,
 			);
 			path = "ploc_watch Extension";
 			sourceTree = "<group>";
@@ -414,11 +454,21 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		84B6DC9E24FBA59A00AA7E6D /* watch */ = {
+			isa = PBXGroup;
+			children = (
+				84B6DC9F24FBA5A600AA7E6D /* WatchBridge.swift */,
+				84B6DCA224FBA6FC00AA7E6D /* WatchEventsForwarder.swift */,
+			);
+			path = watch;
+			sourceTree = "<group>";
+		};
 		84BEFED824F62D94006E4B61 /* meeting */ = {
 			isa = PBXGroup;
 			children = (
 				84DC104724B49E340064DEBE /* MeetingView.swift */,
 				84DC105624B4B3EB0064DEBE /* MeetingViewModel.swift */,
+				84B6DCBA24FBC26800AA7E6D /* Triangle.swift */,
 			);
 			path = meeting;
 			sourceTree = "<group>";
@@ -624,6 +674,9 @@
 			dependencies = (
 			);
 			name = "ploc_watch Extension";
+			packageProductDependencies = (
+				84B6DCA824FBA8E500AA7E6D /* Dip */,
+			);
 			productName = "ploc_watch Extension";
 			productReference = 84B6DC7B24FBA32F00AA7E6D /* ploc_watch Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
@@ -727,10 +780,12 @@
 				84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */,
 				84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */,
 				84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */,
+				84B6DCBC24FBC28400AA7E6D /* Triangle.swift in Sources */,
 				848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */,
 				84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */,
 				848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */,
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
+				84B6DCB324FBB01D00AA7E6D /* SharedSessionData.swift in Sources */,
 				848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */,
 				8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */,
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
@@ -739,7 +794,9 @@
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,
 				841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */,
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
+				84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */,
+				84B6DCB624FBB04200AA7E6D /* SessionId.swift in Sources */,
 				848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */,
 				84BEFEE024F63B61006E4B61 /* MeetingCreatedViewModel.swift in Sources */,
 				84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */,
@@ -768,8 +825,10 @@
 				84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */,
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84BEFEDA24F62E77006E4B61 /* HomeViewModel.swift in Sources */,
+				84B6DCAE24FBAC7C00AA7E6D /* Peer.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
+				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* TokenService.swift in Sources */,
 				849B612924EDB99400D321D1 /* SessionService.swift in Sources */,
 			);
@@ -787,11 +846,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84B6DCAD24FBAC5700AA7E6D /* Peer.swift in Sources */,
+				84B6DCB824FBC13900AA7E6D /* ContentViewModel.swift in Sources */,
+				84B6DCBF24FBC39100AA7E6D /* ConsoleLog.swift in Sources */,
+				84B6DCBD24FBC39100AA7E6D /* CompositeLog.swift in Sources */,
+				84B6DCA724FBA88C00AA7E6D /* Dependencies.swift in Sources */,
 				84B6DC8524FBA32F00AA7E6D /* NotificationController.swift in Sources */,
 				84B6DC8324FBA32F00AA7E6D /* ContentView.swift in Sources */,
+				84B6DCB924FBC1AB00AA7E6D /* NumberFormatters.swift in Sources */,
+				84B6DCAB24FBAB1800AA7E6D /* SessionDataDispatcher.swift in Sources */,
+				84B6DCC024FBC39100AA7E6D /* CachingLog.swift in Sources */,
+				84B6DCBE24FBC39100AA7E6D /* Log.swift in Sources */,
+				84B6DCB024FBAFA300AA7E6D /* ServicesError.swift in Sources */,
 				84B6DC8924FBA32F00AA7E6D /* ComplicationController.swift in Sources */,
+				84B6DC9D24FBA4EF00AA7E6D /* PhoneBridge.swift in Sources */,
 				84B6DC8124FBA32F00AA7E6D /* ios_appApp.swift in Sources */,
 				84B6DC8724FBA32F00AA7E6D /* NotificationView.swift in Sources */,
+				84B6DCBB24FBC26800AA7E6D /* Triangle.swift in Sources */,
+				84B6DCB224FBB00E00AA7E6D /* SharedSessionData.swift in Sources */,
+				84B6DCB524FBB03500AA7E6D /* SessionId.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1075,6 +1148,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -1095,6 +1169,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -1255,6 +1330,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */;
 			productName = Valet;
+		};
+		84B6DCA824FBA8E500AA7E6D /* Dip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */;
+			productName = Dip;
 		};
 		84DC105C24B4CCC70064DEBE /* Dip */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -20,9 +20,6 @@ struct PrivateKey: Encodable, Decodable {
     let value: String // P521 PEM representation
 }
 
-struct SessionId: Encodable, Decodable {
-    let value: String
-}
 
 extension SessionId {
     func createLink() -> SessionLink {
@@ -72,15 +69,4 @@ extension SessionLink {
 struct SessionPayloadToSign: Encodable, Decodable {
     // For now a red herring. Normally we should encrypt, with a nonce.
     let id: String
-}
-
-struct SharedSessionData {
-    let id: SessionId
-    let isReady: SessionReady
-    let createdByMe: Bool
-}
-
-// TODO maybe replace with SessionStatus { ready, notReady } ?
-enum SessionReady {
-    case yes, no
 }
