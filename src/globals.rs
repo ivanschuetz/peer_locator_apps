@@ -1,14 +1,21 @@
-use crate::networking::{
-    PublicKey, RemoteSessionApi, RemoteSessionApiImpl, ServicesError, Session, SessionKey,
-};
+use crate::networking::{RemoteSessionApi, RemoteSessionApiImpl, Session};
 // use openssl::rsa::Rsa;
 
 use log::*;
+use ploc_common::errors::ServicesError;
+use ploc_common::model_types::PublicKey;
 
 #[derive(Debug, Clone)]
 pub struct KeyPair {
     pub private: Vec<u8>,
     pub public: Vec<u8>,
+}
+
+// TODO rename this in ClientParticipant
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ClientSessionKey {
+    pub session_id: String,
+    pub key: PublicKey,
 }
 
 pub fn start_session(session_id: String, key: String) -> Result<Session, ServicesError> {
@@ -23,7 +30,7 @@ pub fn join_session_with_id(id: String, key: String) -> Result<Session, Services
     debug!("Joining session with id: {}, key: {}", id, key);
     let api = RemoteSessionApiImpl {};
     let res = api
-        .join_session(SessionKey {
+        .join_session(ClientSessionKey {
             session_id: id,
             key: PublicKey { str: key },
         })

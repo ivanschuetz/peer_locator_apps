@@ -2,10 +2,7 @@ use crate::globals::ack;
 use crate::globals::join_session_with_id;
 use crate::globals::{create_key_pair, delete, participants, start_session};
 use crate::logger;
-use crate::{
-    logger::{CoreLogLevel, CoreLogMessageThreadSafe, SENDER},
-    networking::VecExt,
-};
+use crate::logger::{CoreLogLevel, CoreLogMessageThreadSafe, SENDER};
 use core_foundation::{
     base::TCFType,
     string::{CFString, CFStringRef, __CFString},
@@ -13,6 +10,7 @@ use core_foundation::{
 use libc::c_char;
 use log::*;
 use mpsc::Receiver;
+use ploc_common::extensions::VecExt;
 use serde::Serialize;
 use std::{
     str::FromStr,
@@ -105,7 +103,7 @@ pub unsafe extern "C" fn ffi_create_session(
         Ok(session) => {
             let ffi_session = FFISession {
                 id: session.id,
-                keys: session.keys.map_now(|k| k.str),
+                keys: session.keys.map(|k| k.str),
             };
             let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
             let cf_string_ref = session_str.to_CFStringRef_and_forget();
@@ -141,7 +139,7 @@ pub unsafe extern "C" fn ffi_join_session(
         Ok(session) => {
             let ffi_session = FFISession {
                 id: session.id,
-                keys: session.keys.map_now(|k| k.str),
+                keys: session.keys.map(|k| k.str),
             };
             let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
             let cf_string_ref = session_str.to_CFStringRef_and_forget();
@@ -193,7 +191,7 @@ pub unsafe extern "C" fn ffi_participants(session_id: *const c_char) -> FFIParti
         Ok(session) => {
             let ffi_session = FFISession {
                 id: session.id,
-                keys: session.keys.map_now(|k| k.str),
+                keys: session.keys.map(|k| k.str),
             };
             let session_str = serde_json::to_string(&ffi_session).expect("Couldn't serialize keys");
             let cf_string_ref = session_str.to_CFStringRef_and_forget();

@@ -1,53 +1,23 @@
-use core::fmt;
+use crate::globals::ClientSessionKey;
 use log::*;
-// use openssl::error::ErrorStack;
+use ploc_common::{
+    errors::{NetworkingError, UNKNOWN_HTTP_STATUS},
+    model_types::PublicKey,
+    networking_types::{
+        AckRequestParams, AckSessionResult, HttpError, JoinSessionResult,
+        ParticipantsRequestParams, ParticipantsResult, PeerDeleteSesionParams,
+        SessionKeyRequestParams,
+    },
+};
 use reqwest::{
     blocking::{Client, Response},
     Error,
 };
-use serde::Deserialize;
 use serde::{de::DeserializeOwned, Serialize};
-use std::error;
-use uuid::Uuid;
 
 static BASE_URL: &str = "http://192.168.0.2:8000/";
 // static BASE_URL: &str = "http://127.0.0.1:8000/";
 // static BASE_URL: &str = "http://localhost.charlesproxy.com:8000/";
-
-static UNKNOWN_HTTP_STATUS: u16 = 520;
-
-////////////////////////////////////////////////////////////////////
-// Common with server (TODO)
-////////////////////////////////////////////////////////////////////
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SessionKeyRequestParams {
-    pub session_id: String,
-    pub key: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AckRequestParams {
-    pub uuid: String,
-    pub accepted: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ParticipantsRequestParams {
-    pub session_id: String,
-    // TODO send uuid+signature too, so not anyone that has the session id can download the participants
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DeleteRequestParams {
-    pub peer_id: String,
-    // TODO send uuid+signature too, so not anyone that has the session id can download the participants
-}
-
-#[derive(Debug, Clone)]
-pub struct SessionKey {
-    pub session_id: String,
-    pub key: PublicKey,
-}
 
 #[derive(Debug, Serialize)]
 pub struct Session {
@@ -55,73 +25,8 @@ pub struct Session {
     pub keys: Vec<PublicKey>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
-pub struct PublicKey {
-    pub str: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct JoinSessionResult {
-    keys: Vec<PublicKey>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct AckResult {
-    is_ready: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct HttpError {
-    status: i32,
-    msg: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ParticipantsResult {
-    keys: Vec<PublicKey>,
-}
-
-impl From<uuid::Error> for ServicesError {
-    fn from(error: uuid::Error) -> Self {
-        ServicesError::General(format!("{}", error))
-    }
-}
-
-#[derive(Debug)]
-pub enum ServicesError {
-    General(String),
-    Networking(NetworkingError),
-    // Error(Error),
-    // NotFound,
-}
-
-impl From<NetworkingError> for ServicesError {
-    fn from(error: NetworkingError) -> Self {
-        ServicesError::Networking(error)
-    }
-}
-
-// impl From<ErrorStack> for ServicesError {
-//     fn from(error: ErrorStack) -> Self {
-//         ServicesError::General(format!("{:?}", error))
-//     }
-// }
-
-pub trait VecExt<T> {
-    fn map_now<U>(self, f: impl FnMut(T) -> U) -> Vec<U>;
-}
-
-impl<T> VecExt<T> for Vec<T> {
-    fn map_now<U>(self, f: impl FnMut(T) -> U) -> Vec<U> {
-        self.into_iter().map(f).collect()
-    }
-}
-
-////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////
-
 pub trait RemoteSessionApi {
-    fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError>;
+    fn join_session(&self, session_key: ClientSessionKey) -> Result<Session, NetworkingError>;
     fn ack(&self, uuid: String, count: i32) -> Result<bool, NetworkingError>;
     fn participants(&self, session_id: String) -> Result<Session, NetworkingError>;
     fn delete(&self, peer_id: String) -> Result<(), NetworkingError>;
@@ -170,7 +75,7 @@ impl RemoteSessionApiImpl {
 }
 
 impl RemoteSessionApi for RemoteSessionApiImpl {
-    fn join_session(&self, session_key: SessionKey) -> Result<Session, NetworkingError> {
+    fn join_session(&self, session_key: ClientSessionKey) -> Result<Session, NetworkingError> {
         info!("Networking: joining session, key: {:?}", session_key);
 
         let params = SessionKeyRequestParams {
@@ -222,7 +127,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         // the other requests also have this problem.
         debug!("Ack-ed, networking response: {:?}", response);
 
-        RemoteSessionApiImpl::deserialize(response).map(|r: AckResult| r.is_ready)
+        RemoteSessionApiImpl::deserialize(response).map(|r: AckSessionResult| r.is_ready)
     }
 
     fn participants(&self, session_id: String) -> Result<Session, NetworkingError> {
@@ -254,7 +159,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
     fn delete(&self, peer_id: String) -> Result<(), NetworkingError> {
         info!("Networking: marking as deleted, peer id: {:?}", peer_id);
 
-        let params = DeleteRequestParams {
+        let params = PeerDeleteSesionParams {
             peer_id: peer_id.clone(),
         };
 
@@ -272,32 +177,6 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct NetworkingError {
-    pub http_status: u16,
-    pub message: String,
-}
-
-impl fmt::Display for NetworkingError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-impl From<Error> for NetworkingError {
-    fn from(error: Error) -> Self {
-        NetworkingError {
-            http_status: error
-                .status()
-                .map(|s| s.as_u16())
-                .unwrap_or(UNKNOWN_HTTP_STATUS),
-            message: error.to_string(),
-        }
-    }
-}
-
-impl error::Error for NetworkingError {}
-
 #[cfg(test)]
 mod tests {
 
@@ -306,14 +185,15 @@ mod tests {
     // so state accumulates between tests. Current tests fail when run together.
 
     use super::*;
+    use crate::globals::ClientSessionKey;
+    use ploc_common::model_types::PublicKey;
     use uuid::Uuid;
-
     //To run these tests use: 'cargo test -- --ignored'
     #[test]
     #[ignore]
     fn start_session_is_ok() {
         let api = RemoteSessionApiImpl {};
-        let res = api.join_session(SessionKey {
+        let res = api.join_session(ClientSessionKey {
             session_id: "1".to_owned(),
             key: PublicKey {
                 str: "2".to_owned(),
@@ -332,7 +212,7 @@ mod tests {
     #[ignore]
     fn start_and_join_session_is_ok() {
         let api = RemoteSessionApiImpl {};
-        let res1 = api.join_session(SessionKey {
+        let res1 = api.join_session(ClientSessionKey {
             session_id: "1".to_owned(),
             key: PublicKey {
                 str: "2".to_owned(),
@@ -346,7 +226,7 @@ mod tests {
         assert_eq!(session1.keys.len(), 1);
         assert_eq!(session1.keys[0].str, "2");
 
-        let res2 = api.join_session(SessionKey {
+        let res2 = api.join_session(ClientSessionKey {
             session_id: "1".to_owned(),
             key: PublicKey {
                 str: "3".to_owned(),
@@ -363,7 +243,7 @@ mod tests {
     #[ignore]
     fn sessions_are_separate() {
         let api = RemoteSessionApiImpl {};
-        let res1 = api.join_session(SessionKey {
+        let res1 = api.join_session(ClientSessionKey {
             session_id: "1".to_owned(),
             key: PublicKey {
                 str: "2".to_owned(),
@@ -376,7 +256,7 @@ mod tests {
         assert_eq!(session1.keys.len(), 1);
         assert_eq!(session1.keys[0].str, "2");
 
-        let res2 = api.join_session(SessionKey {
+        let res2 = api.join_session(ClientSessionKey {
             session_id: "100".to_owned(),
             key: PublicKey {
                 str: "3".to_owned(),
