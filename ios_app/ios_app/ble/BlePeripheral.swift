@@ -2,12 +2,16 @@ import Foundation
 import CoreBluetooth
 import Combine
 
+protocol NearbyTokenReceiver {
+    var token: PassthroughSubject<Data, Never> { get }
+}
+
 protocol BlePeripheral {
     var readMyId: PassthroughSubject<BleId, Never> { get }
     func requestStart()
 }
 
-class BlePeripheralImpl: NSObject, BlePeripheral {
+class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
     private var peripheralManager: CBPeripheralManager?
 
     // Updated when read (note that it's generated on demand / first read)
@@ -18,6 +22,8 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     private let status = PassthroughSubject<(CBManagerState, CBPeripheralManager), Never>()
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
+
+    let token = PassthroughSubject<Data, Never>()
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -89,6 +95,27 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
             log.e("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)", .ble)
         }
     }
+
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        guard requests.count < 2 else {
+            log.e("Multiple write requests TODO is this normal? Exit", .ble)
+            return
+        }
+        guard let request = requests.first else {
+            log.e("Write requests empty TODO is this normal? Exit", .ble)
+            return
+        }
+        guard request.characteristic.uuid == CBUUID.nearbyCharacteristicCBUUID else {
+            log.e("Received write for a characteristic that's not nearby. Exit.", .ble)
+            return
+        }
+        guard let data = request.value else {
+            log.e("Nearby characteristic write has no data. Exit.", .ble)
+            return
+        }
+
+        token.send(data)
+    }
 }
 
 private func createService() -> CBMutableService {
@@ -96,7 +123,7 @@ private func createService() -> CBMutableService {
         type: .serviceCBUUID,
         primary: true
     )
-    service.characteristics = [createCharacteristic()]
+    service.characteristics = [createCharacteristic(), createNearbyCharacteristic()]
     return service
 }
 
@@ -109,7 +136,18 @@ private func createCharacteristic() -> CBCharacteristic {
     )
 }
 
+private func createNearbyCharacteristic() -> CBCharacteristic {
+    CBMutableCharacteristic(
+        type: .nearbyCharacteristicCBUUID,
+        properties: [.write],
+        value: nil,
+        // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
+        permissions: [.writeable]
+    )
+}
+
 class BlePeripheralNoop: NSObject, BlePeripheral {
+    var receivedPeerNearbyToken = PassthroughSubject<Data, Never>()
     let readMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
 }

@@ -8,7 +8,11 @@ protocol BleManager {
     func stop()
 }
 
-class BleManagerImpl: BleManager {
+protocol NearbyTokenSender {
+    func sendDiscoveryToken(token: NearbyToken)
+}
+
+class BleManagerImpl: BleManager, NearbyTokenSender {
     let discovered: AnyPublisher<BleParticipant, Never>
 
     private let peripheral: BlePeripheral
@@ -30,6 +34,13 @@ class BleManagerImpl: BleManager {
     func stop() {
         log.d("TODO stop ble central and peripheral", .ble)
         // TODO
+    }
+
+    func sendDiscoveryToken(token: NearbyToken) {
+        if !central.write(nearbyToken: token) {
+            log.e("Couldn't write nearby token", .ble)
+            // TODO handling (and ideally ensure this state can't happen)
+        }
     }
 }
 

@@ -11,9 +11,12 @@ protocol BleCentral {
     // processed when status in on.
     func requestStart()
     func stop()
+
+    func write(nearbyToken: NearbyToken) -> Bool
 }
 
 class BleCentralImpl: NSObject, BleCentral {
+
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
 
@@ -24,6 +27,8 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
+
+    private var nearbyTokenCharacteristic: CBCharacteristic?
 
     private let status = PassthroughSubject<CBManagerState, Never>()
     private let startTrigger = PassthroughSubject<(), Never>()
@@ -68,6 +73,19 @@ class BleCentralImpl: NSObject, BleCentral {
     }
 
     private func flush(_ peripheral: CBPeripheral) {}
+
+    func write(nearbyToken: NearbyToken) -> Bool {
+        guard let peripheral = peripheral else {
+            log.e("Attempted to write, but peripheral is not set.", .ble)
+            return false
+        }
+        guard let nearbyTokenCharacteristic = nearbyTokenCharacteristic else {
+            log.e("Attempted to write, but nearby characteristic is not set.", .ble)
+            return false
+        }
+        peripheral.writeValue(nearbyToken.data, for: nearbyTokenCharacteristic, type: .withResponse)
+        return true
+    }
 }
 
 extension BleCentralImpl: CBCentralManagerDelegate {
@@ -76,7 +94,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
-                        advertisementData: [String : Any], rssi: NSNumber) {
+                        advertisementData: [String: Any], rssi: NSNumber) {
         self.peripheral = peripheral
         peripheral.delegate = self
 
@@ -131,7 +149,19 @@ extension BleCentralImpl: CBPeripheralDelegate {
         if let characteristic = service.characteristics?.first(where: {
             $0.uuid == .characteristicCBUUID
         }) {
+            log.d("Reading the validation characteristic", .ble)
             peripheral.readValue(for: characteristic)
+        } else {
+            log.e("Peripheral doesn't have validation characteristic.", .ble)
+        }
+
+        if let nearbyTokenCharacteristic = service.characteristics?.first(where: {
+            $0.uuid == .nearbyCharacteristicCBUUID
+        }) {
+            log.d("Did set the nearby characteristic", .ble)
+            self.nearbyTokenCharacteristic = nearbyTokenCharacteristic
+        } else {
+            log.e("Peripheral doesn't have nearby characteristic.", .ble)
         }
     }
 
@@ -151,6 +181,11 @@ extension BleCentralImpl: CBPeripheralDelegate {
           default:
             log.w("Unexpected characteristic UUID: \(characteristic.uuid)", .ble)
         }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        log.d("didWriteValueFor: \(characteristic), error?: \(String(describing: error))")
+        // TODO is this the write ack? error handling? retry?
     }
 }
 
@@ -174,6 +209,7 @@ class BleCentralNoop: NSObject, BleCentral {
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
+    func write(nearbyToken: NearbyToken) -> Bool { true }
 }
 
 func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {

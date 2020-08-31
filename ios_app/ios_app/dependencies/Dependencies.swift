@@ -41,22 +41,38 @@ class Dependencies {
 
     private func registerBle(container: DependencyContainer) {
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
-        container.register(.eagerSingleton) { BlePeripheralImpl(idService: try container.resolve()) as BlePeripheral }
+
+        let peripheral = container.register(.eagerSingleton) {
+            BlePeripheralImpl(idService: try container.resolve()) as BlePeripheral
+        }
+        container.register(peripheral, type: NearbyTokenReceiver.self)
+
         container.register(.singleton) { BleIdServiceImpl(
             crypto: try container.resolve(),
             json: try container.resolve(),
             sessionService: try container.resolve(),
             keyChain: try container.resolve()
         ) as BleIdService }
-        container.register(.eagerSingleton) { BleManagerImpl(
+
+        let bleManager = container.register(.eagerSingleton) { BleManagerImpl(
             peripheral: try container.resolve(),
             central: try container.resolve()
         ) as BleManager }
+        container.register(bleManager, type: NearbyTokenSender.self)
     }
 
     private func registerServices(container: DependencyContainer) {
-        container.register(.singleton) { TokenService() }
-        container.register(.eagerSingleton) { NearbyImpl(tokenService: try container.resolve()) as Nearby }
+        container.register(.singleton) { TokenServiceImpl() }
+
+        container.register(.eagerSingleton) { NearbyImpl() as Nearby }
+        container.register(.eagerSingleton) { NearbySessionCoordinatorImpl(
+            bleManager: try container.resolve(),
+            bleIdService: try container.resolve(),
+            nearby: try container.resolve(),
+            nearbyTokenSender: try container.resolve(),
+            nearbyTokenReceiver: try container.resolve()
+        ) as NearbySessionCoordinator }
+
         container.register(.eagerSingleton) { PeerServiceImpl(nearby: try container.resolve(),
                                              bleManager: try container.resolve(),
                                              bleIdService: try container.resolve()) as PeerService }

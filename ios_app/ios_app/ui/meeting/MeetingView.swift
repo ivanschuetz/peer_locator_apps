@@ -34,7 +34,6 @@ struct MeetingView_Previews: PreviewProvider {
         let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
         let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
         let sessionService = NoopCurrentSessionService()
-        let uiNotifier = NoopUINotifier()
         MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService))
     }
 }
@@ -46,6 +45,7 @@ class BleCentralFixedDistance: NSObject, BleCentral {
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
+    func write(nearbyToken: NearbyToken) -> Bool { true }
 }
 
 class BleIdServiceNoop: BleIdService {
@@ -59,6 +59,10 @@ class BleIdServiceNoop: BleIdService {
 }
 
 class NearbyNoop: Nearby {
+    var sessionState = Just(SessionState.notInit).eraseToAnyPublisher()
     var discovered: AnyPublisher<NearbyObj, Never> =
         Just(NearbyObj(name: "foo", dist: 1.2, dir: simd_float3(1, 1, 0))).eraseToAnyPublisher()
+
+    func token() -> NearbyToken? { nil }
+    func start(peerToken token: NearbyToken) {}
 }

@@ -69,6 +69,10 @@ class PeerServiceImpl: PeerService {
         // TODO switch to ble on threshold (> x nearby events / second?) and back
         // and reduce intermittency somehow: ranges/tolerance?
         let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeer
+            // what happens when nearby goes out of range? is e.g. didInvalidateWith called in nearby
+            // anyway it seems we need an observable for session ended/suspended/out of range/timeout,
+            // which we'd use to switch back to ble:
+            // session active/in range -> nearby, else -> ble
             .map { _ in .nearby }
             .prepend(.ble)
             .eraseToAnyPublisher()
