@@ -1,12 +1,16 @@
 import Foundation
 import MultipeerConnectivity
+import Combine
 
 protocol TokenServiceDelegate {
-    func sessionReady()
     func receivedToken(token: Data)
 }
 
-class TokenServiceImpl: NSObject, NearbyTokenSender {
+
+class TokenServiceImpl: NSObject, NearbyTokenReceiver {
+    private let tokenSubject = CurrentValueSubject<Data?, Never>(nil)
+    lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
+
     private let myPeerId = MCPeerID(displayName: UIDevice.current.name)
 
     private let serviceAdvertiser: MCNearbyServiceAdvertiser
@@ -16,6 +20,11 @@ class TokenServiceImpl: NSObject, NearbyTokenSender {
     private let serviceIdentity = "com.schuetz.ios-app./device_ni"
 
     var delegate: TokenServiceDelegate?
+
+    private let tokenToSend = PassthroughSubject<NearbyToken, Never>()
+    private let connectionReady = PassthroughSubject<(), Never>()
+
+    private var sendTokenCancellable: Cancellable?
 
     lazy var session : MCSession = {
         let session = MCSession(peer: myPeerId, securityIdentity: nil, encryptionPreference: .required)
@@ -34,6 +43,13 @@ class TokenServiceImpl: NSObject, NearbyTokenSender {
         serviceAdvertiser.delegate = self
         serviceBrowser.delegate = self
 
+        sendTokenCancellable = connectionReady.combineLatest(tokenToSend)
+            .map{ _, token in token }
+            .sink { [weak self] token in
+                log.d("Connection and token to send ready, sending token", .peer)
+                self?.actuallySendToken(token: token)
+            }
+
         start()
     }
 
@@ -44,7 +60,11 @@ class TokenServiceImpl: NSObject, NearbyTokenSender {
         _ = session // trigger lazy init
     }
 
-    func sendDiscoveryToken(token: NearbyToken) {
+    deinit {
+        serviceAdvertiser.stopAdvertisingPeer()
+    }
+
+    private func actuallySendToken(token: NearbyToken) {
         log.i("Sending token: \(token) to \(session.connectedPeers.count) peer(s)", .peer)
         if session.connectedPeers.count > 0 {
             do {
@@ -55,9 +75,11 @@ class TokenServiceImpl: NSObject, NearbyTokenSender {
             }
         }
     }
+}
 
-    deinit {
-        serviceAdvertiser.stopAdvertisingPeer()
+extension TokenServiceImpl: NearbyTokenSender {
+    func sendDiscoveryToken(token: NearbyToken) {
+        tokenToSend.send(token)
     }
 }
 
@@ -97,7 +119,7 @@ extension TokenServiceImpl : MCSessionDelegate {
         switch state {
         case .connected:
             log.i("Session connected!", .peer)
-            delegate?.sessionReady()
+            connectionReady.send(())
         case .connecting:
             log.d("Session connecting...", .peer)
         case .notConnected:
@@ -109,7 +131,7 @@ extension TokenServiceImpl : MCSessionDelegate {
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         log.i("Peer received token: \(data)", .peer)
-        delegate?.receivedToken(token: data)
+        tokenSubject.send(data)
     }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {

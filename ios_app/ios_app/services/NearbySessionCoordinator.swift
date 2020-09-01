@@ -22,17 +22,24 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
         // TODO check behaviour in this case: does the "old" session get properly invalidated and new one works?
         // TODO review and test in general: this is more of a quick placeholder implementation.
 
+        // "Device came in max range (which is ble range)" = "meeting started"
         let validatedBlePeer = bleManager.discovered
+            .handleEvents(receiveOutput: { log.d("Discovered device, will validate: \($0)", .nearby) })
             .map { bleIdService.validate(bleId: $0.id) }
+//            .map { _ in true } // simulator: ble peer hardcoded in SimulatorBleManager, so validation returns false
+            .handleEvents(receiveOutput: { log.d("Validated device: \($0)", .nearby) })
             .removeDuplicates()
             .filter { $0 }
+            .map { _ in () }
             
         let sessionStopped = nearby.sessionState
+            .handleEvents(receiveOutput: { log.d("Session state: \($0)", .nearby) })
             .removeDuplicates()
             .filter { $0 == .removed }
+            .map { _ in () }
 
-        sendNearbyTokenCancellable = validatedBlePeer.combineLatest(sessionStopped)
-            .sink { _, _ in
+        sendNearbyTokenCancellable = validatedBlePeer.merge(with: sessionStopped)
+            .sink { _ in
                 if let token = nearby.token() {
                     log.i("Sending nearby discovery token to peer: \(token)", .nearby)
                     // TODO sign/verify the token
@@ -43,6 +50,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
             }
 
         receivedNearbyTokenCancellable = nearbyTokenReceiver.token.sink { data in
+            log.i("Received nearby token from peer, starting session", .nearby)
             let token = NearbyToken(data: data)
             nearby.start(peerToken: token)
         }

@@ -40,12 +40,6 @@ class Dependencies {
     }
 
     private func registerBle(container: DependencyContainer) {
-        container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
-
-        let peripheral = container.register(.eagerSingleton) {
-            BlePeripheralImpl(idService: try container.resolve()) as BlePeripheral
-        }
-        container.register(peripheral, type: NearbyTokenReceiver.self)
 
         container.register(.singleton) { BleIdServiceImpl(
             crypto: try container.resolve(),
@@ -54,11 +48,30 @@ class Dependencies {
             keyChain: try container.resolve()
         ) as BleIdService }
 
+        #if arch(x86_64)
+        container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
+        let tokenService = container.register(.eagerSingleton) {
+            TokenServiceImpl()
+        }
+        container.register(tokenService, type: NearbyTokenReceiver.self)
+        container.register(tokenService, type: NearbyTokenSender.self)
+        #else
+        container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
+
+        let peripheral = container.register(.eagerSingleton) {
+            BlePeripheralImpl(idService: try container.resolve()) as BlePeripheral
+        }
         let bleManager = container.register(.eagerSingleton) { BleManagerImpl(
             peripheral: try container.resolve(),
             central: try container.resolve()
         ) as BleManager }
+
+        // TODO check that these are actually singletons
+        // see https://github.com/AliSoftware/Dip/wiki/type-forwarding
+        // and https://github.com/AliSoftware/Dip/issues/196
+        container.register(peripheral, type: NearbyTokenReceiver.self)
         container.register(bleManager, type: NearbyTokenSender.self)
+        #endif
     }
 
     private func registerServices(container: DependencyContainer) {

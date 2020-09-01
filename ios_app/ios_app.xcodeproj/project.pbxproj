@@ -67,6 +67,7 @@
 		84B6DCBE24FBC39100AA7E6D /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7A24C6F64300E2F175 /* Log.swift */; };
 		84B6DCBF24FBC39100AA7E6D /* ConsoleLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */; };
 		84B6DCC024FBC39100AA7E6D /* CachingLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7D24C6F64300E2F175 /* CachingLog.swift */; };
+		84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
 		84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */; };
 		84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1124EFDAAD004CE510 /* Json.swift */; };
@@ -221,6 +222,7 @@
 		84B6DCB424FBB03500AA7E6D /* SessionId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionId.swift; sourceTree = "<group>"; };
 		84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		84B6DCBA24FBC26800AA7E6D /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
+		84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorBleManager.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
 		84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		84BE8E1124EFDAAD004CE510 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
@@ -536,6 +538,7 @@
 				84DC106324B502690064DEBE /* BlePeripheral.swift */,
 				84DC106524B503CA0064DEBE /* BleUuids.swift */,
 				84BB92E524F3A28C00CAB5A7 /* BleManager.swift */,
+				84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */,
 			);
 			path = ble;
 			sourceTree = "<group>";
@@ -833,6 +836,7 @@
 				84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */,
 				84BEFEDA24F62E77006E4B61 /* HomeViewModel.swift in Sources */,
 				84B6DCAE24FBAC7C00AA7E6D /* Peer.swift in Sources */,
+				84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,

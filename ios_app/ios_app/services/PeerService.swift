@@ -81,8 +81,8 @@ class PeerServiceImpl: PeerService {
             .merge(with: nearbyPeer)
             .combineLatest(peerFilter)
             .filter { peer, filter in
-                log.v("Filtering peer: \(peer) with: \(filter)", .ble, .nearby, .peer)
-                return peer.src == filter
+//                log.v("Filtering peer: \(peer) with: \(filter)", .ble, .nearby, .peer)
+                peer.src == filter
             }
             .map { peer, _ in peer }
             .eraseToAnyPublisher()
