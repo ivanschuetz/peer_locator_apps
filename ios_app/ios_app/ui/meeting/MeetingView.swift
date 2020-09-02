@@ -45,7 +45,7 @@ class BleCentralFixedDistance: NSObject, BleCentral {
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
-    func write(nearbyToken: NearbyToken) -> Bool { true }
+    func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
 }
 
 class BleIdServiceNoop: BleIdService {

@@ -3,7 +3,7 @@ import CoreBluetooth
 import Combine
 
 protocol NearbyTokenReceiver {
-    var token: AnyPublisher<Data, Never> { get }
+    var token: AnyPublisher<SerializedSignedNearbyToken, Never> { get }
 }
 
 protocol BlePeripheral {
@@ -23,7 +23,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
 
-    private let tokenSubject = CurrentValueSubject<Data?, Never>(nil)
+    private let tokenSubject = CurrentValueSubject<SerializedSignedNearbyToken?, Never>(nil)
     lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
 
     init(idService: BleIdService) {
@@ -115,7 +115,7 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
             return
         }
 
-        tokenSubject.send(data)
+        tokenSubject.send(SerializedSignedNearbyToken(data: data))
     }
 }
 

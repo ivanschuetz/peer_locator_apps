@@ -21,8 +21,11 @@ class UINotifierImpl: UINotifier {
                 return (message, .systemGreen)
             }
         }()
-        SwiftEntryKit.display(entry: createView(title: "", message: data.message),
-                              using: attributes(backgroundColor: data.color))
+
+        DispatchQueue.main.async {
+            SwiftEntryKit.display(entry: self.createView(title: "", message: data.message),
+                                  using: self.attributes(backgroundColor: data.color))
+        }
     }
 
     private func createView(title: String, message: String) -> UIView {

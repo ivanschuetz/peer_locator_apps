@@ -9,7 +9,7 @@ protocol BleManager {
 }
 
 protocol NearbyTokenSender {
-    func sendDiscoveryToken(token: NearbyToken)
+    func sendDiscoveryToken(token: SerializedSignedNearbyToken)
 }
 
 class BleManagerImpl: BleManager, NearbyTokenSender {
@@ -36,7 +36,7 @@ class BleManagerImpl: BleManager, NearbyTokenSender {
         // TODO
     }
 
-    func sendDiscoveryToken(token: NearbyToken) {
+    func sendDiscoveryToken(token: SerializedSignedNearbyToken) {
         if !central.write(nearbyToken: token) {
             log.e("Couldn't write nearby token", .ble)
             // TODO handling (and ideally ensure this state can't happen)

@@ -58,6 +58,14 @@ class BleIdServiceImpl: BleIdService {
     }
 
     func validate(bleId: BleId) -> Bool {
+        // TODO consider commenting this when going to production
+        // it's very unlikely that there will be iphones with x86, but it's a serious security risk.
+        #if arch(x86_64)
+        if String(data: bleId.data, encoding: .utf8) == "fakesimulatorid" {
+            return true
+        }
+        #endif
+
         log.d("Will validate: \(bleId)", .val)
         switch sessionService.currentSessionParticipants() {
         case .success(let participants):

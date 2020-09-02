@@ -3,8 +3,13 @@ import CryptoKit
 
 protocol Crypto {
     func createKeyPair() -> KeyPair
-    func sign(privateKey: PrivateKey, payload: String) -> Data
-    func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool
+
+    func sign(privateKey: PrivateKey, payload: Data) -> Data
+    func sign(privateKey: PrivateKey, payload: String) -> Data // Convenience
+
+    func validate(payload: Data, signature: Data, publicKey: PublicKey) -> Bool
+    func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool // Convenience
+
     func sha256(str: String) -> String
 }
 
@@ -17,21 +22,30 @@ class CryptoImpl: Crypto {
                        public_key: PublicKey(value: publicKey.pemRepresentation))
     }
 
-    func sign(privateKey: PrivateKey, payload: String) -> Data {
-        let data = payload.data(using: .utf8)!
+    func sign(privateKey: PrivateKey, payload: Data) -> Data {
         let p5121PrivateKey = try! P521.Signing.PrivateKey(pemRepresentation: privateKey.value)
-        let signature = try! p5121PrivateKey.signature(for: data)
+        let signature = try! p5121PrivateKey.signature(for: payload)
         log.v("Signed: \(payload), privateKey: \(privateKey), signature: \(signature.rawRepresentation.toHex())")
         return signature.rawRepresentation
     }
 
-    func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool {
+    func sign(privateKey: PrivateKey, payload: String) -> Data {
         let data = payload.data(using: .utf8)!
+        return sign(privateKey: privateKey, payload: data)
+    }
+
+    func validate(payload: Data, signature: Data, publicKey: PublicKey) -> Bool {
         let signingPublicKey = try! P521.Signing.PublicKey(pemRepresentation: publicKey.value)
         let p521Signature = try! P521.Signing.ECDSASignature(rawRepresentation: signature)
-        let res = signingPublicKey.isValidSignature(p521Signature, for: data)
+        let res = signingPublicKey.isValidSignature(p521Signature, for: payload)
         log.v("Validated payload: \(payload), signature: \(signature.toHex()), public key: \(publicKey), res: \(res)")
         return res
+    }
+
+
+    func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool {
+        let data = payload.data(using: .utf8)!
+        return validate(payload: data, signature: signature, publicKey: publicKey)
     }
 
     func sha256(str: String) -> String {

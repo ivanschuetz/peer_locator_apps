@@ -25,7 +25,8 @@ class SessionServiceImpl: SessionService {
         self.sessionApi = sessionApi
         self.crypto = crypto
         self.keyChain = keyChain
-        
+
+        // TODO remove
         keyChain.removeAll()
     }
 

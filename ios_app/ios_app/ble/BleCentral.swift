@@ -12,7 +12,7 @@ protocol BleCentral {
     func requestStart()
     func stop()
 
-    func write(nearbyToken: NearbyToken) -> Bool
+    func write(nearbyToken: SerializedSignedNearbyToken) -> Bool
 }
 
 class BleCentralImpl: NSObject, BleCentral {
@@ -74,7 +74,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private func flush(_ peripheral: CBPeripheral) {}
 
-    func write(nearbyToken: NearbyToken) -> Bool {
+    func write(nearbyToken: SerializedSignedNearbyToken) -> Bool {
         guard let peripheral = peripheral else {
             log.e("Attempted to write, but peripheral is not set.", .ble)
             return false
@@ -209,7 +209,7 @@ class BleCentralNoop: NSObject, BleCentral {
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
-    func write(nearbyToken: NearbyToken) -> Bool { true }
+    func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
 }
 
 func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {

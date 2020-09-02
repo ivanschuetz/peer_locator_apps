@@ -50,11 +50,11 @@ class Dependencies {
 
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
-        let tokenService = container.register(.eagerSingleton) {
-            TokenServiceImpl()
+        let multipeerTokenService = container.register(.eagerSingleton) {
+            MultipeerTokenServiceImpl()
         }
-        container.register(tokenService, type: NearbyTokenReceiver.self)
-        container.register(tokenService, type: NearbyTokenSender.self)
+        container.register(multipeerTokenService, type: NearbyTokenReceiver.self)
+        container.register(multipeerTokenService, type: NearbyTokenSender.self)
         #else
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
 
@@ -75,7 +75,7 @@ class Dependencies {
     }
 
     private func registerServices(container: DependencyContainer) {
-        container.register(.singleton) { TokenServiceImpl() }
+        container.register(.singleton) { MultipeerTokenServiceImpl() }
 
         container.register(.eagerSingleton) { NearbyImpl() as Nearby }
         container.register(.eagerSingleton) { NearbySessionCoordinatorImpl(
@@ -83,7 +83,11 @@ class Dependencies {
             bleIdService: try container.resolve(),
             nearby: try container.resolve(),
             nearbyTokenSender: try container.resolve(),
-            nearbyTokenReceiver: try container.resolve()
+            nearbyTokenReceiver: try container.resolve(),
+            keychain: try container.resolve(),
+            uiNotifier: try container.resolve(),
+            sessionService: try container.resolve(),
+            tokenProcessor: try container.resolve()
         ) as NearbySessionCoordinator }
 
         container.register(.eagerSingleton) { PeerServiceImpl(nearby: try container.resolve(),
@@ -106,6 +110,12 @@ class Dependencies {
         container.register(.singleton) {
             CurrentSessionServiceImpl(sessionService: try container.resolve(),
                                       uiNotifier: try container.resolve()) as CurrentSessionService
+        }
+        container.register(.singleton) {
+            NearbyTokenProcessorImpl(
+                crypto: try container.resolve(),
+                json: try container.resolve()
+            ) as NearbyTokenProcessor
         }
     }
 

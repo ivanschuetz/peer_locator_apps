@@ -7,6 +7,20 @@ struct NearbyToken {
     let data: Data
 }
 
+struct SignedNearbyToken: Codable, Equatable {
+    let data: Data
+    let sig: Data
+
+    init(token: NearbyToken, sig: Data) {
+        self.data = token.data
+        self.sig = sig
+    }
+}
+
+struct SerializedSignedNearbyToken {
+    let data: Data
+}
+
 struct NearbyObj {
     let name: String
     let dist: Float?
