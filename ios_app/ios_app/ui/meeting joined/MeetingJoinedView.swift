@@ -13,12 +13,17 @@ struct MeetingJoinedView: View {
         Button("Check session status", action: {
             viewModel.updateSession()
         })
+        .navigationBarTitle(Text("Session joined!"), displayMode: .inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(trailing: Button(action: {
+            viewModel.onSettingsButtonTap()
+        }) { SettingsImage() })
     }
 }
 
 struct MeetingJoinedView_Previews: PreviewProvider {
     static var previews: some View {
         MeetingJoinedView(viewModel: MeetingJoinedViewModel(sessionService: NoopCurrentSessionService(),
-                                                            clipboard: NoopClipboard(), uiNotifier: NoopUINotifier()))
+                                                            clipboard: NoopClipboard(), uiNotifier: NoopUINotifier(), settingsShower: NoopSettingsShower()))
     }
 }

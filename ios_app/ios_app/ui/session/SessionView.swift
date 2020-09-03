@@ -19,7 +19,7 @@ struct SessionView: View {
             })
             .padding(.bottom, 30)
             HStack {
-                Text(viewModel.createdSessionLink)
+                Text(viewModel.createdSessionLink).background(Color.red)
                 Button("Copy", action: {
                     viewModel.onCopyLinkTap()
                 })
@@ -40,6 +40,11 @@ struct SessionView: View {
                 viewModel.joinSession()
             })
         }
+        .navigationBarTitle(Text("Session"), displayMode: .inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(trailing: Button(action: {
+            viewModel.onSettingsButtonTap()
+        }) { SettingsImage() })
     }
 }
 
@@ -47,7 +52,8 @@ struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
         SessionView(viewModel: SessionViewModel(sessionService: NoopCurrentSessionService(),
                                                 clipboard: NoopClipboard(),
-                                                uiNotifier: NoopUINotifier()))
+                                                uiNotifier: NoopUINotifier(),
+                                                settingsShower: NoopSettingsShower()))
     }
 }
 

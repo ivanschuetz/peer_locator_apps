@@ -8,22 +8,28 @@ struct HomeView: View {
     private let meetingCreatedViewModel: MeetingCreatedViewModel
     private let meetingJoinedViewModel: MeetingJoinedViewModel
     private let meetingViewModel: MeetingViewModel
+    private let settingsViewModel: SettingsViewModel
 
     // TODO review states+view models: view models are eagerly instantiated, so we've e.g. a session created
     // view model active while we may never show session created + this prevents us from showing invalid state messages
     // in session created when session is not ready. Instantiate view models lazily (and ensure cleared when leaving)?
     // or maybe use only one view model for everything?
     init(viewModel: HomeViewModel, sessionViewModel: SessionViewModel, meetingCreatedViewModel: MeetingCreatedViewModel,
-         meetingJoinedViewModel: MeetingJoinedViewModel, meetingViewModel: MeetingViewModel) {
+         meetingJoinedViewModel: MeetingJoinedViewModel, meetingViewModel: MeetingViewModel,
+         settingsViewModel: SettingsViewModel) {
         self.viewModel = viewModel
         self.sessionViewModel = sessionViewModel
         self.meetingCreatedViewModel = meetingCreatedViewModel
         self.meetingJoinedViewModel = meetingJoinedViewModel
         self.meetingViewModel = meetingViewModel
+        self.settingsViewModel = settingsViewModel
     }
 
     var body: some View {
         viewForState(state: viewModel.state)
+            .sheet(isPresented: $viewModel.showSettingsModal) {
+                SettingsView(viewModel: settingsViewModel)
+            }
     }
 
     private func viewForState(state: HomeViewState) -> some View {
@@ -59,15 +65,22 @@ struct HomeView_Previews: PreviewProvider {
 
         HomeView(viewModel: HomeViewModel(
                     sessionService: NoopCurrentSessionService(),
-                    uiNotifier: NoopUINotifier()),
+                    uiNotifier: NoopUINotifier(),
+                    settingsShower: NoopSettingsShower()),
                  sessionViewModel: SessionViewModel(sessionService: sessionService,
                                                     clipboard: clipboard,
-                                                    uiNotifier: uiNotifier),
-                 meetingCreatedViewModel: MeetingCreatedViewModel(sessionService: sessionService, clipboard: clipboard,
-                                                                  uiNotifier: uiNotifier),
-                 meetingJoinedViewModel: MeetingJoinedViewModel(sessionService: sessionService, clipboard: clipboard,
-                                                                uiNotifier: uiNotifier),
-                 meetingViewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService)
+                                                    uiNotifier: uiNotifier,
+                                                    settingsShower: NoopSettingsShower()),
+                 meetingCreatedViewModel: MeetingCreatedViewModel(sessionService: sessionService, clipboard: clipboard, uiNotifier: uiNotifier, settingsShower: NoopSettingsShower()),
+                 meetingJoinedViewModel: MeetingJoinedViewModel(sessionService: sessionService, clipboard: clipboard, uiNotifier: uiNotifier, settingsShower: NoopSettingsShower()),
+                 meetingViewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService, settingsShower: NoopSettingsShower()),
+                 settingsViewModel: SettingsViewModel()
         )
     }
+}
+
+class NoopSettingsShower: SettingsShower {
+    lazy var showing: AnyPublisher<Bool, Never> = Just(false).eraseToAnyPublisher()
+    func show() {}
+    func hide() {}
 }

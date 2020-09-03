@@ -21,15 +21,20 @@ class HomeViewModel: ObservableObject {
     private let uiNotifier: UINotifier
 
     @Published var state: HomeViewState = .noMeeting
+    @Published var showSettingsModal: Bool = false
 
     private var stateCancellable: AnyCancellable?
+    private var showSettingsCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, uiNotifier: UINotifier) {
+    init(sessionService: CurrentSessionService, uiNotifier: UINotifier, settingsShower: SettingsShower) {
         self.sessionService = sessionService
         self.uiNotifier = uiNotifier
 
         stateCancellable = sessionService.session.sink { [weak self] sessionRes in
             self?.handleSessionState(sessionRes)
+        }
+        showSettingsCancellable = settingsShower.showing.sink { [weak self] showing in
+            self?.showSettingsModal = showing
         }
     }
 

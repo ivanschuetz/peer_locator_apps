@@ -9,9 +9,12 @@ class MeetingViewModel: ObservableObject {
     private var discoveredCancellable: AnyCancellable?
 
     private let sessionService: CurrentSessionService
+    private let settingsShower: SettingsShower
 
-    init(peerService: PeerService, sessionService: CurrentSessionService) {
+    init(peerService: PeerService, sessionService: CurrentSessionService,
+         settingsShower: SettingsShower) {
         self.sessionService = sessionService
+        self.settingsShower = settingsShower
 
         discoveredCancellable = peerService.peer.sink { [weak self] peer in
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
@@ -25,6 +28,10 @@ class MeetingViewModel: ObservableObject {
 
     func deleteSession() {
         sessionService.deleteSessionLocally()
+    }
+
+    func onSettingsButtonTap() {
+        settingsShower.show()
     }
 }
 

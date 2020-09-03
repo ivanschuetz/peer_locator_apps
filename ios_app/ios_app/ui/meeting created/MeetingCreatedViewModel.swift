@@ -9,15 +9,18 @@ class MeetingCreatedViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
+    private let settingsShower: SettingsShower
 
     private var sessionCancellable: Cancellable?
 
     @Published var sessionLinkInput: String = ""
 
-    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier) {
+    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier,
+         settingsShower: SettingsShower) {
         self.sessionService = sessionService
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
+        self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session.sink { [weak self] sharedSessionDataRes in
             switch sharedSessionDataRes {
@@ -41,11 +44,15 @@ class MeetingCreatedViewModel: ObservableObject {
         // TODO check that link isn't empty
         clipboard.putInClipboard(text: linkText)
         // TODO notification
-        uiNotifier.show(.success("Copied link to clipboard: \(link)"))
-        log.d("Copied link to clipboard: \(link)", .ui)
+        uiNotifier.show(.success("Copied link to clipboard: \(String(describing: link))"))
+        log.d("Copied link to clipboard: \(String(describing: link))", .ui)
     }
 
     func updateSession() {
         sessionService.refresh()
+    }
+
+    func onSettingsButtonTap() {
+        settingsShower.show()
     }
 }

@@ -26,6 +26,10 @@ struct MeetingView: View {
                 viewModel.deleteSession()
             }
         }
+        .navigationBarTitle(Text("Session"), displayMode: .inline)
+        .navigationBarItems(trailing: Button(action: {
+            viewModel.onSettingsButtonTap()
+        }) { SettingsImage() })
     }
 }
 
@@ -34,7 +38,7 @@ struct MeetingView_Previews: PreviewProvider {
         let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
         let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
         let sessionService = NoopCurrentSessionService()
-        MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService))
+        MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService, settingsShower: NoopSettingsShower()))
     }
 }
 

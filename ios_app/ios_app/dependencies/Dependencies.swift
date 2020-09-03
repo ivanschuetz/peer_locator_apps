@@ -37,6 +37,7 @@ class Dependencies {
         container.register(.singleton) { ClipboardImpl() as Clipboard }
         container.register(.singleton) { UINotifierImpl() as UINotifier }
         container.register(.singleton) { DeeplinkHandlerImpl(sessionService: try container.resolve()) as DeeplinkHandler }
+        container.register(.singleton) { SettingsShowerImpl() as SettingsShower }
     }
 
     private func registerBle(container: DependencyContainer) {
@@ -121,18 +122,24 @@ class Dependencies {
 
     private func registerViewModels(container: DependencyContainer) {
         container.register { MeetingViewModel(peerService: try container.resolve(),
-                                              sessionService: try container.resolve()) }
+                                              sessionService: try container.resolve(),
+                                              settingsShower: try container.resolve()) }
         container.register { SessionViewModel(sessionService: try container.resolve(),
                                               clipboard: try container.resolve(),
-                                              uiNotifier: try container.resolve()) }
+                                              uiNotifier: try container.resolve(),
+                                              settingsShower: try container.resolve()) }
         container.register { HomeViewModel(sessionService: try container.resolve(),
-                                           uiNotifier: try container.resolve()) }
+                                           uiNotifier: try container.resolve(),
+                                           settingsShower: try container.resolve()) }
         container.register { MeetingCreatedViewModel(sessionService: try container.resolve(),
                                                      clipboard: try container.resolve(),
-                                                     uiNotifier: try container.resolve()) }
+                                                     uiNotifier: try container.resolve(),
+                                                     settingsShower: try container.resolve()) }
         container.register { MeetingJoinedViewModel(sessionService: try container.resolve(),
                                                     clipboard: try container.resolve(),
-                                                    uiNotifier: try container.resolve()) }
+                                                    uiNotifier: try container.resolve(),
+                                                    settingsShower: try container.resolve()) }
+        container.register { SettingsViewModel() }
     }
 
     private func registerWatch(container: DependencyContainer) {

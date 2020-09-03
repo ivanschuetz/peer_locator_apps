@@ -17,6 +17,7 @@
 		843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF224F10582002AA5F8 /* P2pService.swift */; };
 		8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */; };
 		8466613B24B3794400E5FBF9 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
+		846E28C02501238100E66F57 /* SettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846E28BF2501238100E66F57 /* SettingsButton.swift */; };
 		8487FA3024EE77CE003FDB0C /* KeyChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8487FA2F24EE77CE003FDB0C /* KeyChain.swift */; };
 		8487FA3324EE7B98003FDB0C /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 8487FA3224EE7B98003FDB0C /* Valet */; };
 		8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
@@ -32,6 +33,8 @@
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
 		849B612924EDB99400D321D1 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* SessionService.swift */; };
+		84A211E42501590A008B370E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E32501590A008B370E /* SettingsView.swift */; };
+		84A211E72501596D008B370E /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E62501596D008B370E /* SettingsViewModel.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
 		84B0672D22F9B3FF006DDC18 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */; };
 		84B0673822F9B400006DDC18 /* ios_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0673722F9B400006DDC18 /* ios_appTests.swift */; };
@@ -80,6 +83,7 @@
 		84BEFEE024F63B61006E4B61 /* MeetingCreatedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */; };
 		84BEFEE424F66CF7006E4B61 /* MeetingJoinedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */; };
 		84BEFEE624F66D01006E4B61 /* MeetingJoinedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEE524F66D01006E4B61 /* MeetingJoinedViewModel.swift */; };
+		84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D1D7AF25015047005A3710 /* SettingsShower.swift */; };
 		84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D895EB24FD333A005360DB /* NearbySessionCoordinator.swift */; };
 		84DC104824B49E340064DEBE /* MeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC104724B49E340064DEBE /* MeetingView.swift */; };
 		84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105424B4A5AE0064DEBE /* BleCentral.swift */; };
@@ -176,6 +180,7 @@
 		8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyTokenProcessor.swift; sourceTree = "<group>"; };
 		8466613624B3789200E5FBF9 /* mobileapp-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mobileapp-ios.h"; sourceTree = "<group>"; };
 		8466613A24B3794400E5FBF9 /* libcore */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcore; sourceTree = "<group>"; };
+		846E28BF2501238100E66F57 /* SettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButton.swift; sourceTree = "<group>"; };
 		8487FA2F24EE77CE003FDB0C /* KeyChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyChain.swift; sourceTree = "<group>"; };
 		8489BAE324EAD4A8006D1CD3 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
 		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
@@ -190,6 +195,8 @@
 		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
 		849B612824EDB99400D321D1 /* SessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionService.swift; sourceTree = "<group>"; };
+		84A211E32501590A008B370E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		84A211E62501596D008B370E /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B0672922F9B3FF006DDC18 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		84B0672C22F9B3FF006DDC18 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -235,6 +242,7 @@
 		84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingCreatedViewModel.swift; sourceTree = "<group>"; };
 		84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingJoinedView.swift; sourceTree = "<group>"; };
 		84BEFEE524F66D01006E4B61 /* MeetingJoinedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingJoinedViewModel.swift; sourceTree = "<group>"; };
+		84D1D7AF25015047005A3710 /* SettingsShower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsShower.swift; sourceTree = "<group>"; };
 		84D895EB24FD333A005360DB /* NearbySessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbySessionCoordinator.swift; sourceTree = "<group>"; };
 		84DC104724B49E340064DEBE /* MeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingView.swift; sourceTree = "<group>"; };
 		84DC105424B4A5AE0064DEBE /* BleCentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleCentral.swift; sourceTree = "<group>"; };
@@ -303,6 +311,14 @@
 			path = core;
 			sourceTree = "<group>";
 		};
+		846E28BE2501237300E66F57 /* views */ = {
+			isa = PBXGroup;
+			children = (
+				846E28BF2501238100E66F57 /* SettingsButton.swift */,
+			);
+			path = views;
+			sourceTree = "<group>";
+		};
 		8489BAE524EAF42F006D1CD3 /* common */ = {
 			isa = PBXGroup;
 			children = (
@@ -362,6 +378,15 @@
 				8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */,
 			);
 			path = services;
+			sourceTree = "<group>";
+		};
+		84A211E52501594D008B370E /* settings */ = {
+			isa = PBXGroup;
+			children = (
+				84A211E32501590A008B370E /* SettingsView.swift */,
+				84A211E62501596D008B370E /* SettingsViewModel.swift */,
+			);
+			path = settings;
 			sourceTree = "<group>";
 		};
 		84B0671622F9B3FE006DDC18 = {
@@ -504,6 +529,7 @@
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				846E28BE2501237300E66F57 /* views */,
 				8490C24D24F7FD74002FAFE9 /* formatters */,
 				84BEFEE224F66CEE006E4B61 /* meeting joined */,
 				84BEFEE124F66CDE006E4B61 /* meeting created */,
@@ -511,18 +537,12 @@
 				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				84094EF624EACAAC0028BBDF /* session */,
 				84E3DC8924C7261500E2F175 /* services */,
+				84A211E52501594D008B370E /* settings */,
 				84DC105224B4A3BD0064DEBE /* home */,
-				84DC104C24B4A2F20064DEBE /* extensions */,
 				84B5370D24FA833D000B42C7 /* Sharer.swift */,
+				84D1D7AF25015047005A3710 /* SettingsShower.swift */,
 			);
 			path = ui;
-			sourceTree = "<group>";
-		};
-		84DC104C24B4A2F20064DEBE /* extensions */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = extensions;
 			sourceTree = "<group>";
 		};
 		84DC105224B4A3BD0064DEBE /* home */ = {
@@ -804,9 +824,11 @@
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84B5371124FAB453000B42C7 /* DeeplinkHandler.swift in Sources */,
 				84BEFEE424F66CF7006E4B61 /* MeetingJoinedView.swift in Sources */,
+				846E28C02501238100E66F57 /* SettingsButton.swift in Sources */,
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,
 				841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */,
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
+				84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */,
 				84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */,
 				84B6DCB624FBB04200AA7E6D /* SessionId.swift in Sources */,
@@ -820,11 +842,13 @@
 				8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */,
 				84DC104824B49E340064DEBE /* MeetingView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
+				84A211E42501590A008B370E /* SettingsView.swift in Sources */,
 				841C331A24F53AD300F99B93 /* UINotifications.swift in Sources */,
 				84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */,
 				841CBBF424F3DC39003E2A60 /* CurrentSessionService.swift in Sources */,
 				84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */,
 				843F7EF124F10477002AA5F8 /* BleId.swift in Sources */,
+				84A211E72501596D008B370E /* SettingsViewModel.swift in Sources */,
 				8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */,
 				84BEFEDE24F63B31006E4B61 /* MeetingCreatedView.swift in Sources */,
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,

@@ -6,6 +6,7 @@ class SessionViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
+    private let settingsShower: SettingsShower
 
     @Published var createdSessionLink: String = ""
     @Published var sessionStartedMessage: String = ""
@@ -14,10 +15,12 @@ class SessionViewModel: ObservableObject {
 
     private var sessionCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier) {
+    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier,
+         settingsShower: SettingsShower) {
         self.sessionService = sessionService
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
+        self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session
             .sink(receiveCompletion: { completion in }) { [weak self] sessionRes in
@@ -70,5 +73,9 @@ class SessionViewModel: ObservableObject {
 
     func onPasteLinkTap() {
         sessionLinkInput = clipboard.getFromClipboard()
+    }
+
+    func onSettingsButtonTap() {
+        settingsShower.show()
     }
 }
