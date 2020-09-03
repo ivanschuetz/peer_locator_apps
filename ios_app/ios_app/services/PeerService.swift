@@ -6,6 +6,9 @@ protocol PeerService {
     var peer: AnyPublisher<Peer, Never> { get }
 }
 
+// Higher values -> slower UI updates
+private let bleMeasurementsChunkSize = 5
+
 class PeerServiceImpl: PeerService {
     let peer: AnyPublisher<Peer, Never>
 
@@ -33,6 +36,23 @@ class PeerServiceImpl: PeerService {
         // TODO review whetehr this privacy level is needed at this stage
 
         let blePeer: AnyPublisher<Peer, Never> = validatedBlePeer
+            // Split the stream in chunks
+            .scan([]) { acc, participant -> [BleParticipant] in
+                if acc.count < bleMeasurementsChunkSize {
+                    return acc + [participant]
+                } else {
+                    return [] // Start new chunk
+                }
+            }
+            // Calculate average for each chunk
+            .compactMap { chunk -> BleParticipant? in
+                if chunk.count == bleMeasurementsChunkSize {
+                    return chunk.filterAndAverageDistance()
+                } else {
+                    // Discard intermediate results emitted by scan. We only want complete chunks.
+                    return nil
+                }
+            }
             .map { blePeer in
                 // TODO generate peer's name when creating/joining session, allow user to override (the peer)
                 Peer(name: "TODO BLE peer name",
@@ -86,5 +106,56 @@ class PeerServiceImpl: PeerService {
             }
             .map { peer, _ in peer }
             .eraseToAnyPublisher()
+    }
+}
+
+private extension Array where Element == BleParticipant {
+
+    // Removes abnormal distance jumps and averages the normal values
+    func filterAndAverageDistance() -> Element? {
+        // we need one element to retrieve the id
+        // (NOTE: assumes all measurements come from same peer, which should be always the case since we support only 1 peer)
+        // Also, prevents division by 0 when dividing by count
+        guard let first = self.first else { return nil }
+
+        // sort by distance in ascending order
+        let sortedArray = sorted { $0.distance < $1.distance }
+
+        // The delta between each pair of distances, used to filter out abnormal jumps
+        let distanceDeltas = sortedArray.reduce(([], -1)) { acc, bleParticipant -> ([Double], Double) in
+            if acc.1 == -1 {
+                // first element (disance has default value -1): no previous element, so
+                // no distance (just pass through empty array)
+                return (acc.0, bleParticipant.distance)
+            } else {
+                return (acc.0 + [bleParticipant.distance - acc.1], bleParticipant.distance)
+            }
+        }
+
+        // Filter abnormal jumps: rssi fluctuates a lot and we often get measurements 1-2 (sometimes 10+) meters appart,
+        // while not even moving the devices (note: measured iOS - iOS).
+        // If there are edge cases where one of such jumps represent reality, it's not an issue discarding it,
+        // since we'll get the change in the next batch
+        var measurementsToAverage: [BleParticipant]
+        if let outsiderIndex = distanceDeltas.0.firstIndex(where: { $0 > 1 }) {
+            measurementsToAverage = Array(sortedArray[0...outsiderIndex])
+        } else {
+            measurementsToAverage = sortedArray
+        }
+
+        // Compute an average for the current batch (without the jumps)
+        let average = measurementsToAverage.reduce(0) { acc, participant in
+            acc + participant.distance
+        } / Double(self.count) // division by 0 impossible: we've a "first" guard
+
+        return BleParticipant(id: first.id, distance: average)
+    }
+}
+
+extension Array {
+    func chunked(by chunkSize: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: chunkSize).map {
+            Array(self[$0 ..< Swift.min($0 + chunkSize, count)])
+        }
     }
 }
