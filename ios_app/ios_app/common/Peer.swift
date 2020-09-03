@@ -7,7 +7,7 @@ struct Location: Equatable {
     let y: Float
 }
 
-struct Peer: Hashable {
+struct Peer: Equatable, Hashable {
     let name: String
     // TODO think about optional distance (and other field). if dist isn't set, should the point disappear or show
     // the last loc with a "stale" status? requires to clear: can dist disappear only when out of range?

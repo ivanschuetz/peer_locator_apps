@@ -37,6 +37,7 @@
 		84B0673822F9B400006DDC18 /* ios_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0673722F9B400006DDC18 /* ios_appTests.swift */; };
 		84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B5370D24FA833D000B42C7 /* Sharer.swift */; };
 		84B5371124FAB453000B42C7 /* DeeplinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B5371024FAB453000B42C7 /* DeeplinkHandler.swift */; };
+		84B68BE02500F4E9002C4157 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 84B68BDF2500F4E9002C4157 /* CombineExt */; };
 		84B6DC7524FBA32F00AA7E6D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B6DC7424FBA32F00AA7E6D /* Assets.xcassets */; };
 		84B6DC7C24FBA32F00AA7E6D /* ploc_watch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 84B6DC7B24FBA32F00AA7E6D /* ploc_watch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		84B6DC8124FBA32F00AA7E6D /* ios_appApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DC8024FBA32F00AA7E6D /* ios_appApp.swift */; };
@@ -260,6 +261,7 @@
 				841C331D24F53E9200F99B93 /* SwiftEntryKit in Frameworks */,
 				8487FA3324EE7B98003FDB0C /* Valet in Frameworks */,
 				84DC105D24B4CCC70064DEBE /* Dip in Frameworks */,
+				84B68BE02500F4E9002C4157 /* CombineExt in Frameworks */,
 				8466613B24B3794400E5FBF9 /* libcore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -630,6 +632,7 @@
 				84DC105C24B4CCC70064DEBE /* Dip */,
 				8487FA3224EE7B98003FDB0C /* Valet */,
 				841C331C24F53E9200F99B93 /* SwiftEntryKit */,
+				84B68BDF2500F4E9002C4157 /* CombineExt */,
 			);
 			productName = ios_app;
 			productReference = 84B0671F22F9B3FE006DDC18 /* Match.app */;
@@ -731,6 +734,7 @@
 				84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */,
 				8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */,
 				841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */,
+				84B68BDE2500F4E9002C4157 /* XCRemoteSwiftPackageReference "CombineExt" */,
 			);
 			productRefGroup = 84B0672022F9B3FE006DDC18 /* Products */;
 			projectDirPath = "";
@@ -1322,6 +1326,14 @@
 				minimumVersion = 4.1.1;
 			};
 		};
+		84B68BDE2500F4E9002C4157 /* XCRemoteSwiftPackageReference "CombineExt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CombineCommunity/CombineExt";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 		84DC105B24B4CCC70064DEBE /* XCRemoteSwiftPackageReference "Dip" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AliSoftware/Dip";
@@ -1342,6 +1354,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */;
 			productName = Valet;
+		};
+		84B68BDF2500F4E9002C4157 /* CombineExt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 84B68BDE2500F4E9002C4157 /* XCRemoteSwiftPackageReference "CombineExt" */;
+			productName = CombineExt;
 		};
 		84B6DCA824FBA8E500AA7E6D /* Dip */ = {
 			isa = XCSwiftPackageProductDependency;

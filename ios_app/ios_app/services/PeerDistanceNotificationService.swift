@@ -1,30 +1,80 @@
 import Foundation
 import Combine
+import CombineExt
+
+struct PeerWithBlockedStatus {
+    let peer: Peer
+    let blocked: Bool
+}
+
+struct PeerWithCloseStatus: Equatable {
+    let peer: Peer
+    let close: Bool
+}
+
+// Show notification when at a distance smaller than this
+private let distanceThresholdMeters: Float = 10
+
+// Block showing a new notification for this time
+private let timeToShowNotificationAgain: TimeInterval = 30 * 60
 
 class PeerDistanceNotificationService {
     private let peerService: PeerService
     private let notificationService: NotificationService
 
-    private let distanceThreshold: Float = 10
+    private let notificationsBlockedSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var closePeerCancellable: Cancellable?
+
+    // Don't show a notification again x secs after showing one
+    // Prevents multiple notifications when the user is at the range's edges or walks in an out
+    private var timeToShowNotificationAgainTimer: Timer?
 
     init(peerService: PeerService, notificationService: NotificationService) {
         self.peerService = peerService
         self.notificationService = notificationService
 
         closePeerCancellable = peerService.peer
-            .filter { [weak self] peer in guard let self = self else { return false }
-                if let dist = peer.dist {
+            .withLatestFrom(notificationsBlockedSubject, resultSelector: { peer, blocked in
+                PeerWithBlockedStatus(peer: peer, blocked: blocked)
+            })
+            .map { peer -> PeerWithCloseStatus in
+                if let dist = peer.peer.dist, peer.blocked == false {
                     // != 0: sometimes we get 0 unexpectedly TODO investigate
-                    return dist != 0 && dist < self.distanceThreshold
+                    if dist != 0 && dist < distanceThresholdMeters {
+                        return PeerWithCloseStatus(peer: peer.peer, close: true)
+                    } else {
+                        return PeerWithCloseStatus(peer: peer.peer, close: false)
+                    }
                 } else {
-                    return false
+                    return PeerWithCloseStatus(peer: peer.peer, close: false)
                 }
             }
-            .removeDuplicates().sink { [weak self] peer in
-            self?.showIsCloseNotification(peer: peer)
-        }
+            // we want [not close -> close] event, so we remove duplicates (stream will be e.g. false, true, false, true...)
+            // and filter by close
+            .removeDuplicates(by: { p1, p2 in
+                p1.close == p2.close
+            })
+            .filter { $0.close }
+            .map { $0.peer }
+            .sink { [weak self] peer in
+                self?.onPeerClose(peer)
+            }
+    }
+
+    private func onPeerClose(_ peer: Peer) {
+        log.i("Peer close! showing notification", .notifications)
+        notificationsBlockedSubject.send(true)
+        timeToShowNotificationAgainTimer = Timer.scheduledTimer(timeInterval: timeToShowNotificationAgain,
+                                                                target: self, selector: #selector(fireTimer),
+                                                                userInfo: nil, repeats: false)
+        showIsCloseNotification(peer: peer)
+    }
+
+    @objc private func fireTimer() {
+        log.d("Unblocking peer close notification after \(timeToShowNotificationAgain)s", .notifications)
+        timeToShowNotificationAgainTimer = nil
+        notificationsBlockedSubject.send(false)
     }
 
     private func showIsCloseNotification(peer: Peer) {
