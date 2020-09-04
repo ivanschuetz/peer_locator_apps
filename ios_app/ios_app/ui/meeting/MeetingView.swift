@@ -12,6 +12,27 @@ struct MeetingView: View {
     }
 
     var body: some View {
+        mainView(content: viewModel.mainViewContent)
+            .navigationBarTitle(Text("Session"), displayMode: .inline)
+            .navigationBarItems(trailing: Button(action: {
+                viewModel.onSettingsButtonTap()
+            }) { SettingsImage() })
+    }
+
+    private func mainView(content: MeetingMainViewContent) -> some View {
+        switch content {
+        case .enableBle: return AnyView(enableBleView())
+        case .connected: return AnyView(connectedView())
+        }
+    }
+
+    private func enableBleView() -> some View {
+        Button("Please enable bluetooth to connect with peer") {
+            viewModel.requestEnableBle()
+        }
+    }
+
+    private func connectedView() -> some View {
         VStack(alignment: .center) {
             Triangle()
                 .fill(Color.black)
@@ -26,10 +47,6 @@ struct MeetingView: View {
                 viewModel.deleteSession()
             }
         }
-        .navigationBarTitle(Text("Session"), displayMode: .inline)
-        .navigationBarItems(trailing: Button(action: {
-            viewModel.onSettingsButtonTap()
-        }) { SettingsImage() })
     }
 }
 
@@ -38,14 +55,16 @@ struct MeetingView_Previews: PreviewProvider {
         let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
         let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
         let sessionService = NoopCurrentSessionService()
-        MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService, settingsShower: NoopSettingsShower()))
+        MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService,
+                                                settingsShower: NoopSettingsShower(),
+                                                bleEnabledService: NoopBleEnabledService()))
     }
 }
 
 class BleCentralFixedDistance: NSObject, BleCentral {
     let discovered = Just(BleParticipant(id: BleId(str: "123")!,
                                          distance: 10.2)).eraseToAnyPublisher()
-    let statusMsg = PassthroughSubject<String, Never>()
+    let status = Just(BleState.poweredOn).eraseToAnyPublisher()
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}

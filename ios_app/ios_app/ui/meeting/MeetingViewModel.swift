@@ -2,19 +2,27 @@ import Foundation
 import Combine
 import SwiftUI
 
+enum MeetingMainViewContent {
+    case enableBle, connected
+}
+
 class MeetingViewModel: ObservableObject {
     @Published var distance: String = ""
     @Published var directionAngle: Angle = Angle(radians: 0)
+    @Published var mainViewContent: MeetingMainViewContent = .connected
 
     private var discoveredCancellable: AnyCancellable?
+    private var bleEnabledCancellable: AnyCancellable?
 
     private let sessionService: CurrentSessionService
     private let settingsShower: SettingsShower
+    private let bleEnabledService: BleEnabledService
 
     init(peerService: PeerService, sessionService: CurrentSessionService,
-         settingsShower: SettingsShower) {
+         settingsShower: SettingsShower, bleEnabledService: BleEnabledService) {
         self.sessionService = sessionService
         self.settingsShower = settingsShower
+        self.bleEnabledService = bleEnabledService
 
         discoveredCancellable = peerService.peer.sink { [weak self] peer in
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
@@ -24,6 +32,10 @@ class MeetingViewModel: ObservableObject {
                 self?.directionAngle.radians = toAngle(dir: dir)
             }
         }
+
+        bleEnabledCancellable = bleEnabledService.bleEnabled.sink { [weak self] enabled in
+            self?.mainViewContent = enabled ? .connected : .enableBle
+        }
     }
 
     func deleteSession() {
@@ -32,6 +44,10 @@ class MeetingViewModel: ObservableObject {
 
     func onSettingsButtonTap() {
         settingsShower.show()
+    }
+
+    func requestEnableBle() {
+        bleEnabledService.enable()
     }
 }
 

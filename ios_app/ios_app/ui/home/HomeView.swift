@@ -73,7 +73,7 @@ struct HomeView_Previews: PreviewProvider {
                                                     settingsShower: NoopSettingsShower()),
                  meetingCreatedViewModel: MeetingCreatedViewModel(sessionService: sessionService, clipboard: clipboard, uiNotifier: uiNotifier, settingsShower: NoopSettingsShower()),
                  meetingJoinedViewModel: MeetingJoinedViewModel(sessionService: sessionService, clipboard: clipboard, uiNotifier: uiNotifier, settingsShower: NoopSettingsShower()),
-                 meetingViewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService, settingsShower: NoopSettingsShower()),
+                 meetingViewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService, settingsShower: NoopSettingsShower(), bleEnabledService: NoopBleEnabledService()),
                  settingsViewModel: SettingsViewModel()
         )
     }
@@ -83,4 +83,9 @@ class NoopSettingsShower: SettingsShower {
     lazy var showing: AnyPublisher<Bool, Never> = Just(false).eraseToAnyPublisher()
     func show() {}
     func hide() {}
+}
+
+class NoopBleEnabledService: BleEnabledService {
+    var bleEnabled: AnyPublisher<Bool, Never> = Just(true).eraseToAnyPublisher()
+    func enable() {}
 }

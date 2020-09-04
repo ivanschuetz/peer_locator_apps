@@ -1,4 +1,4 @@
-struct SharedSessionData {
+struct SharedSessionData: Equatable {
     let id: SessionId
     let isReady: SessionReady
     let createdByMe: Bool

@@ -1,5 +1,5 @@
 import Foundation
 
-struct SessionId: Encodable, Decodable {
+struct SessionId: Codable, Equatable {
     let value: String
 }

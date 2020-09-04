@@ -22,6 +22,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
     init(sessionService: SessionService, uiNotifier: UINotifier) {
         self.sessionService = sessionService
         self.uiNotifier = uiNotifier
+
         sessionSubject = CurrentValueSubject(sessionService.currentSession())
         session = sessionSubject
 //            .handleEvents(receiveOutput: { sessionData in

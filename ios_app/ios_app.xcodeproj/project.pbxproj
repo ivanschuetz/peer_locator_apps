@@ -18,6 +18,7 @@
 		8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */; };
 		8466613B24B3794400E5FBF9 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
 		846E28C02501238100E66F57 /* SettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846E28BF2501238100E66F57 /* SettingsButton.swift */; };
+		84723B7825025777007C7C6D /* BleEnabledService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84723B7725025777007C7C6D /* BleEnabledService.swift */; };
 		8487FA3024EE77CE003FDB0C /* KeyChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8487FA2F24EE77CE003FDB0C /* KeyChain.swift */; };
 		8487FA3324EE7B98003FDB0C /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 8487FA3224EE7B98003FDB0C /* Valet */; };
 		8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
@@ -181,6 +182,7 @@
 		8466613624B3789200E5FBF9 /* mobileapp-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mobileapp-ios.h"; sourceTree = "<group>"; };
 		8466613A24B3794400E5FBF9 /* libcore */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcore; sourceTree = "<group>"; };
 		846E28BF2501238100E66F57 /* SettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButton.swift; sourceTree = "<group>"; };
+		84723B7725025777007C7C6D /* BleEnabledService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleEnabledService.swift; sourceTree = "<group>"; };
 		8487FA2F24EE77CE003FDB0C /* KeyChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyChain.swift; sourceTree = "<group>"; };
 		8489BAE324EAD4A8006D1CD3 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
 		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 				841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */,
 				84D895EB24FD333A005360DB /* NearbySessionCoordinator.swift */,
 				8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */,
+				84723B7725025777007C7C6D /* BleEnabledService.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -859,6 +862,7 @@
 				843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
 				8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */,
+				84723B7825025777007C7C6D /* BleEnabledService.swift in Sources */,
 				8489BAE924EAF453006D1CD3 /* Session.swift in Sources */,
 				84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */,
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,

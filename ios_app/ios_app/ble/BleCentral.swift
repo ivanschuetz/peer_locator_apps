@@ -2,8 +2,12 @@ import Foundation
 import CoreBluetooth
 import Combine
 
+enum BleState {
+    case unknown, resetting, unsupported, unauthorized, poweredOff, poweredOn
+}
+
 protocol BleCentral {
-    var statusMsg: PassthroughSubject<String, Never> { get }
+    var status: AnyPublisher<BleState, Never> { get }
     var writtenMyId: PassthroughSubject<BleId, Never> { get }
     var discovered: AnyPublisher<BleParticipant, Never> { get }
 
@@ -16,8 +20,9 @@ protocol BleCentral {
 }
 
 class BleCentralImpl: NSObject, BleCentral {
+    let statusSubject = PassthroughSubject<BleState, Never>()
+    lazy var status = statusSubject.eraseToAnyPublisher()
 
-    let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
 
     let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
@@ -30,7 +35,6 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private var nearbyTokenCharacteristic: CBCharacteristic?
 
-    private let status = PassthroughSubject<CBManagerState, Never>()
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
 
@@ -49,7 +53,7 @@ class BleCentralImpl: NSObject, BleCentral {
                 if status == .poweredOn {
                     self?.start()
                 } else {
-                    log.d("Requested central start while not powered on: \(status.asString())", .ble)
+                    log.d("Requested central start while not powered on: \(status)", .ble)
                 }
             })
     }
@@ -90,7 +94,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
 extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        status.send(central.state)
+        statusSubject.send(central.state.toBleState())
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
@@ -204,6 +208,7 @@ extension CBManagerState {
 }
 
 class BleCentralNoop: NSObject, BleCentral {
+    let status: AnyPublisher<BleState, Never> = Just(.poweredOn).eraseToAnyPublisher()
     let discovered = PassthroughSubject<BleParticipant, Never>().eraseToAnyPublisher()
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
@@ -246,4 +251,20 @@ func estimatedDistance(rssi: Double, powerLevel: Double) -> Double {
     }
     let pw = powerLevelToUse(powerLevel)
     return pow(10, (pw - rssi) / 20)  // TODO environment factor
+}
+
+private extension CBManagerState {
+    func toBleState() -> BleState {
+        switch self {
+        case .poweredOff: return .poweredOff
+        case .poweredOn: return .poweredOn
+        case .resetting: return .resetting
+        case .unauthorized: return .unauthorized
+        case .unknown: return .unknown
+        case .unsupported: return .unsupported
+        @unknown default:
+            log.w("Unhandled new CB state: \(self). Defaulting to .unknown", .ble)
+            return .unknown
+        }
+    }
 }

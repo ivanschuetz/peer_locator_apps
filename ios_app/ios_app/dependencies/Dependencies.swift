@@ -56,6 +56,7 @@ class Dependencies {
         }
         container.register(multipeerTokenService, type: NearbyTokenReceiver.self)
         container.register(multipeerTokenService, type: NearbyTokenSender.self)
+        container.register(.singleton) { SimulatorBleEnabledServiceImpl() as BleEnabledService }
         #else
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
 
@@ -72,6 +73,9 @@ class Dependencies {
         // and https://github.com/AliSoftware/Dip/issues/196
         container.register(peripheral, type: NearbyTokenReceiver.self)
         container.register(bleManager, type: NearbyTokenSender.self)
+        container.register(.singleton) {
+            BleEnabledServiceImpl(bleCentral: try container.resolve()) as BleEnabledService
+        }
         #endif
     }
 
@@ -123,7 +127,8 @@ class Dependencies {
     private func registerViewModels(container: DependencyContainer) {
         container.register { MeetingViewModel(peerService: try container.resolve(),
                                               sessionService: try container.resolve(),
-                                              settingsShower: try container.resolve()) }
+                                              settingsShower: try container.resolve(),
+                                              bleEnabledService: try container.resolve()) }
         container.register { SessionViewModel(sessionService: try container.resolve(),
                                               clipboard: try container.resolve(),
                                               uiNotifier: try container.resolve(),
