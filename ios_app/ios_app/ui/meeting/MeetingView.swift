@@ -23,6 +23,7 @@ struct MeetingView: View {
         switch content {
         case .enableBle: return AnyView(enableBleView())
         case .connected: return AnyView(connectedView())
+        case .unavailable: return AnyView(unavailableView())
         }
     }
 
@@ -47,6 +48,11 @@ struct MeetingView: View {
                 viewModel.deleteSession()
             }
         }
+    }
+
+    private func unavailableView() -> some View {
+        // TODO maybe add question mark and explain: out of range / device off / ble off
+        Text("Peer is not in range")
     }
 }
 

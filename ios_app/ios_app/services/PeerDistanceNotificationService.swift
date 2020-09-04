@@ -35,6 +35,7 @@ class PeerDistanceNotificationService {
         self.notificationService = notificationService
 
         closePeerCancellable = peerService.peer
+            .compactMap { $0 } // filter out nil (not in range/unavailable) peer
             .withLatestFrom(notificationsBlockedSubject, resultSelector: { peer, blocked in
                 PeerWithBlockedStatus(peer: peer, blocked: blocked)
             })

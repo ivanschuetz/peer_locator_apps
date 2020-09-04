@@ -3,14 +3,15 @@ import Combine
 
 // TODO we also have p2pservice now: isn't it the same thing? merge?
 protocol PeerService {
-    var peer: AnyPublisher<Peer, Never> { get }
+    // peer == nil -> out of range (which includes peer has ble off)
+    var peer: AnyPublisher<Peer?, Never> { get }
 }
 
 // Higher values -> slower UI updates
 private let bleMeasurementsChunkSize = 5
 
 class PeerServiceImpl: PeerService {
-    let peer: AnyPublisher<Peer, Never>
+    let peer: AnyPublisher<Peer?, Never>
 
     private let nearby: Nearby
     private let bleManager: BleManager
@@ -110,6 +111,7 @@ class PeerServiceImpl: PeerService {
                 peer.src == filter
             }
             .map { peer, _ in peer }
+            .prepend(nil) // start with peer == nil, meaning out of range
             .eraseToAnyPublisher()
     }
 }

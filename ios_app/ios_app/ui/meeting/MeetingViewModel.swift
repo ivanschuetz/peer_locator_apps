@@ -3,7 +3,7 @@ import Combine
 import SwiftUI
 
 enum MeetingMainViewContent {
-    case enableBle, connected
+    case enableBle, connected, unavailable
 }
 
 class MeetingViewModel: ObservableObject {
@@ -25,16 +25,24 @@ class MeetingViewModel: ObservableObject {
         self.bleEnabledService = bleEnabledService
 
         discoveredCancellable = peerService.peer.sink { [weak self] peer in
-            let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
-            // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
-            self?.distance = formattedDistance.map { "\($0)m" } ?? "?"
-            if let dir = peer.dir {
-                self?.directionAngle.radians = toAngle(dir: dir)
-            }
+            self?.handlePeer(peerMaybe: peer)
         }
 
         bleEnabledCancellable = bleEnabledService.bleEnabled.sink { [weak self] enabled in
             self?.mainViewContent = enabled ? .connected : .enableBle
+        }
+    }
+
+    private func handlePeer(peerMaybe: Peer?) {
+        if let peer = peerMaybe {
+            let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
+            // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
+            distance = formattedDistance.map { "\($0)m" } ?? "?"
+            if let dir = peer.dir {
+                directionAngle.radians = toAngle(dir: dir)
+            }
+        } else {
+            mainViewContent = .unavailable
         }
     }
 
