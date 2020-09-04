@@ -11,7 +11,7 @@ class MeetingViewModel: ObservableObject {
     @Published var directionAngle: Angle = Angle(radians: 0)
     @Published var mainViewContent: MeetingMainViewContent = .connected
 
-    private var discoveredCancellable: AnyCancellable?
+    private var peerCancellable: AnyCancellable?
     private var bleEnabledCancellable: AnyCancellable?
 
     private let sessionService: CurrentSessionService
@@ -24,7 +24,7 @@ class MeetingViewModel: ObservableObject {
         self.settingsShower = settingsShower
         self.bleEnabledService = bleEnabledService
 
-        discoveredCancellable = peerService.peer.sink { [weak self] peer in
+        peerCancellable = peerService.peer.sink { [weak self] peer in
             self?.handlePeer(peerMaybe: peer)
         }
 

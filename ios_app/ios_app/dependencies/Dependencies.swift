@@ -13,6 +13,7 @@ class Dependencies {
         registerServices(container: container)
         registerViewModels(container: container)
         registerWatch(container: container)
+        registerAccessibility(container: container)
 
         // Throws if components fail to instantiate
         try! container.bootstrap()
@@ -153,5 +154,11 @@ class Dependencies {
             sessionService: try container.resolve(),
             watchBridge: try container.resolve(),
             peerService: try container.resolve()) as WatchEventsForwarder }
+    }
+
+    private func registerAccessibility(container: DependencyContainer) {
+        container.register(.singleton) { VoiceImpl() as Voice }
+        container.register(.eagerSingleton) { LocationVoiceImpl(peerService: try container.resolve(),
+                                                                voice: try container.resolve()) as LocationVoice }
     }
 }
