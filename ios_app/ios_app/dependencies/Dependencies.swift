@@ -158,7 +158,10 @@ class Dependencies {
 
     private func registerAccessibility(container: DependencyContainer) {
         container.register(.singleton) { VoiceImpl() as Voice }
-        container.register(.eagerSingleton) { LocationVoiceImpl(peerService: try container.resolve(),
-                                                                voice: try container.resolve()) as LocationVoice }
+//        container.register(.eagerSingleton) { LocationVoiceImpl(peerService: try container.resolve(),
+//                                                                voice: try container.resolve()) as LocationVoice }
+        container.register(.singleton) { SoundPlayerImpl() as SoundPlayer }
+        container.register(.eagerSingleton) { PeerSoundsImpl(peerService: try container.resolve(),
+                                                             soundPlayer: try container.resolve()) as PeerSounds }
     }
 }

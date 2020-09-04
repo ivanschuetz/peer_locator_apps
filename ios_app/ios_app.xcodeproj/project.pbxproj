@@ -14,7 +14,11 @@
 		841C331D24F53E9200F99B93 /* SwiftEntryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 841C331C24F53E9200F99B93 /* SwiftEntryKit */; };
 		841CBBF424F3DC39003E2A60 /* CurrentSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */; };
 		842CC95725029DAB0003F96F /* Voice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842CC95625029DAB0003F96F /* Voice.swift */; };
-		842CC95925029ED80003F96F /* LocationVoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842CC95825029ED80003F96F /* LocationVoice.swift */; };
+		842CC95925029ED80003F96F /* PeerVoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842CC95825029ED80003F96F /* PeerVoice.swift */; };
+		842CC95D2502C4810003F96F /* SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842CC95C2502C4810003F96F /* SoundPlayer.swift */; };
+		842CC9602502C72B0003F96F /* dist0.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 842CC95E2502C72B0003F96F /* dist0.mp3 */; };
+		842CC9612502C72B0003F96F /* dir0.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 842CC95F2502C72B0003F96F /* dir0.mp3 */; };
+		842CC9632502C7710003F96F /* PeerSounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842CC9622502C7710003F96F /* PeerSounds.swift */; };
 		843F7EF124F10477002AA5F8 /* BleId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF024F10477002AA5F8 /* BleId.swift */; };
 		843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF224F10582002AA5F8 /* P2pService.swift */; };
 		8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */; };
@@ -179,7 +183,11 @@
 		841C331924F53AD300F99B93 /* UINotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINotifications.swift; sourceTree = "<group>"; };
 		841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentSessionService.swift; sourceTree = "<group>"; };
 		842CC95625029DAB0003F96F /* Voice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Voice.swift; sourceTree = "<group>"; };
-		842CC95825029ED80003F96F /* LocationVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationVoice.swift; sourceTree = "<group>"; };
+		842CC95825029ED80003F96F /* PeerVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerVoice.swift; sourceTree = "<group>"; };
+		842CC95C2502C4810003F96F /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPlayer.swift; sourceTree = "<group>"; };
+		842CC95E2502C72B0003F96F /* dist0.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = dist0.mp3; sourceTree = "<group>"; };
+		842CC95F2502C72B0003F96F /* dir0.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = dir0.mp3; sourceTree = "<group>"; };
+		842CC9622502C7710003F96F /* PeerSounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerSounds.swift; sourceTree = "<group>"; };
 		843F7EF024F10477002AA5F8 /* BleId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleId.swift; sourceTree = "<group>"; };
 		843F7EF224F10582002AA5F8 /* P2pService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2pService.swift; sourceTree = "<group>"; };
 		8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyTokenProcessor.swift; sourceTree = "<group>"; };
@@ -307,11 +315,23 @@
 			path = session;
 			sourceTree = "<group>";
 		};
-		842CC95525029D970003F96F /* voice */ = {
+		842CC95525029D970003F96F /* sound */ = {
+			isa = PBXGroup;
+			children = (
+				842CC95F2502C72B0003F96F /* dir0.mp3 */,
+				842CC95E2502C72B0003F96F /* dist0.mp3 */,
+				842CC95A2502C4000003F96F /* voice */,
+				842CC95C2502C4810003F96F /* SoundPlayer.swift */,
+				842CC9622502C7710003F96F /* PeerSounds.swift */,
+			);
+			path = sound;
+			sourceTree = "<group>";
+		};
+		842CC95A2502C4000003F96F /* voice */ = {
 			isa = PBXGroup;
 			children = (
 				842CC95625029DAB0003F96F /* Voice.swift */,
-				842CC95825029ED80003F96F /* LocationVoice.swift */,
+				842CC95825029ED80003F96F /* PeerVoice.swift */,
 			);
 			path = voice;
 			sourceTree = "<group>";
@@ -445,7 +465,7 @@
 				84DC105E24B4CCDB0064DEBE /* dependencies */,
 				84DC105324B4A5800064DEBE /* ble */,
 				84DC104B24B4A2ED0064DEBE /* ui */,
-				842CC95525029D970003F96F /* voice */,
+				842CC95525029D970003F96F /* sound */,
 				84B0672922F9B3FF006DDC18 /* Assets.xcassets */,
 				84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */,
 				84B0672E22F9B3FF006DDC18 /* Info.plist */,
@@ -792,6 +812,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				84B0672D22F9B3FF006DDC18 /* LaunchScreen.storyboard in Resources */,
+				842CC9612502C72B0003F96F /* dir0.mp3 in Resources */,
+				842CC9602502C72B0003F96F /* dist0.mp3 in Resources */,
 				84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -827,6 +849,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842CC95D2502C4810003F96F /* SoundPlayer.swift in Sources */,
 				84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */,
 				84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */,
 				84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */,
@@ -837,6 +860,7 @@
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
 				84B6DCB324FBB01D00AA7E6D /* SharedSessionData.swift in Sources */,
 				848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */,
+				842CC9632502C7710003F96F /* PeerSounds.swift in Sources */,
 				8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */,
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84B5371124FAB453000B42C7 /* DeeplinkHandler.swift in Sources */,
@@ -856,7 +880,7 @@
 				84BEFEDC24F62E7F006E4B61 /* HomeView.swift in Sources */,
 				84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */,
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
-				842CC95925029ED80003F96F /* LocationVoice.swift in Sources */,
+				842CC95925029ED80003F96F /* PeerVoice.swift in Sources */,
 				8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */,
 				84DC104824B49E340064DEBE /* MeetingView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
