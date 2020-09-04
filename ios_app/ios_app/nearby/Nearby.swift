@@ -135,9 +135,8 @@ extension NearbyImpl: NISessionDelegate {
 
         let discovered = NearbyObj(name: obj.discoveryToken.description, dist: obj.distance.map { $0 * 100 } /*cm*/,
                                    dir: obj.direction)
-        discoveredSubject.send(discovered)
-
         sessionStateSubject.send(.active)
+        discoveredSubject.send(discovered)
     }
 
     // Peer gone

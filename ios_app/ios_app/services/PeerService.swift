@@ -84,16 +84,21 @@ class PeerServiceImpl: PeerService {
             .share()
             .eraseToAnyPublisher()
 
-        // Temporary placeholder implementation: ble until the first nearby event detected,
-        // after that always nearby.
-        // TODO switch to ble on threshold (> x nearby events / second?) and back
-        // and reduce intermittency somehow: ranges/tolerance?
-        let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeer
-            // what happens when nearby goes out of range? is e.g. didInvalidateWith called in nearby
-            // anyway it seems we need an observable for session ended/suspended/out of range/timeout,
-            // which we'd use to switch back to ble:
-            // session active/in range -> nearby, else -> ble
-            .map { _ in .nearby }
+        let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeer.combineLatest(nearby.sessionState.removeDuplicates())
+            .map { peer, sessionState in
+                // Note: if nearby doesn't provide distance intermittently while in range,
+                // the back and forth with ble (?? false) will not look good
+                // there will be definitely intermittency in the outer edges of the nearby range.
+                // we could implement something to keep the last peer source until the new one stabilizes
+                // (last x events in a row came from source y)
+                // TODO when testing with devices, check actual nearby range. 100 is a placeholder.
+                let inNearbyRange = peer.dist.map { $0 < 100 } ?? false
+                if sessionState == .active && inNearbyRange {
+                    return .nearby
+                } else {
+                    return .ble
+                }
+            }
             .prepend(.ble)
             .eraseToAnyPublisher()
 
