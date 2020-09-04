@@ -22,7 +22,7 @@ struct matchApp: App {
                         deeplinkHandler.handle(link: url)
                     }
             }
-
+            .navigationViewStyle(StackNavigationViewStyle())
         }
     }
 
