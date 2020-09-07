@@ -65,7 +65,9 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
 
 extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        status.send((peripheral.state, peripheral))
+        let state = peripheral.state
+        log.d("Peripheral ble state: \(state)", .ble)
+        status.send((state, peripheral))
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {

@@ -94,7 +94,9 @@ class BleCentralImpl: NSObject, BleCentral {
 
 extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        statusSubject.send(central.state.toBleState())
+        let state = central.state.toBleState()
+        log.d("Central ble state: \(state)", .ble)
+        statusSubject.send(state)
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
