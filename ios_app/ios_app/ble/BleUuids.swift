@@ -6,3 +6,5 @@ extension CBUUID {
     static let characteristicCBUUID = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376512")
     static let nearbyCharacteristicCBUUID = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376513")
 }
+
+let appDomain: String = "xyz.ploc"

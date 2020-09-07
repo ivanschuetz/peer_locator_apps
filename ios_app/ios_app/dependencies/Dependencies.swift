@@ -77,6 +77,9 @@ class Dependencies {
         container.register(.singleton) {
             BleEnabledServiceImpl(bleCentral: try container.resolve()) as BleEnabledService
         }
+        container.register(.eagerSingleton) {
+            BleRestarterWhenAppComesToFgImpl(bleCentral: try container.resolve()) as BleRestarterWhenAppComesToFg
+        }
         #endif
     }
 

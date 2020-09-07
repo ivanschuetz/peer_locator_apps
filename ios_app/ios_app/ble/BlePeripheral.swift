@@ -29,7 +29,9 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
-        peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
+            CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
+        ])
 
         startCancellable = startTrigger
             .combineLatest(status)
@@ -118,6 +120,10 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
         }
 
         tokenSubject.send(SerializedSignedNearbyToken(data: data))
+    }
+
+    func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
+        log.d("Peripheral will restore state: \(dict)", .ble, .bg)
     }
 }
 

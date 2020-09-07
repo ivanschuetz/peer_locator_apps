@@ -40,10 +40,15 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private var discoveredByUuid: [UUID : BleId] = [:]
 
+    private var restoredPeripherals: [CBPeripheral] = []
+
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
-        centralManager = CBCentralManager(delegate: self, queue: nil)
+        centralManager = CBCentralManager(delegate: self, queue: nil, options: [
+            CBCentralManagerOptionRestoreIdentifierKey: appDomain,
+            CBCentralManagerOptionShowPowerAlertKey: NSNumber(booleanLiteral: true)
+        ])
 
         startCancellable = startTrigger
             .combineLatest(status)
@@ -51,6 +56,7 @@ class BleCentralImpl: NSObject, BleCentral {
             .removeDuplicates()
             .sink(receiveValue: {[weak self] status in
                 if status == .poweredOn {
+                    self?.stop() // we reuse start as "restart". There doesn't seem to be anything bad with stopping for "only start" use case.
                     self?.start()
                 } else {
                     log.d("Requested central start while not powered on: \(status)", .ble)
@@ -64,6 +70,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
     func stop() {
         if centralManager?.isScanning ?? false {
+            log.d("Stopping scannper (was scanning)", .ble)
             centralManager?.stopScan()
         }
         discoveredByUuid = [:]
@@ -97,6 +104,17 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         let state = central.state.toBleState()
         log.d("Central ble state: \(state)", .ble)
         statusSubject.send(state)
+
+        if central.state == .poweredOn {
+            cancelRestoredPeripherals(central: central)
+        }
+    }
+
+    private func cancelRestoredPeripherals(central: CBCentralManager) {
+        restoredPeripherals.forEach({
+            central.cancelPeripheralConnection($0)
+        })
+        restoredPeripherals = []
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
@@ -128,6 +146,16 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         log.v("Did fail to connect to peripheral", .ble)
+    }
+
+    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
+        log.d("Central will restore state: \(dict)", .ble, .bg)
+        // Remember restored peripherals to cancel the connections when the central is powered on
+        // TODO review: do we really need this?
+        if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
+            log.d("Restored peripherals: \(peripherals)", .ble, .bg)
+            self.restoredPeripherals = peripherals
+        }
     }
 }
 
