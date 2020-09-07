@@ -16,7 +16,7 @@ class MultipeerTokenServiceImpl: NSObject, NearbyTokenReceiver {
     private let serviceBrowser: MCNearbyServiceBrowser
 
     private let serviceType = "schuetzmatch"
-    private let serviceIdentity = "com.schuetz.ios-app./device_ni"
+    private let serviceIdentity = "xyz.ploc.ios./device_ni"
 
     var delegate: TokenServiceDelegate?
 

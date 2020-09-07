@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84014D492506BBBA0057BBFD /* PeerForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84014D482506BBBA0057BBFD /* PeerForWidget.swift */; };
+		84014D4B2506BBCB0057BBFD /* PeerForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84014D482506BBBA0057BBFD /* PeerForWidget.swift */; };
+		84014D4C2506BCAA0057BBFD /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
 		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
 		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
 		841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C331724F4F24000F99B93 /* Result+Convenience.swift */; };
@@ -22,6 +25,8 @@
 		843F7EF124F10477002AA5F8 /* BleId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF024F10477002AA5F8 /* BleId.swift */; };
 		843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF224F10582002AA5F8 /* P2pService.swift */; };
 		844CFD002506762F00F76832 /* BleRestarterWhenAppComesToFg.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CFCFF2506762F00F76832 /* BleRestarterWhenAppComesToFg.swift */; };
+		844CFD042506A79400F76832 /* PeerForWidgetRecorderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */; };
+		844CFD052506A9DF00F76832 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */; };
 		8459E07B250642860058D692 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8459E07A250642860058D692 /* WidgetKit.framework */; };
 		8459E07D250642860058D692 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8459E07C250642860058D692 /* SwiftUI.framework */; };
@@ -225,6 +230,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		84014D462506B5880057BBFD /* ploc_watch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ploc_watch Extension.entitlements"; sourceTree = "<group>"; };
+		84014D472506B5B20057BBFD /* ploc_widgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ploc_widgetExtension.entitlements; sourceTree = "<group>"; };
+		84014D482506BBBA0057BBFD /* PeerForWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerForWidget.swift; sourceTree = "<group>"; };
 		84094EF724EACC3C0028BBDF /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		84094EF924EACC4E0028BBDF /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
 		841C331724F4F24000F99B93 /* Result+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Convenience.swift"; sourceTree = "<group>"; };
@@ -239,6 +247,8 @@
 		843F7EF024F10477002AA5F8 /* BleId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleId.swift; sourceTree = "<group>"; };
 		843F7EF224F10582002AA5F8 /* P2pService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2pService.swift; sourceTree = "<group>"; };
 		844CFCFF2506762F00F76832 /* BleRestarterWhenAppComesToFg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleRestarterWhenAppComesToFg.swift; sourceTree = "<group>"; };
+		844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerForWidgetRecorderImpl.swift; sourceTree = "<group>"; };
+		844CFD062506AE7900F76832 /* ploc.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ploc.entitlements; sourceTree = "<group>"; };
 		8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyTokenProcessor.swift; sourceTree = "<group>"; };
 		8459E079250642860058D692 /* ploc_widgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ploc_widgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8459E07A250642860058D692 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -488,6 +498,8 @@
 				84D895EB24FD333A005360DB /* NearbySessionCoordinator.swift */,
 				8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */,
 				84723B7725025777007C7C6D /* BleEnabledService.swift */,
+				844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */,
+				84014D482506BBBA0057BBFD /* PeerForWidget.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -504,6 +516,8 @@
 		84B0671622F9B3FE006DDC18 = {
 			isa = PBXGroup;
 			children = (
+				84014D472506B5B20057BBFD /* ploc_widgetExtension.entitlements */,
+				844CFD062506AE7900F76832 /* ploc.entitlements */,
 				8489BAED24EB1761006D1CD3 /* matchApp.swift */,
 				8466613424B3789200E5FBF9 /* core */,
 				84B0675022F9E3C7006DDC18 /* Rust-Bridging-Header.h */,
@@ -581,6 +595,7 @@
 		84B6DC7F24FBA32F00AA7E6D /* ploc_watch Extension */ = {
 			isa = PBXGroup;
 			children = (
+				84014D462506B5880057BBFD /* ploc_watch Extension.entitlements */,
 				84B6DC8024FBA32F00AA7E6D /* ios_appApp.swift */,
 				84B6DC8224FBA32F00AA7E6D /* ContentView.swift */,
 				84B6DC8424FBA32F00AA7E6D /* NotificationController.swift */,
@@ -978,11 +993,14 @@
 				8459E09D2506438C0058D692 /* Data+hex.swift in Sources */,
 				8459E09B2506437E0058D692 /* SessionId.swift in Sources */,
 				8459E09C250643870058D692 /* SharedSessionData.swift in Sources */,
+				844CFD052506A9DF00F76832 /* Preferences.swift in Sources */,
+				84014D4B2506BBCB0057BBFD /* PeerForWidget.swift in Sources */,
 				8459E092250643410058D692 /* BleId.swift in Sources */,
 				8459E094250643580058D692 /* Crypto.swift in Sources */,
 				8459E099250643700058D692 /* ServicesError.swift in Sources */,
 				8459E0A0250644CB0058D692 /* BleManager.swift in Sources */,
 				8459E097250643630058D692 /* KeyChain.swift in Sources */,
+				84014D4C2506BCAA0057BBFD /* NumberFormatters.swift in Sources */,
 				8459E08D250643260058D692 /* Log.swift in Sources */,
 				8459E0A1250644D40058D692 /* Peer.swift in Sources */,
 				8459E08C250643260058D692 /* CompositeLog.swift in Sources */,
@@ -1006,6 +1024,7 @@
 				84B6DCB324FBB01D00AA7E6D /* SharedSessionData.swift in Sources */,
 				848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */,
 				842CC9632502C7710003F96F /* PeerSounds.swift in Sources */,
+				844CFD042506A79400F76832 /* PeerForWidgetRecorderImpl.swift in Sources */,
 				8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */,
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84B5371124FAB453000B42C7 /* DeeplinkHandler.swift in Sources */,
@@ -1040,6 +1059,7 @@
 				8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */,
 				84BEFEDE24F63B31006E4B61 /* MeetingCreatedView.swift in Sources */,
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
+				84014D492506BBBA0057BBFD /* PeerForWidget.swift in Sources */,
 				8487FA3024EE77CE003FDB0C /* KeyChain.swift in Sources */,
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
@@ -1145,6 +1165,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ploc_widgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				INFOPLIST_FILE = ploc_widget/Info.plist;
@@ -1157,8 +1179,9 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/core",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app.ploc-widget";
+				PRODUCT_BUNDLE_IDENTIFIER = "xyz.ploc.ios.ploc-widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ischuetz/dev/rust/rust_android_ios/ios_app/Rust-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1171,6 +1194,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ploc_widgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				INFOPLIST_FILE = ploc_widget/Info.plist;
@@ -1183,8 +1208,9 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/core",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app.ploc-widget";
+				PRODUCT_BUNDLE_IDENTIFIER = "xyz.ploc.ios.ploc-widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ischuetz/dev/rust/rust_android_ios/ios_app/Rust-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1315,6 +1341,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ploc.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				INFOPLIST_FILE = ios_app/Info.plist;
@@ -1329,8 +1357,9 @@
 					"$(PROJECT_DIR)/core",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app";
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.ploc.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ischuetz/dev/rust/rust_android_ios/ios_app/Rust-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1342,6 +1371,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ploc.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				INFOPLIST_FILE = ios_app/Info.plist;
@@ -1356,8 +1387,9 @@
 					"$(PROJECT_DIR)/core",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app";
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.ploc.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ischuetz/dev/rust/rust_android_ios/ios_app/Rust-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1377,7 +1409,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-appTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "xyz.ploc.ios.ios-appTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1398,7 +1430,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-appTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "xyz.ploc.ios.ios-appTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1444,7 +1476,7 @@
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				IBSC_MODULE = ploc_watch_Extension;
 				INFOPLIST_FILE = ploc_watch/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.ploc.ios.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1465,7 +1497,7 @@
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
 				IBSC_MODULE = ploc_watch_Extension;
 				INFOPLIST_FILE = ploc_watch/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.ploc.ios.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1479,6 +1511,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CODE_SIGN_ENTITLEMENTS = "ploc_watch Extension/ploc_watch Extension.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"ploc_watch Extension/Preview Content\"";
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
@@ -1489,8 +1523,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app.watchkitapp.watchkitextension";
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.ploc.ios.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -1503,6 +1538,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CODE_SIGN_ENTITLEMENTS = "ploc_watch Extension/ploc_watch Extension.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"ploc_watch Extension/Preview Content\"";
 				DEVELOPMENT_TEAM = 37QAPDY2PR;
@@ -1513,8 +1550,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.schuetz.ios-app.watchkitapp.watchkitextension";
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.ploc.ios.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

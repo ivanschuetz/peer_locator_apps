@@ -27,7 +27,7 @@ class CachingLog: LogNonVariadicTags {
     let logs: CurrentValueSubject<LimitedSizeQueue<LogMessage>, Never> =
         CurrentValueSubject(LimitedSizeQueue<LogMessage>(maxSize: 1000))
 
-    private let loggerSerialQueue = DispatchQueue(label: "com.match.logger")
+    private let loggerSerialQueue = DispatchQueue(label: "xyz.ploc.logger")
 
    
     func setup() {}

@@ -87,6 +87,12 @@ class Dependencies {
         container.register(.singleton) { MultipeerTokenServiceImpl() }
 
         container.register(.eagerSingleton) { NearbyImpl() as Nearby }
+        container.register(.eagerSingleton) { PeerForWidgetRecorderImpl(
+            peerService: try container.resolve(),
+            preferences: try container.resolve(),
+            json: try container.resolve()
+        ) as PeerForWidgetRecorder }
+
         container.register(.eagerSingleton) { NearbySessionCoordinatorImpl(
             bleManager: try container.resolve(),
             bleIdService: try container.resolve(),

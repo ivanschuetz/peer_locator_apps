@@ -6,15 +6,25 @@ protocol Preferences {
 }
 
 enum PreferenceKey: String {
-    case bleId
+    case bleId, peerForWidget
 }
 
 class PreferencesImpl: Preferences {
+    // Share with widget
+    private let userDefaults = UserDefaults(suiteName: "group.xyz.ploc.ios")
+
     func putString(key: PreferenceKey, value: String) {
-        UserDefaults.standard.set(value, forKey: key.rawValue)
+        guard let userDefaults = userDefaults else {
+            fatalError("Critical: couldn't create user defaults")
+        }
+        userDefaults.set(value, forKey: key.rawValue)
     }
 
     func getString(key: PreferenceKey) -> String? {
-        UserDefaults.standard.string(forKey: key.rawValue)
+        guard let userDefaults = userDefaults else {
+            fatalError("Critical: couldn't create user defaults")
+        }
+        return userDefaults.string(forKey: key.rawValue)
     }
 }
+
