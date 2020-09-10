@@ -5,10 +5,12 @@ protocol DeeplinkHandler {
 }
 
 class DeeplinkHandlerImpl: DeeplinkHandler {
-    private let sessionService: CurrentSessionService
+    private let sessionManager: RemoteSessionManager
+    private let colocatedPasswordService: ColocatedPairingPasswordService
 
-    init(sessionService: CurrentSessionService) {
-        self.sessionService = sessionService
+    init(sessionManager: RemoteSessionManager, colocatedPasswordService: ColocatedPairingPasswordService) {
+        self.sessionManager = sessionManager
+        self.colocatedPasswordService = colocatedPasswordService
     }
 
     func handle(link: URL) {
@@ -19,7 +21,11 @@ class DeeplinkHandlerImpl: DeeplinkHandler {
             return
         }
 
-        // TODO SessionLink failable init, validates that it has session id
-        sessionService.join(link: SessionLink(value: link))
+        if let passwordLink = ColocatedPeeringPasswordLink(value: link) {
+            colocatedPasswordService.processPassword(passwordLink.extractPassword())
+        } else {
+            // TODO SessionLink failable init, validates that it has session id
+            sessionManager.join(link: SessionLink(value: link))
+        }
     }
 }

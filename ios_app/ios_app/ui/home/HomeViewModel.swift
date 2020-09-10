@@ -8,8 +8,8 @@ enum HomeViewState {
     // For now only a "waiting" screen, for simplicity
     // maybe we can integrate creating/joined only as text
 //    case meetingWaiting
-    case meetingCreated // "Session created!" "Waiting for the other participant to accept"
-    case meetingJoined // "Session joined!" "Waiting for the other participant to acknowledge"
+//    case meetingCreated // "Session created!" "Waiting for the other participant to accept"
+//    case meetingJoined // "Session joined!" "Waiting for the other participant to acknowledge"
 
 //    case meetingReady "the meeting is ready!" but should probably be a dialog/notification
 
@@ -55,12 +55,7 @@ private func toViewState(sessionRes: Result<SharedSessionData?, ServicesError>) 
         if let session = session {
             switch session.isReady {
             case .yes: return .meetingActive
-            case .no:
-                if session.createdByMe {
-                    return .meetingCreated
-                } else {
-                    return .meetingJoined
-                }
+            case .no: return .noMeeting
             }
         } else {
             return .noMeeting

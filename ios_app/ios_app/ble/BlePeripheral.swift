@@ -6,12 +6,16 @@ protocol NearbyTokenReceiver {
     var token: AnyPublisher<SerializedSignedNearbyToken, Never> { get }
 }
 
+protocol ColocatedPublicKeyReceiver {
+    var publicKey: AnyPublisher<SerializedEncryptedPublicKey, Never> { get }
+}
+
 protocol BlePeripheral {
     var readMyId: PassthroughSubject<BleId, Never> { get }
     func requestStart()
 }
 
-class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
+class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver, ColocatedPublicKeyReceiver {
     private var peripheralManager: CBPeripheralManager?
 
     // Updated when read (note that it's generated on demand / first read)
@@ -25,6 +29,9 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
 
     private let tokenSubject = CurrentValueSubject<SerializedSignedNearbyToken?, Never>(nil)
     lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
+
+    private let publicKeySubject = CurrentValueSubject<SerializedEncryptedPublicKey?, Never>(nil)
+    lazy var publicKey = publicKeySubject.compactMap{ $0 }.eraseToAnyPublisher()
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -43,18 +50,32 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
                 if status == .poweredOn {
                     self?.start(peripheralManager: peripheralManager)
                 } else {
-                    log.d("Requested peripheral start while not powered on: \(status.asString())", .ble)
+                    log.d("Requested peripheral start while not powered on: \(status.toBleState())", .ble)
                 }
             })
     }
 
     func requestStart() {
+        log.v("Peripheral requestStart()", .ble)
         startTrigger.send(())
     }
 
     private func start(peripheralManager: CBPeripheralManager) {
         log.i("Will start peripheral", .ble)
-        peripheralManager.add(createService())
+        if !peripheralManager.isAdvertising {
+            peripheralManager.add(createService())
+        }
+    }
+
+    private func stop(peripheralManager: CBPeripheralManager) {
+        peripheralManager.stopAdvertising()
+    }
+
+    private func restart(peripheralManager: CBPeripheralManager) {
+        stop(peripheralManager: peripheralManager)
+        // TODO confirm that peripheralManager.isAdvertising (used in start) is false (i.e. that stop is immediate)
+        // otherwise there could be situations where the peripheral doesn't start.
+        start(peripheralManager: peripheralManager)
     }
 
     private func startAdvertising() {
@@ -68,12 +89,13 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver {
 extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         let state = peripheral.state
-        log.d("Peripheral ble state: \(state)", .ble)
+        log.d("Peripheral ble state: \(state.toBleState())", .ble)
         status.send((state, peripheral))
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-        log.d("Peripheral added service: \(service)", .ble)
+        log.d("Peripheral added service: \(service.uuid), characteristics: " +
+            "\(String(describing: service.characteristics?.count))", .ble)
         startAdvertising()
     }
 
@@ -83,25 +105,33 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        if request.characteristic.uuid == CBUUID.characteristicCBUUID { // TODO do we really need this check?
-            if let myId = idService.id() {
-                self.readMyId.send(myId)
-                request.value = myId.data
-                peripheral.respond(to: request, withResult: .success)
-
-            } else {
-                // TODO review handling
-                log.e("Illegal state: peripheral shouldn't be on without an available id. Ignoring (for now)")
-                return
-            }
-
-        } else {
+        switch request.characteristic.uuid {
+        case CBUUID.characteristicCBUUID:
+            handleMyMeetingPublicKeyRead(peripheral: peripheral, request: request)
+        default:
             // TODO review handling
             log.e("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)", .ble)
         }
     }
 
+    private func handleMyMeetingPublicKeyRead(peripheral: CBPeripheralManager, request: CBATTRequest) {
+        if let myId = idService.id() {
+            self.readMyId.send(myId)
+            request.value = myId.data
+            peripheral.respond(to: request, withResult: .success)
+
+        } else {
+            // TODO review handling
+            // This state is valid as peripheral and central are active during colocated pairing too,
+            // where normally there's no session yet
+            // TODO probably we should block reading session data during colocated pairing / non-active session
+            log.v("Peripheral session id was read and there was no session (TODO see comment)")
+        }
+    }
+
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        log.d("Peripheral received write requests (\(requests.count))", .ble)
+
         guard requests.count < 2 else {
             log.e("Multiple write requests TODO is this normal? Exit", .ble)
             return
@@ -110,20 +140,36 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
             log.e("Write requests empty TODO is this normal? Exit", .ble)
             return
         }
-        guard request.characteristic.uuid == CBUUID.nearbyCharacteristicCBUUID else {
-            log.e("Received write for a characteristic that's not nearby. Exit.", .ble)
+
+        switch request.characteristic.uuid {
+        case .nearbyCharacteristicCBUUID:
+            handleNearbyCharacteristicWrite(data: request.value)
+        case .colocatedPublicKeyCBUUID:
+            handleColocatedPublicKeyWrite(data: request.value)
+        default:
+            log.e("Received write for unsupported characteristic. Ignoring", .ble)
             return
         }
-        guard let data = request.value else {
+    }
+
+    private func handleNearbyCharacteristicWrite(data: Data?) {
+        guard let data = data else {
             log.e("Nearby characteristic write has no data. Exit.", .ble)
             return
         }
-
         tokenSubject.send(SerializedSignedNearbyToken(data: data))
     }
 
+    private func handleColocatedPublicKeyWrite(data: Data?) {
+        guard let data = data else {
+            log.e("Colocated public key has no data. Exit.", .ble)
+            return
+        }
+        publicKeySubject.send(SerializedEncryptedPublicKey(data: data))
+    }
+
     func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
-        log.d("Peripheral will restore state: \(dict)", .ble, .bg)
+        log.d("Peripheral will restore state", .ble, .bg)
     }
 }
 
@@ -132,7 +178,8 @@ private func createService() -> CBMutableService {
         type: .serviceCBUUID,
         primary: true
     )
-    service.characteristics = [createCharacteristic(), createNearbyCharacteristic()]
+    service.characteristics = [createCharacteristic(), createNearbyCharacteristic(),
+                               createColocatedPairingCharacteristic()]
     return service
 }
 
@@ -148,6 +195,16 @@ private func createCharacteristic() -> CBCharacteristic {
 private func createNearbyCharacteristic() -> CBCharacteristic {
     CBMutableCharacteristic(
         type: .nearbyCharacteristicCBUUID,
+        properties: [.write],
+        value: nil,
+        // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
+        permissions: [.writeable]
+    )
+}
+
+private func createColocatedPairingCharacteristic() -> CBCharacteristic {
+    CBMutableCharacteristic(
+        type: .colocatedPublicKeyCBUUID,
         properties: [.write],
         value: nil,
         // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?

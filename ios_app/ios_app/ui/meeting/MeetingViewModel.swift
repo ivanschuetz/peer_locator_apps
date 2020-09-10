@@ -41,6 +41,7 @@ class MeetingViewModel: ObservableObject {
             if let dir = peer.dir {
                 directionAngle.radians = toAngle(dir: dir)
             }
+            mainViewContent = .connected
         } else {
             mainViewContent = .unavailable
         }

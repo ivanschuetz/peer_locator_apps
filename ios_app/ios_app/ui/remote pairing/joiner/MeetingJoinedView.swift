@@ -3,8 +3,8 @@ import SwiftUI
 struct MeetingJoinedView: View {
     private let viewModel: MeetingJoinedViewModel
 
-    init(viewModel: MeetingJoinedViewModel) {
-        self.viewModel = viewModel
+    init(viewModelProvider: ViewModelProvider) {
+        self.viewModel = viewModelProvider.meetingJoined()
     }
 
     var body: some View {
@@ -23,7 +23,6 @@ struct MeetingJoinedView: View {
 
 struct MeetingJoinedView_Previews: PreviewProvider {
     static var previews: some View {
-        MeetingJoinedView(viewModel: MeetingJoinedViewModel(sessionService: NoopCurrentSessionService(),
-                                                            clipboard: NoopClipboard(), uiNotifier: NoopUINotifier(), settingsShower: NoopSettingsShower()))
+        MeetingJoinedView(viewModelProvider: DummyViewModelProvider())
     }
 }

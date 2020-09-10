@@ -1,5 +1,6 @@
 import Foundation
 
+// TODO rename RemoteSessionService
 protocol SessionService {
     func createSession() -> Result<SharedSessionData, ServicesError>
     func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError>
@@ -272,7 +273,7 @@ class SessionServiceImpl: SessionService {
 
     private func createAndStoreSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
         let keyPair = crypto.createKeyPair()
-        log.d("Created key pair: \(keyPair)", .session)
+        log.d("Created key pair", .session)
         let sessionId = sessionIdGenerator()
         let sessionData = MySessionData(
             sessionId: sessionId,
@@ -300,4 +301,30 @@ enum FetchAndStoreParticipantsResult {
     case fetchedSomething
 
     case fetchedNothing
+}
+
+class NoopSessionService: SessionService {
+    func deleteSessionLocally() -> Result<(), ServicesError> {
+        .success(())
+    }
+
+    func createSession() -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: true))
+    }
+
+    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: try! link.extractSessionId().get(), isReady: .no, createdByMe: false))
+    }
+
+    func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: false))
+    }
+
+    func currentSession() -> Result<SharedSessionData?, ServicesError> {
+        .success(nil)
+    }
+
+    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
+        .success(nil)
+    }
 }

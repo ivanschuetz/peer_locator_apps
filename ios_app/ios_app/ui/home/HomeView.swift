@@ -4,31 +4,21 @@ import Combine
 struct HomeView: View {
     @ObservedObject private var viewModel: HomeViewModel
 
-    private let sessionViewModel: SessionViewModel
-    private let meetingCreatedViewModel: MeetingCreatedViewModel
-    private let meetingJoinedViewModel: MeetingJoinedViewModel
-    private let meetingViewModel: MeetingViewModel
-    private let settingsViewModel: SettingsViewModel
+    private let viewModelProvider: ViewModelProvider
 
     // TODO review states+view models: view models are eagerly instantiated, so we've e.g. a session created
     // view model active while we may never show session created + this prevents us from showing invalid state messages
     // in session created when session is not ready. Instantiate view models lazily (and ensure cleared when leaving)?
     // or maybe use only one view model for everything?
-    init(viewModel: HomeViewModel, sessionViewModel: SessionViewModel, meetingCreatedViewModel: MeetingCreatedViewModel,
-         meetingJoinedViewModel: MeetingJoinedViewModel, meetingViewModel: MeetingViewModel,
-         settingsViewModel: SettingsViewModel) {
-        self.viewModel = viewModel
-        self.sessionViewModel = sessionViewModel
-        self.meetingCreatedViewModel = meetingCreatedViewModel
-        self.meetingJoinedViewModel = meetingJoinedViewModel
-        self.meetingViewModel = meetingViewModel
-        self.settingsViewModel = settingsViewModel
+    init(viewModelProvider: ViewModelProvider) {
+        self.viewModel = viewModelProvider.home()
+        self.viewModelProvider = viewModelProvider
     }
 
     var body: some View {
         viewForState(state: viewModel.state)
             .sheet(isPresented: $viewModel.showSettingsModal) {
-                SettingsView(viewModel: settingsViewModel)
+                SettingsView(viewModel: viewModelProvider.settings())
             }
     }
 
@@ -37,45 +27,23 @@ struct HomeView: View {
         switch state {
         case .noMeeting:
             return AnyView(noMeetingView())
-        case .meetingCreated:
-            return AnyView(MeetingCreatedView(viewModel: meetingCreatedViewModel))
-        case .meetingJoined:
-            return AnyView(MeetingJoinedView(viewModel: meetingJoinedViewModel))
         case .meetingActive:
             return AnyView(meetingActiveView())
         }
     }
 
     private func noMeetingView() -> some View {
-        SessionView(viewModel: sessionViewModel)
+        SessionView(viewModelProvider: viewModelProvider)
     }
 
     private func meetingActiveView() -> some View {
-        MeetingView(viewModel: meetingViewModel)
+        MeetingView(viewModelProvider: viewModelProvider)
     }
 }
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let sessionService = NoopCurrentSessionService()
-        let uiNotifier = NoopUINotifier()
-        let clipboard = NoopClipboard()
-        let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralNoop())
-        let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
-
-        HomeView(viewModel: HomeViewModel(
-                    sessionService: NoopCurrentSessionService(),
-                    uiNotifier: NoopUINotifier(),
-                    settingsShower: NoopSettingsShower()),
-                 sessionViewModel: SessionViewModel(sessionService: sessionService,
-                                                    clipboard: clipboard,
-                                                    uiNotifier: uiNotifier,
-                                                    settingsShower: NoopSettingsShower()),
-                 meetingCreatedViewModel: MeetingCreatedViewModel(sessionService: sessionService, clipboard: clipboard, uiNotifier: uiNotifier, settingsShower: NoopSettingsShower()),
-                 meetingJoinedViewModel: MeetingJoinedViewModel(sessionService: sessionService, clipboard: clipboard, uiNotifier: uiNotifier, settingsShower: NoopSettingsShower()),
-                 meetingViewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService, settingsShower: NoopSettingsShower(), bleEnabledService: NoopBleEnabledService()),
-                 settingsViewModel: SettingsViewModel()
-        )
+        HomeView(viewModelProvider: DummyViewModelProvider())
     }
 }
 
@@ -88,4 +56,10 @@ class NoopSettingsShower: SettingsShower {
 class NoopBleEnabledService: BleEnabledService {
     var bleEnabled: AnyPublisher<Bool, Never> = Just(true).eraseToAnyPublisher()
     func enable() {}
+}
+
+class NoopRemoteSessionManager: RemoteSessionManager {
+    func create() {}
+    func join(link: SessionLink) {}
+    func refresh() {}
 }

@@ -1,8 +1,20 @@
 import Foundation
 import Dip
 
-class Dependencies {
+protocol ViewModelProvider {
+    func meeting() -> MeetingViewModel
+    func session() -> SessionViewModel
+    func home() -> HomeViewModel
+    func meetingCreated() -> MeetingCreatedViewModel
+    func meetingJoined() -> MeetingJoinedViewModel
+    func settings() -> SettingsViewModel
+    func colocatedPairingRole() -> ColocatedPairingRoleSelectionViewModel
+    func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel
+    func colocatedPassword() -> ColocatedPairingPasswordViewModel
+    func remotePairingRole() -> RemotePairingRoleSelectionViewModel
+}
 
+class Dependencies {
     func createContainer() -> DependencyContainer {
 
         let container = DependencyContainer()
@@ -37,7 +49,10 @@ class Dependencies {
         container.register(.singleton) { CryptoImpl() as Crypto }
         container.register(.singleton) { ClipboardImpl() as Clipboard }
         container.register(.singleton) { UINotifierImpl() as UINotifier }
-        container.register(.singleton) { DeeplinkHandlerImpl(sessionService: try container.resolve()) as DeeplinkHandler }
+        container.register(.singleton) { DeeplinkHandlerImpl(
+            sessionManager: try container.resolve(),
+            colocatedPasswordService: try container.resolve()
+        )}
         container.register(.singleton) { SettingsShowerImpl() as SettingsShower }
     }
 
@@ -73,7 +88,9 @@ class Dependencies {
         // see https://github.com/AliSoftware/Dip/wiki/type-forwarding
         // and https://github.com/AliSoftware/Dip/issues/196
         container.register(peripheral, type: NearbyTokenReceiver.self)
+        container.register(peripheral, type: ColocatedPublicKeyReceiver.self)
         container.register(bleManager, type: NearbyTokenSender.self)
+
         container.register(.singleton) {
             BleEnabledServiceImpl(bleCentral: try container.resolve()) as BleEnabledService
         }
@@ -132,6 +149,32 @@ class Dependencies {
                 json: try container.resolve()
             ) as NearbyTokenProcessor
         }
+//        container.register(.eagerSingleton) {
+//            CloseSessionServiceImpl(
+//                bleCentral: try container.resolve(),
+//                keyChain: try container.resolve()
+//            ) as CloseSessionService }
+
+        container.register(.singleton) {
+            RemoteSessionManagerImpl(
+                sessionService: try container.resolve(),
+                currentSessionService: try container.resolve()
+            ) as RemoteSessionManager }
+
+        container.register(.singleton) { ColocatedPairingPasswordServiceImpl() as ColocatedPairingPasswordService }
+        container.register(.singleton) { ColocatedPasswordProviderImpl() as ColocatedPasswordProvider }
+        container.register(.singleton) { ColocatedSessionServiceImpl(
+            bleCentral: try container.resolve(),
+            peerKeyReceiver: try container.resolve(),
+            keyChain: try container.resolve(),
+            passwordProvider: try container.resolve(),
+            passwordService: try container.resolve(),
+            crypto: try container.resolve(),
+            uiNotifier: try container.resolve(),
+            sessionService: try container.resolve(),
+            bleManager: try container.resolve()
+        ) as ColocatedSessionService }
+        container.register(.singleton) { ColocatedPairingPasswordServiceImpl()  as ColocatedPairingPasswordService }
     }
 
     private func registerViewModels(container: DependencyContainer) {
@@ -140,21 +183,28 @@ class Dependencies {
                                               settingsShower: try container.resolve(),
                                               bleEnabledService: try container.resolve()) }
         container.register { SessionViewModel(sessionService: try container.resolve(),
+                                              remoteSessionManager: try container.resolve(),
                                               clipboard: try container.resolve(),
                                               uiNotifier: try container.resolve(),
                                               settingsShower: try container.resolve()) }
         container.register { HomeViewModel(sessionService: try container.resolve(),
                                            uiNotifier: try container.resolve(),
                                            settingsShower: try container.resolve()) }
-        container.register { MeetingCreatedViewModel(sessionService: try container.resolve(),
+        container.register { MeetingCreatedViewModel(sessionManager: try container.resolve(),
+                                                     sessionService: try container.resolve(),
                                                      clipboard: try container.resolve(),
                                                      uiNotifier: try container.resolve(),
                                                      settingsShower: try container.resolve()) }
-        container.register { MeetingJoinedViewModel(sessionService: try container.resolve(),
+        container.register { MeetingJoinedViewModel(sessionManager: try container.resolve(),
+                                                    sessionService: try container.resolve(),
                                                     clipboard: try container.resolve(),
                                                     uiNotifier: try container.resolve(),
                                                     settingsShower: try container.resolve()) }
         container.register { SettingsViewModel() }
+        container.register { ColocatedPairingRoleSelectionViewModel(sessionService: try container.resolve()) }
+        container.register { ColocatedPairingPasswordViewModel(sessionService: try container.resolve()) }
+        container.register { ColocatedPairingJoinerViewModel(passwordService: try container.resolve()) }
+        container.register { RemotePairingRoleSelectionViewModel() }
     }
 
     private func registerWatch(container: DependencyContainer) {
@@ -172,5 +222,48 @@ class Dependencies {
         container.register(.singleton) { SoundPlayerImpl() as SoundPlayer }
         container.register(.eagerSingleton) { PeerSoundsImpl(peerService: try container.resolve(),
                                                              soundPlayer: try container.resolve()) as PeerSounds }
+    }
+}
+
+extension DependencyContainer: ViewModelProvider {
+
+    func meeting() -> MeetingViewModel {
+        try! resolve()
+    }
+
+    func session() -> SessionViewModel {
+        try! resolve()
+    }
+
+    func home() -> HomeViewModel {
+        try! resolve()
+    }
+
+    func meetingCreated() -> MeetingCreatedViewModel {
+        try! resolve()
+    }
+
+    func meetingJoined() -> MeetingJoinedViewModel {
+        try! resolve()
+    }
+
+    func settings() -> SettingsViewModel {
+        try! resolve()
+    }
+
+    func colocatedPairingRole() -> ColocatedPairingRoleSelectionViewModel {
+        try! resolve()
+    }
+
+    func colocatedPassword() -> ColocatedPairingPasswordViewModel {
+        try! resolve()
+    }
+
+    func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel {
+        try! resolve()
+    }
+
+    func remotePairingRole() -> RemotePairingRoleSelectionViewModel {
+        try! resolve()
     }
 }

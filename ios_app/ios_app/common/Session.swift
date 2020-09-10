@@ -47,6 +47,7 @@ struct ParticipantId: Encodable, Decodable {
     let value: String
 }
 
+// TODO all Encodable, Decodable -> Codable
 struct Participants: Encodable, Decodable {
     let participants: [PublicKey]
 }

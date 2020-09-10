@@ -11,6 +11,13 @@ protocol Crypto {
     func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool // Convenience
 
     func sha256(str: String) -> String
+
+    // placeholder implementation. We'll use not use ColocatedPeeringPassword to encrypt
+    // also, TODO: review password safety: write down what exactly we want to achive:
+    // encryption, signing, verification? are we vulnerable to e.g. replay attack?
+    // if we do want encryption, should we add a nonce?
+    func encrypt(str: String, key: String) -> String
+    func decrypt(str: String, key: String) -> String?
 }
 
 class CryptoImpl: Crypto {
@@ -59,6 +66,24 @@ class CryptoImpl: Crypto {
     //        let othersp5121PublicKey = try! P521.KeyAgreement.PublicKey(pemRepresentation: othersPublicKey.value)
     //        let sharedSecret: SharedSecret = try! p5121PrivateKey.sharedSecretFromKeyAgreement(with: othersp5121PublicKey)
     //    }
+
+    func encrypt(str: String, key: String) -> String {
+        // TODO placeholder implementation
+        str + "+++\(key)"
+    }
+
+    func decrypt(str: String, key: String) -> String? {
+        // TODO placeholder implementation
+        if str.contains("+++\(key)") {
+            if let first = str.components(separatedBy: "+++").first {
+                return first
+            } else {
+                return nil
+            }
+        } else {
+            return nil
+        }
+    }
 }
 
 private extension Digest {

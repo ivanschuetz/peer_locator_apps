@@ -41,7 +41,7 @@ struct Provider: TimelineProvider {
         log.d("Widget read peer data from prefs: \(String(describing: peerForWidgetStr))", .widget)
 
         let peerForWidget: PeerForWidget = json.fromJson(json: peerForWidgetStr)
-        let distStr = NumberFormatters.oneDecimal.string(from: peerForWidget.distance)
+        let distStr = NumberFormatters.oneDecimal.string(from: peerForWidget.distance).map { "\($0)m" }
 
         let viewData = ViewData(distance: distStr ?? "", recordedTime: peerForWidget.recordedTime)
 

@@ -3,7 +3,7 @@ import Combine
 import SwiftUI
 
 class SessionViewModel: ObservableObject {
-    private let sessionService: CurrentSessionService
+    private let remoteSessionManager: RemoteSessionManager
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
     private let settingsShower: SettingsShower
@@ -15,9 +15,9 @@ class SessionViewModel: ObservableObject {
 
     private var sessionCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier,
-         settingsShower: SettingsShower) {
-        self.sessionService = sessionService
+    init(sessionService: CurrentSessionService, remoteSessionManager: RemoteSessionManager, clipboard: Clipboard,
+         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+        self.remoteSessionManager = remoteSessionManager
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
@@ -36,7 +36,7 @@ class SessionViewModel: ObservableObject {
     }
 
     func createSession() {
-        sessionService.create()
+        remoteSessionManager.create()
     }
 
     func joinSession() {
@@ -52,7 +52,7 @@ class SessionViewModel: ObservableObject {
             return
         }
 
-        sessionService.join(link: SessionLink(value: url))
+        remoteSessionManager.join(link: SessionLink(value: url))
     }
 
     // TODO call when opening the screen, maybe also pull to refresh "update participants status..."
@@ -60,7 +60,7 @@ class SessionViewModel: ObservableObject {
     // maybe also button? "is the session ready?" with
     // text yes: "all the participants are connected and ready to meet", no: "not all participants are ready"
     func refreshSessionData() {
-        sessionService.refresh()
+        remoteSessionManager.refresh()
     }
 
     func onCopyLinkTap() {

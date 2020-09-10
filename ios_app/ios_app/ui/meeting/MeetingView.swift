@@ -7,8 +7,8 @@ struct MeetingView: View {
     @ObservedObject private var viewModel: MeetingViewModel
     @Environment(\.colorScheme) var colorScheme
 
-    init(viewModel: MeetingViewModel) {
-        self.viewModel = viewModel
+    init(viewModelProvider: ViewModelProvider) {
+        self.viewModel = viewModelProvider.meeting()
     }
 
     var body: some View {
@@ -58,40 +58,6 @@ struct MeetingView: View {
 
 struct MeetingView_Previews: PreviewProvider {
     static var previews: some View {
-        let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralFixedDistance())
-        let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
-        let sessionService = NoopCurrentSessionService()
-        MeetingView(viewModel: MeetingViewModel(peerService: peerService, sessionService: sessionService,
-                                                settingsShower: NoopSettingsShower(),
-                                                bleEnabledService: NoopBleEnabledService()))
+        MeetingView(viewModelProvider: DummyViewModelProvider())
     }
-}
-
-class BleCentralFixedDistance: NSObject, BleCentral {
-    let discovered = Just(BleParticipant(id: BleId(str: "123")!,
-                                         distance: 10.2)).eraseToAnyPublisher()
-    let status = Just(BleState.poweredOn).eraseToAnyPublisher()
-    let writtenMyId = PassthroughSubject<BleId, Never>()
-    func requestStart() {}
-    func stop() {}
-    func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
-}
-
-class BleIdServiceNoop: BleIdService {
-    func id() -> BleId? {
-        nil
-    }
-
-    func validate(bleId: BleId) -> Bool {
-        false
-    }
-}
-
-class NearbyNoop: Nearby {
-    var sessionState = Just(SessionState.notInit).eraseToAnyPublisher()
-    var discovered: AnyPublisher<NearbyObj, Never> =
-        Just(NearbyObj(name: "foo", dist: 1.2, dir: simd_float3(1, 1, 0))).eraseToAnyPublisher()
-
-    func token() -> NearbyToken? { nil }
-    func start(peerToken token: NearbyToken) {}
 }

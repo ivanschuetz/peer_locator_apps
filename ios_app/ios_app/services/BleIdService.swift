@@ -26,8 +26,11 @@ class BleIdServiceImpl: BleIdService {
             if let sessionData = sessionData {
                 return id(sessionData: sessionData)
             } else {
-                // TODO handling
-                log.e("Critical: there's no session data. Can't generate Ble id", .ble)
+                // This state is valid as devices can be close and with ble services (central/peripheral) on
+                // without session data: we are in this state during colocated pairing
+                // id == nil here means essentially "not yet paired".
+                // TODO probably we should block reading session data during colocated pairing / non-active session
+                log.v("There's no session data. Can't generate Ble id (TODO see comment)", .ble)
                 return nil
             }
         case .failure(let e):
@@ -90,7 +93,7 @@ class BleIdServiceImpl: BleIdService {
         let signedParticipantPayload: SignedParticipantPayload = json.fromJson(json: dataStr)
         let payloadToSign = signedParticipantPayload.data
 
-        log.v("Will validate participant payload: \(signedParticipantPayload)")
+        log.v("Will validate participant payload: \(signedParticipantPayload) with participants: \(participants)")
 
         let signData = Data(fromHexEncodedString: signedParticipantPayload.sig)!
 
@@ -103,4 +106,14 @@ class BleIdServiceImpl: BleIdService {
 struct SignedParticipantPayload: Encodable, Decodable {
     let data: String // random
     let sig: String
+}
+
+class BleIdServiceNoop: BleIdService {
+    func id() -> BleId? {
+        nil
+    }
+
+    func validate(bleId: BleId) -> Bool {
+        false
+    }
 }

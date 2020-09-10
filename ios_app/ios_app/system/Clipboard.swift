@@ -14,3 +14,8 @@ class ClipboardImpl: Clipboard {
         UIPasteboard.general.string ?? ""
     }
 }
+
+class NoopClipboard: Clipboard {
+    func getFromClipboard() -> String { "" }
+    func putInClipboard(text: String) {}
+}

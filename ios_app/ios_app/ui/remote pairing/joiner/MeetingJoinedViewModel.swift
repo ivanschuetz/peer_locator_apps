@@ -5,16 +5,16 @@ import Combine
 class MeetingJoinedViewModel: ObservableObject {
     @Published var link: String = ""
 
-    private let sessionService: CurrentSessionService
+    private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
     private let settingsShower: SettingsShower
 
     private var sessionCancellable: Cancellable?
 
-    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier,
-         settingsShower: SettingsShower) {
-        self.sessionService = sessionService
+    init(sessionManager: RemoteSessionManager, sessionService: CurrentSessionService, clipboard: Clipboard,
+         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+        self.sessionManager = sessionManager
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
@@ -35,7 +35,7 @@ class MeetingJoinedViewModel: ObservableObject {
     }
 
     func updateSession() {
-        sessionService.refresh()
+        sessionManager.refresh()
     }
 
     func onSettingsButtonTap() {

@@ -6,7 +6,7 @@ class MeetingCreatedViewModel: ObservableObject {
     @Published var linkText: String = ""
     @Published var link: URL? = nil
 
-    private let sessionService: CurrentSessionService
+    private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
     private let settingsShower: SettingsShower
@@ -15,9 +15,9 @@ class MeetingCreatedViewModel: ObservableObject {
 
     @Published var sessionLinkInput: String = ""
 
-    init(sessionService: CurrentSessionService, clipboard: Clipboard, uiNotifier: UINotifier,
-         settingsShower: SettingsShower) {
-        self.sessionService = sessionService
+    init(sessionManager: RemoteSessionManager, sessionService: CurrentSessionService, clipboard: Clipboard,
+         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+        self.sessionManager = sessionManager
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
@@ -49,7 +49,7 @@ class MeetingCreatedViewModel: ObservableObject {
     }
 
     func updateSession() {
-        sessionService.refresh()
+        sessionManager.refresh()
     }
 
     func onSettingsButtonTap() {

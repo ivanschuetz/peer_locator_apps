@@ -10,16 +10,20 @@ protocol BleCentral {
     var status: AnyPublisher<BleState, Never> { get }
     var writtenMyId: PassthroughSubject<BleId, Never> { get }
     var discovered: AnyPublisher<BleParticipant, Never> { get }
+    var discoveredPairing: AnyPublisher<PairingBleId, Never> { get }
 
     // Starts central if status is powered on. If request is sent before status is on, it will be
     // processed when status in on.
     func requestStart()
     func stop()
 
+    func validatePeer() -> Bool
     func write(nearbyToken: SerializedSignedNearbyToken) -> Bool
+    func write(publicKey: SerializedEncryptedPublicKey) -> Bool
 }
 
 class BleCentralImpl: NSObject, BleCentral {
+
     let statusSubject = PassthroughSubject<BleState, Never>()
     lazy var status = statusSubject.eraseToAnyPublisher()
 
@@ -28,17 +32,22 @@ class BleCentralImpl: NSObject, BleCentral {
     let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
     lazy var discovered = discoveredSubject.eraseToAnyPublisher()
 
+    let discoveredPairingSubject = PassthroughSubject<PairingBleId, Never>()
+    lazy var discoveredPairing = discoveredPairingSubject.eraseToAnyPublisher()
+
     private let idService: BleIdService
 
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
 
+    private var validationCharacteristic: CBCharacteristic?
     private var nearbyTokenCharacteristic: CBCharacteristic?
+    private var colocatedPairingCharacteristic: CBCharacteristic?
 
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
 
-    private var discoveredByUuid: [UUID : BleId] = [:]
+    private var discoveredByUuid: [UUID: BleId] = [:]
 
     private var restoredPeripherals: [CBPeripheral] = []
 
@@ -56,7 +65,6 @@ class BleCentralImpl: NSObject, BleCentral {
             .removeDuplicates()
             .sink(receiveValue: {[weak self] status in
                 if status == .poweredOn {
-                    self?.stop() // we reuse start as "restart". There doesn't seem to be anything bad with stopping for "only start" use case.
                     self?.start()
                 } else {
                     log.d("Requested central start while not powered on: \(status)", .ble)
@@ -70,7 +78,7 @@ class BleCentralImpl: NSObject, BleCentral {
 
     func stop() {
         if centralManager?.isScanning ?? false {
-            log.d("Stopping scannper (was scanning)", .ble)
+            log.d("Stopping central (was scanning)", .ble)
             centralManager?.stopScan()
         }
         discoveredByUuid = [:]
@@ -79,7 +87,7 @@ class BleCentralImpl: NSObject, BleCentral {
     private func start() {
         log.i("Will start central", .ble)
         centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
-            CBCentralManagerScanOptionAllowDuplicatesKey : NSNumber(booleanLiteral: true)
+            CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(booleanLiteral: true)
         ])
     }
 
@@ -95,6 +103,36 @@ class BleCentralImpl: NSObject, BleCentral {
             return false
         }
         peripheral.writeValue(nearbyToken.data, for: nearbyTokenCharacteristic, type: .withResponse)
+        return true
+    }
+
+    // TODO confirm: is the peripheral reliable available here? Probably we should use reactive
+    // instead, with poweredOn + write?
+    func write(publicKey: SerializedEncryptedPublicKey) -> Bool {
+        guard let peripheral = peripheral else {
+            log.e("Attempted to write, but peripheral is not set.", .ble)
+            return false
+        }
+        guard let colocatedPairingCharacteristic = colocatedPairingCharacteristic else {
+            log.e("Attempted to write, but colocated public key characteristic is not set.", .ble)
+            return false
+        }
+        log.d("Writing public key to colocated characteristic", .ble)
+        peripheral.writeValue(publicKey.data, for: colocatedPairingCharacteristic, type: .withResponse)
+        return true
+    }
+
+    func validatePeer() -> Bool {
+        guard let peripheral = peripheral else {
+            log.e("Attempted to validate peer, but peripheral is not set.", .ble)
+            return false
+        }
+        guard let validationCharacteristic = validationCharacteristic else {
+            log.e("Attempted to validate peer, but colocated public key characteristic is not set.", .ble)
+            return false
+        }
+        log.d("Validing peer", .ble)
+        peripheral.readValue(for: validationCharacteristic)
         return true
     }
 }
@@ -119,6 +157,8 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
+//        log.v("Discovered peripheral: \(peripheral)", .ble)
+
         self.peripheral = peripheral
         peripheral.delegate = self
 
@@ -161,6 +201,10 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
 extension BleCentralImpl: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        if let error = error {
+            log.e("Error discovering services: \(error)", .ble)
+        }
+
         guard let services = peripheral.services else { return }
         for service in services {
             log.v("Did discover service: \(service)", .ble)
@@ -180,22 +224,43 @@ extension BleCentralImpl: CBPeripheralDelegate {
 
         // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
         // no need to do write (other that for possible ACKs later)
-        if let characteristic = service.characteristics?.first(where: {
+
+        guard let characteristics = service.characteristics else {
+            log.e("Should not happen? service has no characteristics", .ble)
+            return
+        }
+
+        log.d("Did discover characteristics: \(characteristics.count)", .ble)
+
+        if let validationCharacteristic = characteristics.first(where: {
             $0.uuid == .characteristicCBUUID
         }) {
             log.d("Reading the validation characteristic", .ble)
-            peripheral.readValue(for: characteristic)
+            self.validationCharacteristic = validationCharacteristic
+            // temporarily disabled as it causes noise when ble is always on
+            // on RSSI measurements we continuously trigger validation
+            // TODO tackle. should it stay disabled?
+//            peripheral.readValue(for: validationCharacteristic)
         } else {
-            log.e("Peripheral doesn't have validation characteristic.", .ble)
+            log.e("Service doesn't have validation characteristic.", .ble)
         }
 
-        if let nearbyTokenCharacteristic = service.characteristics?.first(where: {
+        if let nearbyTokenCharacteristic = characteristics.first(where: {
             $0.uuid == .nearbyCharacteristicCBUUID
         }) {
-            log.d("Did set the nearby characteristic", .ble)
+            log.d("Setting the nearby characteristic", .ble)
             self.nearbyTokenCharacteristic = nearbyTokenCharacteristic
         } else {
-            log.e("Peripheral doesn't have nearby characteristic.", .ble)
+            log.e("Service doesn't have nearby characteristic.", .ble)
+        }
+
+        if let colocatedPairingCharacteristic = characteristics.first(where: {
+            $0.uuid == .colocatedPublicKeyCBUUID
+        }) {
+            log.d("Setting the colocated pairing characteristic", .ble)
+            self.colocatedPairingCharacteristic = colocatedPairingCharacteristic
+        } else {
+            log.e("Service doesn't have public key pairing characteristic.", .ble)
         }
     }
 
@@ -207,10 +272,18 @@ extension BleCentralImpl: CBPeripheralDelegate {
                 let id = BleId(data: value)!
                 log.d("Received id: \(id), device uuid: \(peripheral.identifier)", .ble)
                 discoveredByUuid[peripheral.identifier] = id
-                // Did read id (from iOS, Android can broadcast it in advertisement, so it doesn't expose characteristic to read)
                 discoveredSubject.send(BleParticipant(id: id, distance: -1)) // TODO distance
             } else {
-                log.w("Characteristic had no value", .ble)
+                log.w("Verification characteristic had no value", .ble)
+            }
+        case CBUUID.colocatedPublicKeyCBUUID:
+            if let value = characteristic.value {
+                // Unwrap: We send PairingBleId, so we always expect PairingBleId
+                let id = PairingBleId(data: value)!
+                log.d("Received id: \(id), device uuid: \(peripheral.identifier)", .ble)
+                discoveredPairingSubject.send(id)
+            } else {
+                log.w("Pairing characteristic had no value", .ble)
             }
           default:
             log.w("Unexpected characteristic UUID: \(characteristic.uuid)", .ble)
@@ -223,28 +296,17 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 }
 
-extension CBManagerState {
-    func asString() -> String {
-        switch self {
-        case .unknown: return ".unknown"
-        case .resetting: return ".resetting"
-        case .unsupported: return ".unsupported"
-        case .unauthorized: return ".unauthorized"
-        case .poweredOff: return ".poweredOff"
-        case .poweredOn: return ".poweredOn"
-        @unknown default: return "unexpected (new) bluetooth state: \(self)"
-        }
-    }
-}
-
 class BleCentralNoop: NSObject, BleCentral {
     let status: AnyPublisher<BleState, Never> = Just(.poweredOn).eraseToAnyPublisher()
     let discovered = PassthroughSubject<BleParticipant, Never>().eraseToAnyPublisher()
+    let discoveredPairing = PassthroughSubject<PairingBleId, Never>().eraseToAnyPublisher()
     let statusMsg = PassthroughSubject<String, Never>()
     let writtenMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
     func stop() {}
     func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
+    func write(publicKey: SerializedEncryptedPublicKey) -> Bool { true }
+    func validatePeer() -> Bool { true }
 }
 
 func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {
@@ -283,7 +345,7 @@ func estimatedDistance(rssi: Double, powerLevel: Double) -> Double {
     return pow(10, (pw - rssi) / 20)  // TODO environment factor
 }
 
-private extension CBManagerState {
+extension CBManagerState {
     func toBleState() -> BleState {
         switch self {
         case .poweredOff: return .poweredOff
@@ -297,4 +359,17 @@ private extension CBManagerState {
             return .unknown
         }
     }
+}
+
+class BleCentralFixedDistance: NSObject, BleCentral {
+    let discovered = Just(BleParticipant(id: BleId(str: "123")!,
+                                         distance: 10.2)).eraseToAnyPublisher()
+    var discoveredPairing = Just(PairingBleId(str: "123")!).eraseToAnyPublisher()
+    let status = Just(BleState.poweredOn).eraseToAnyPublisher()
+    let writtenMyId = PassthroughSubject<BleId, Never>()
+    func requestStart() {}
+    func stop() {}
+    func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
+    func write(publicKey: SerializedEncryptedPublicKey) -> Bool { true }
+    func validatePeer() -> Bool { true }
 }

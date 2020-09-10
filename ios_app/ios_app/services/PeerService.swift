@@ -23,6 +23,7 @@ class PeerServiceImpl: PeerService {
         self.bleIdService = bleIdService
 
         let validatedBlePeer = bleManager.discovered
+            // TODO we obviously should validate for each single event here, this is send on each RSSI change!
             .filter { bleIdService.validate(bleId: $0.id) }
 
         // TODO handling of invalid peer

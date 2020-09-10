@@ -12,6 +12,10 @@
 		84014D4C2506BCAA0057BBFD /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
 		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
 		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
+		840A8CB22509052800E73815 /* ColocatedPairingPasswordService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */; };
+		840A8CB5250908DA00E73815 /* ColocatedPasswordProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A8CB4250908DA00E73815 /* ColocatedPasswordProvider.swift */; };
+		840A8CB62509099100E73815 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDAB2508FF58006EF93F /* Globals.swift */; };
+		840A8CB72509099F00E73815 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDAB2508FF58006EF93F /* Globals.swift */; };
 		841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C331724F4F24000F99B93 /* Result+Convenience.swift */; };
 		841C331A24F53AD300F99B93 /* UINotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C331924F53AD300F99B93 /* UINotifications.swift */; };
 		841C331D24F53E9200F99B93 /* SwiftEntryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 841C331C24F53E9200F99B93 /* SwiftEntryKit */; };
@@ -33,7 +37,6 @@
 		8459E080250642860058D692 /* ploc_widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459E07F250642860058D692 /* ploc_widget.swift */; };
 		8459E082250642860058D692 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8459E081250642860058D692 /* Assets.xcassets */; };
 		8459E086250642860058D692 /* ploc_widgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 8459E079250642860058D692 /* ploc_widgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8459E08B2506430C0058D692 /* BlePeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC106324B502690064DEBE /* BlePeripheral.swift */; };
 		8459E08C250643260058D692 /* CompositeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7B24C6F64300E2F175 /* CompositeLog.swift */; };
 		8459E08D250643260058D692 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7A24C6F64300E2F175 /* Log.swift */; };
 		8459E08E250643260058D692 /* ConsoleLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */; };
@@ -52,9 +55,7 @@
 		8459E09B2506437E0058D692 /* SessionId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB424FBB03500AA7E6D /* SessionId.swift */; };
 		8459E09C250643870058D692 /* SharedSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */; };
 		8459E09D2506438C0058D692 /* Data+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */; };
-		8459E09E250643A30058D692 /* BleCentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105424B4A5AE0064DEBE /* BleCentral.swift */; };
 		8459E09F250644110058D692 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
-		8459E0A0250644CB0058D692 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
 		8459E0A1250644D40058D692 /* Peer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCAC24FBAC5700AA7E6D /* Peer.swift */; };
 		8459E0A32506450B0058D692 /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 8459E0A22506450B0058D692 /* Valet */; };
 		8466613B24B3794400E5FBF9 /* libcore in Frameworks */ = {isa = PBXBuildFile; fileRef = 8466613A24B3794400E5FBF9 /* libcore */; };
@@ -66,6 +67,8 @@
 		8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
 		8489BAE924EAF453006D1CD3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* Session.swift */; };
 		8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAED24EB1761006D1CD3 /* matchApp.swift */; };
+		848AE8062507705900DB192A /* ColocatedSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848AE8052507705900DB192A /* ColocatedSessionService.swift */; };
+		848AE8082507772B00DB192A /* RemoteSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848AE8072507772B00DB192A /* RemoteSessionManager.swift */; };
 		848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4924CCA4FF00F2D80B /* NotificationService.swift */; };
 		848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4C24CCA7AF00F2D80B /* AppBadgeUpdater.swift */; };
 		848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */; };
@@ -114,9 +117,20 @@
 		84B6DCBE24FBC39100AA7E6D /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7A24C6F64300E2F175 /* Log.swift */; };
 		84B6DCBF24FBC39100AA7E6D /* ConsoleLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */; };
 		84B6DCC024FBC39100AA7E6D /* CachingLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7D24C6F64300E2F175 /* CachingLog.swift */; };
+		84B73D58250A1A3D00C2328D /* Lazy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73D57250A1A3D00C2328D /* Lazy.swift */; };
 		84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
 		84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */; };
+		84BCCD992508B490006EF93F /* ColocatedPairingRoleSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCD982508B490006EF93F /* ColocatedPairingRoleSelectionView.swift */; };
+		84BCCD9B2508B4A7006EF93F /* ColocatedPairingRoleSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCD9A2508B4A7006EF93F /* ColocatedPairingRoleSelectionViewModel.swift */; };
+		84BCCD9D2508C1B6006EF93F /* DummyViewModelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCD9C2508C1B6006EF93F /* DummyViewModelProvider.swift */; };
+		84BCCDA02508CCE9006EF93F /* RemotePairingRoleSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCD9F2508CCE9006EF93F /* RemotePairingRoleSelectionViewModel.swift */; };
+		84BCCDA22508CCFC006EF93F /* RemotePairingRoleSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDA12508CCFC006EF93F /* RemotePairingRoleSelectionView.swift */; };
+		84BCCDA42508CF86006EF93F /* ColocatedPairingPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDA32508CF86006EF93F /* ColocatedPairingPasswordView.swift */; };
+		84BCCDA62508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDA52508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift */; };
+		84BCCDA82508CFB0006EF93F /* ColocatedPairingJoinerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDA72508CFB0006EF93F /* ColocatedPairingJoinerView.swift */; };
+		84BCCDAA2508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDA92508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift */; };
+		84BCCDAC2508FF58006EF93F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDAB2508FF58006EF93F /* Globals.swift */; };
 		84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1124EFDAAD004CE510 /* Json.swift */; };
 		84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1324F00E9F004CE510 /* Crypto.swift */; };
 		84BEFEDA24F62E77006E4B61 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFED924F62E77006E4B61 /* HomeViewModel.swift */; };
@@ -235,6 +249,8 @@
 		84014D482506BBBA0057BBFD /* PeerForWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerForWidget.swift; sourceTree = "<group>"; };
 		84094EF724EACC3C0028BBDF /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		84094EF924EACC4E0028BBDF /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
+		840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingPasswordService.swift; sourceTree = "<group>"; };
+		840A8CB4250908DA00E73815 /* ColocatedPasswordProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPasswordProvider.swift; sourceTree = "<group>"; };
 		841C331724F4F24000F99B93 /* Result+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Convenience.swift"; sourceTree = "<group>"; };
 		841C331924F53AD300F99B93 /* UINotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINotifications.swift; sourceTree = "<group>"; };
 		841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentSessionService.swift; sourceTree = "<group>"; };
@@ -265,6 +281,8 @@
 		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
 		8489BAE824EAF453006D1CD3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		8489BAED24EB1761006D1CD3 /* matchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchApp.swift; sourceTree = "<group>"; };
+		848AE8052507705900DB192A /* ColocatedSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedSessionService.swift; sourceTree = "<group>"; };
+		848AE8072507772B00DB192A /* RemoteSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSessionManager.swift; sourceTree = "<group>"; };
 		848D5F4924CCA4FF00F2D80B /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		848D5F4C24CCA7AF00F2D80B /* AppBadgeUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppBadgeUpdater.swift; sourceTree = "<group>"; };
 		848D5F4D24CCA7AF00F2D80B /* NotificationsDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsDelegate.swift; sourceTree = "<group>"; };
@@ -310,9 +328,20 @@
 		84B6DCB424FBB03500AA7E6D /* SessionId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionId.swift; sourceTree = "<group>"; };
 		84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		84B6DCBA24FBC26800AA7E6D /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
+		84B73D57250A1A3D00C2328D /* Lazy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lazy.swift; sourceTree = "<group>"; };
 		84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorBleManager.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
 		84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
+		84BCCD982508B490006EF93F /* ColocatedPairingRoleSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingRoleSelectionView.swift; sourceTree = "<group>"; };
+		84BCCD9A2508B4A7006EF93F /* ColocatedPairingRoleSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingRoleSelectionViewModel.swift; sourceTree = "<group>"; };
+		84BCCD9C2508C1B6006EF93F /* DummyViewModelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyViewModelProvider.swift; sourceTree = "<group>"; };
+		84BCCD9F2508CCE9006EF93F /* RemotePairingRoleSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePairingRoleSelectionViewModel.swift; sourceTree = "<group>"; };
+		84BCCDA12508CCFC006EF93F /* RemotePairingRoleSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePairingRoleSelectionView.swift; sourceTree = "<group>"; };
+		84BCCDA32508CF86006EF93F /* ColocatedPairingPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingPasswordView.swift; sourceTree = "<group>"; };
+		84BCCDA52508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingPasswordViewModel.swift; sourceTree = "<group>"; };
+		84BCCDA72508CFB0006EF93F /* ColocatedPairingJoinerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingJoinerView.swift; sourceTree = "<group>"; };
+		84BCCDA92508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingJoinerViewModel.swift; sourceTree = "<group>"; };
+		84BCCDAB2508FF58006EF93F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		84BE8E1124EFDAAD004CE510 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
 		84BE8E1324F00E9F004CE510 /* Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto.swift; sourceTree = "<group>"; };
 		84BEFED924F62E77006E4B61 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
@@ -391,6 +420,16 @@
 			path = session;
 			sourceTree = "<group>";
 		};
+		840A8CB3250906E300E73815 /* colocated peering */ = {
+			isa = PBXGroup;
+			children = (
+				848AE8052507705900DB192A /* ColocatedSessionService.swift */,
+				840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */,
+				840A8CB4250908DA00E73815 /* ColocatedPasswordProvider.swift */,
+			);
+			path = "colocated peering";
+			sourceTree = "<group>";
+		};
 		842CC95525029D970003F96F /* sound */ = {
 			isa = PBXGroup;
 			children = (
@@ -452,6 +491,44 @@
 			path = common;
 			sourceTree = "<group>";
 		};
+		848AE8092507F14C00DB192A /* colocated pairing */ = {
+			isa = PBXGroup;
+			children = (
+				84BCCD972508B47B006EF93F /* role section */,
+				848AE80C2507F1AB00DB192A /* joiner */,
+				848AE80B2507F18000DB192A /* creator */,
+			);
+			path = "colocated pairing";
+			sourceTree = "<group>";
+		};
+		848AE80A2507F15F00DB192A /* remote pairing */ = {
+			isa = PBXGroup;
+			children = (
+				84BCCD9E2508CCD8006EF93F /* role selection */,
+				84BEFEE224F66CEE006E4B61 /* joiner */,
+				84BEFEE124F66CDE006E4B61 /* creator */,
+			);
+			path = "remote pairing";
+			sourceTree = "<group>";
+		};
+		848AE80B2507F18000DB192A /* creator */ = {
+			isa = PBXGroup;
+			children = (
+				84BCCDA32508CF86006EF93F /* ColocatedPairingPasswordView.swift */,
+				84BCCDA52508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift */,
+			);
+			path = creator;
+			sourceTree = "<group>";
+		};
+		848AE80C2507F1AB00DB192A /* joiner */ = {
+			isa = PBXGroup;
+			children = (
+				84BCCDA72508CFB0006EF93F /* ColocatedPairingJoinerView.swift */,
+				84BCCDA92508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift */,
+			);
+			path = joiner;
+			sourceTree = "<group>";
+		};
 		848D5F4B24CCA75800F2D80B /* notifications */ = {
 			isa = PBXGroup;
 			children = (
@@ -487,6 +564,7 @@
 		84993A1924B5C1250044AA27 /* services */ = {
 			isa = PBXGroup;
 			children = (
+				840A8CB3250906E300E73815 /* colocated peering */,
 				848D5F4B24CCA75800F2D80B /* notifications */,
 				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
 				84E3DC8724C723AC00E2F175 /* PeerService.swift */,
@@ -500,6 +578,7 @@
 				84723B7725025777007C7C6D /* BleEnabledService.swift */,
 				844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */,
 				84014D482506BBBA0057BBFD /* PeerForWidget.swift */,
+				848AE8072507772B00DB192A /* RemoteSessionManager.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -561,6 +640,7 @@
 				84B0672922F9B3FF006DDC18 /* Assets.xcassets */,
 				84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */,
 				84B0672E22F9B3FF006DDC18 /* Info.plist */,
+				84BCCDAB2508FF58006EF93F /* Globals.swift */,
 			);
 			path = ios_app;
 			sourceTree = "<group>";
@@ -630,6 +710,32 @@
 			path = watch;
 			sourceTree = "<group>";
 		};
+		84B73D56250A1A3400C2328D /* common */ = {
+			isa = PBXGroup;
+			children = (
+				84B73D57250A1A3D00C2328D /* Lazy.swift */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		84BCCD972508B47B006EF93F /* role section */ = {
+			isa = PBXGroup;
+			children = (
+				84BCCD982508B490006EF93F /* ColocatedPairingRoleSelectionView.swift */,
+				84BCCD9A2508B4A7006EF93F /* ColocatedPairingRoleSelectionViewModel.swift */,
+			);
+			path = "role section";
+			sourceTree = "<group>";
+		};
+		84BCCD9E2508CCD8006EF93F /* role selection */ = {
+			isa = PBXGroup;
+			children = (
+				84BCCD9F2508CCE9006EF93F /* RemotePairingRoleSelectionViewModel.swift */,
+				84BCCDA12508CCFC006EF93F /* RemotePairingRoleSelectionView.swift */,
+			);
+			path = "role selection";
+			sourceTree = "<group>";
+		};
 		84BEFED824F62D94006E4B61 /* meeting */ = {
 			isa = PBXGroup;
 			children = (
@@ -640,31 +746,32 @@
 			path = meeting;
 			sourceTree = "<group>";
 		};
-		84BEFEE124F66CDE006E4B61 /* meeting created */ = {
+		84BEFEE124F66CDE006E4B61 /* creator */ = {
 			isa = PBXGroup;
 			children = (
 				84BEFEDD24F63B31006E4B61 /* MeetingCreatedView.swift */,
 				84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */,
 			);
-			path = "meeting created";
+			path = creator;
 			sourceTree = "<group>";
 		};
-		84BEFEE224F66CEE006E4B61 /* meeting joined */ = {
+		84BEFEE224F66CEE006E4B61 /* joiner */ = {
 			isa = PBXGroup;
 			children = (
 				84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */,
 				84BEFEE524F66D01006E4B61 /* MeetingJoinedViewModel.swift */,
 			);
-			path = "meeting joined";
+			path = joiner;
 			sourceTree = "<group>";
 		};
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				84B73D56250A1A3400C2328D /* common */,
+				848AE80A2507F15F00DB192A /* remote pairing */,
+				848AE8092507F14C00DB192A /* colocated pairing */,
 				846E28BE2501237300E66F57 /* views */,
 				8490C24D24F7FD74002FAFE9 /* formatters */,
-				84BEFEE224F66CEE006E4B61 /* meeting joined */,
-				84BEFEE124F66CDE006E4B61 /* meeting created */,
 				84BEFED824F62D94006E4B61 /* meeting */,
 				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				84094EF624EACAAC0028BBDF /* session */,
@@ -673,6 +780,7 @@
 				84DC105224B4A3BD0064DEBE /* home */,
 				84B5370D24FA833D000B42C7 /* Sharer.swift */,
 				84D1D7AF25015047005A3710 /* SettingsShower.swift */,
+				84BCCD9C2508C1B6006EF93F /* DummyViewModelProvider.swift */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -987,7 +1095,7 @@
 				8459E0952506435C0058D692 /* Json.swift in Sources */,
 				8459E080250642860058D692 /* ploc_widget.swift in Sources */,
 				8459E08F250643260058D692 /* CachingLog.swift in Sources */,
-				8459E08B2506430C0058D692 /* BlePeripheral.swift in Sources */,
+				840A8CB72509099F00E73815 /* Globals.swift in Sources */,
 				8459E096250643610058D692 /* SessionService.swift in Sources */,
 				8459E090250643320058D692 /* BleUuids.swift in Sources */,
 				8459E09D2506438C0058D692 /* Data+hex.swift in Sources */,
@@ -998,13 +1106,11 @@
 				8459E092250643410058D692 /* BleId.swift in Sources */,
 				8459E094250643580058D692 /* Crypto.swift in Sources */,
 				8459E099250643700058D692 /* ServicesError.swift in Sources */,
-				8459E0A0250644CB0058D692 /* BleManager.swift in Sources */,
 				8459E097250643630058D692 /* KeyChain.swift in Sources */,
 				84014D4C2506BCAA0057BBFD /* NumberFormatters.swift in Sources */,
 				8459E08D250643260058D692 /* Log.swift in Sources */,
 				8459E0A1250644D40058D692 /* Peer.swift in Sources */,
 				8459E08C250643260058D692 /* CompositeLog.swift in Sources */,
-				8459E09E250643A30058D692 /* BleCentral.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1021,10 +1127,14 @@
 				84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */,
 				848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */,
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
+				84B73D58250A1A3D00C2328D /* Lazy.swift in Sources */,
+				848AE8082507772B00DB192A /* RemoteSessionManager.swift in Sources */,
+				840A8CB5250908DA00E73815 /* ColocatedPasswordProvider.swift in Sources */,
 				84B6DCB324FBB01D00AA7E6D /* SharedSessionData.swift in Sources */,
 				848D5F4A24CCA4FF00F2D80B /* NotificationService.swift in Sources */,
 				842CC9632502C7710003F96F /* PeerSounds.swift in Sources */,
 				844CFD042506A79400F76832 /* PeerForWidgetRecorderImpl.swift in Sources */,
+				84BCCD9B2508B4A7006EF93F /* ColocatedPairingRoleSelectionViewModel.swift in Sources */,
 				8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */,
 				84993A1824B5C0730044AA27 /* Preferences.swift in Sources */,
 				84B5371124FAB453000B42C7 /* DeeplinkHandler.swift in Sources */,
@@ -1036,6 +1146,7 @@
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
 				84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */,
 				84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */,
+				84BCCDA42508CF86006EF93F /* ColocatedPairingPasswordView.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */,
 				84B6DCB624FBB04200AA7E6D /* SessionId.swift in Sources */,
 				848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */,
@@ -1044,7 +1155,11 @@
 				84E3DC7E24C6F64300E2F175 /* Log.swift in Sources */,
 				84BEFEDC24F62E7F006E4B61 /* HomeView.swift in Sources */,
 				84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */,
+				84BCCDAA2508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift in Sources */,
+				84BCCDA22508CCFC006EF93F /* RemotePairingRoleSelectionView.swift in Sources */,
+				84BCCDA62508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift in Sources */,
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
+				84BCCDAC2508FF58006EF93F /* Globals.swift in Sources */,
 				842CC95925029ED80003F96F /* PeerVoice.swift in Sources */,
 				8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */,
 				84DC104824B49E340064DEBE /* MeetingView.swift in Sources */,
@@ -1056,6 +1171,7 @@
 				84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */,
 				843F7EF124F10477002AA5F8 /* BleId.swift in Sources */,
 				84A211E72501596D008B370E /* SettingsViewModel.swift in Sources */,
+				84BCCDA02508CCE9006EF93F /* RemotePairingRoleSelectionViewModel.swift in Sources */,
 				8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */,
 				84BEFEDE24F63B31006E4B61 /* MeetingCreatedView.swift in Sources */,
 				84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */,
@@ -1064,19 +1180,24 @@
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
 				84BEFEE624F66D01006E4B61 /* MeetingJoinedViewModel.swift in Sources */,
+				84BCCD992508B490006EF93F /* ColocatedPairingRoleSelectionView.swift in Sources */,
 				843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
 				8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */,
+				848AE8062507705900DB192A /* ColocatedSessionService.swift in Sources */,
 				84723B7825025777007C7C6D /* BleEnabledService.swift in Sources */,
 				8489BAE924EAF453006D1CD3 /* Session.swift in Sources */,
 				84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */,
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */,
+				84BCCD9D2508C1B6006EF93F /* DummyViewModelProvider.swift in Sources */,
 				84BEFEDA24F62E77006E4B61 /* HomeViewModel.swift in Sources */,
 				84B6DCAE24FBAC7C00AA7E6D /* Peer.swift in Sources */,
 				84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
+				84BCCDA82508CFB0006EF93F /* ColocatedPairingJoinerView.swift in Sources */,
 				842CC95725029DAB0003F96F /* Voice.swift in Sources */,
+				840A8CB22509052800E73815 /* ColocatedPairingPasswordService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* MultipeerTokenServiceImpl.swift in Sources */,
@@ -1104,6 +1225,7 @@
 				84B6DC8524FBA32F00AA7E6D /* NotificationController.swift in Sources */,
 				84B6DC8324FBA32F00AA7E6D /* ContentView.swift in Sources */,
 				84B6DCB924FBC1AB00AA7E6D /* NumberFormatters.swift in Sources */,
+				840A8CB62509099100E73815 /* Globals.swift in Sources */,
 				84B6DCAB24FBAB1800AA7E6D /* SessionDataDispatcher.swift in Sources */,
 				84B6DCC024FBC39100AA7E6D /* CachingLog.swift in Sources */,
 				84B6DCBE24FBC39100AA7E6D /* Log.swift in Sources */,

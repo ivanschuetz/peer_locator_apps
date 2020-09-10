@@ -185,3 +185,12 @@ extension NearbyImpl: NISessionDelegate {
         // > The delegate of an invalidated session receives no further callbacks, and the app can’t restart the session. To resume peer interaction, remove references to the invalidated session and begin a new session.
     }
 }
+
+class NearbyNoop: Nearby {
+    var sessionState = Just(SessionState.notInit).eraseToAnyPublisher()
+    var discovered: AnyPublisher<NearbyObj, Never> =
+        Just(NearbyObj(name: "foo", dist: 1.2, dir: simd_float3(1, 1, 0))).eraseToAnyPublisher()
+
+    func token() -> NearbyToken? { nil }
+    func start(peerToken token: NearbyToken) {}
+}

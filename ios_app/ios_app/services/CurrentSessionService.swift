@@ -1,10 +1,10 @@
 import Combine
 
+// TODO rename SessionService? (since SessionService will be renamed in RemoteSessionService)
 protocol CurrentSessionService {
     var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> { get }
-    func create()
-    func join(link: SessionLink)
-    func refresh()
+
+    func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>)
 
     // Locally opposed to the automatic deletion in the backend after participants have exchanged data
     // Here the user isn't interested in the session anymore: the session data / keys / participants data are removed
@@ -30,17 +30,9 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 //            })
             .eraseToAnyPublisher()
     }
- 
-    func create() {
-        sessionSubject.send(sessionService.createSession().map { $0 } )
-    }
 
-    func join(link: SessionLink) {
-        sessionSubject.send(sessionService.joinSession(link: link).map { $0 } )
-    }
-
-    func refresh() {
-        sessionSubject.send(sessionService.refreshSessionData().map { $0 } )
+    func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>) {
+        sessionSubject.send(result)
     }
 
     func deleteSessionLocally() {
@@ -53,4 +45,12 @@ class CurrentSessionServiceImpl: CurrentSessionService {
             uiNotifier.show(.error("Error deleting sesion: \(e)"))
         }
     }
+}
+
+class NoopCurrentSessionService: CurrentSessionService {
+    var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> = Just(.success(nil))
+        .eraseToAnyPublisher()
+
+    func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>) {}
+    func deleteSessionLocally() {}
 }

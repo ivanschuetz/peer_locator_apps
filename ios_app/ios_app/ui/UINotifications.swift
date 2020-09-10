@@ -58,3 +58,6 @@ class UINotifierImpl: UINotifier {
     }
 }
 
+class NoopUINotifier: UINotifier {
+    func show(_ notification: UINotification) {}
+}

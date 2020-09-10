@@ -5,8 +5,8 @@ struct MeetingCreatedView: View {
 
     @State private var showShareSheet = false
 
-    init(viewModel: MeetingCreatedViewModel) {
-        self.viewModel = viewModel
+    init(viewModelProvider: ViewModelProvider) {
+        self.viewModel = viewModelProvider.meetingCreated()
     }
 
     var body: some View {
@@ -47,9 +47,6 @@ struct MeetingCreatedView: View {
 
 struct MeetingCreatedView_Previews: PreviewProvider {
     static var previews: some View {
-        MeetingCreatedView(viewModel: MeetingCreatedViewModel(sessionService: NoopCurrentSessionService(),
-                                                              clipboard: NoopClipboard(),
-                                                              uiNotifier: NoopUINotifier(),
-                                                              settingsShower: NoopSettingsShower()))
+        MeetingCreatedView(viewModelProvider: DummyViewModelProvider())
     }
 }
