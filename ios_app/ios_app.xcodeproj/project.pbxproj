@@ -10,6 +10,7 @@
 		84014D492506BBBA0057BBFD /* PeerForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84014D482506BBBA0057BBFD /* PeerForWidget.swift */; };
 		84014D4B2506BBCB0057BBFD /* PeerForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84014D482506BBBA0057BBFD /* PeerForWidget.swift */; };
 		84014D4C2506BCAA0057BBFD /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
+		8402CD7D250A818C00DDE03F /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 8402CD7C250A818C00DDE03F /* CodeScanner */; };
 		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
 		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
 		840A8CB22509052800E73815 /* ColocatedPairingPasswordService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */; };
@@ -387,6 +388,7 @@
 			files = (
 				841C331D24F53E9200F99B93 /* SwiftEntryKit in Frameworks */,
 				8487FA3324EE7B98003FDB0C /* Valet in Frameworks */,
+				8402CD7D250A818C00DDE03F /* CodeScanner in Frameworks */,
 				84DC105D24B4CCC70064DEBE /* Dip in Frameworks */,
 				84B68BE02500F4E9002C4157 /* CombineExt in Frameworks */,
 				8466613B24B3794400E5FBF9 /* libcore in Frameworks */,
@@ -916,6 +918,7 @@
 				8487FA3224EE7B98003FDB0C /* Valet */,
 				841C331C24F53E9200F99B93 /* SwiftEntryKit */,
 				84B68BDF2500F4E9002C4157 /* CombineExt */,
+				8402CD7C250A818C00DDE03F /* CodeScanner */,
 			);
 			productName = ios_app;
 			productReference = 84B0671F22F9B3FE006DDC18 /* Match.app */;
@@ -1021,6 +1024,7 @@
 				8487FA3124EE7B98003FDB0C /* XCRemoteSwiftPackageReference "Valet" */,
 				841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */,
 				84B68BDE2500F4E9002C4157 /* XCRemoteSwiftPackageReference "CombineExt" */,
+				8402CD7B250A818C00DDE03F /* XCRemoteSwiftPackageReference "CodeScanner" */,
 			);
 			productRefGroup = 84B0672022F9B3FE006DDC18 /* Products */;
 			projectDirPath = "";
@@ -1752,6 +1756,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8402CD7B250A818C00DDE03F /* XCRemoteSwiftPackageReference "CodeScanner" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/twostraws/CodeScanner";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.6;
+			};
+		};
 		841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/huri000/SwiftEntryKit";
@@ -1787,6 +1799,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8402CD7C250A818C00DDE03F /* CodeScanner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8402CD7B250A818C00DDE03F /* XCRemoteSwiftPackageReference "CodeScanner" */;
+			productName = CodeScanner;
+		};
 		841C331C24F53E9200F99B93 /* SwiftEntryKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 841C331B24F53E9100F99B93 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */;

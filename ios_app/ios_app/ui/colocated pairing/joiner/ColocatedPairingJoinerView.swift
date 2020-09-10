@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import CodeScanner
 
 struct ColocatedPairingJoinerView: View {
     @ObservedObject private var viewModel: ColocatedPairingJoinerViewModel
@@ -9,9 +10,26 @@ struct ColocatedPairingJoinerView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Open the camera app and scan your peer's QR code")
+        log.w("[investigating camera bug] view. showscanner: \($viewModel.showScanner)")
+
+        return VStack {
+            Button("Open camera") {
+                viewModel.onStartCameraTap()
+            }
+            Text("Open the camera to read your peer's QR code")
+
             // TODO exit options/failure handling: e.g. "peer isn't showing a qr code"
         }
+        .sheet(isPresented: $viewModel.showScanner) {
+            CodeScannerView(codeTypes: [.qr],
+                            completion: handleScan)
+        }
+    }
+
+    func handleScan(result: Result<String, CodeScannerView.ScanError>) {
+        log.w("[investigating camera bug] in handle scan")
+        viewModel.onScanPasswordResult(result.mapError {
+            .general("QR code scanner error: \($0)")
+        })
     }
 }

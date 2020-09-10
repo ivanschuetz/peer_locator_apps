@@ -50,7 +50,8 @@ class DummyViewModelProvider: ViewModelProvider {
     }
 
     func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel {
-        ColocatedPairingJoinerViewModel(passwordService: NoopColocatedPairingPasswordService())
+        ColocatedPairingJoinerViewModel(passwordService: NoopColocatedPairingPasswordService(),
+                                        uiNotifier: NoopUINotifier())
     }
 
     func colocatedPassword() -> ColocatedPairingPasswordViewModel {

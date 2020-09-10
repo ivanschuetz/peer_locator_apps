@@ -203,7 +203,8 @@ class Dependencies {
         container.register { SettingsViewModel() }
         container.register { ColocatedPairingRoleSelectionViewModel(sessionService: try container.resolve()) }
         container.register { ColocatedPairingPasswordViewModel(sessionService: try container.resolve()) }
-        container.register { ColocatedPairingJoinerViewModel(passwordService: try container.resolve()) }
+        container.register { ColocatedPairingJoinerViewModel(passwordService: try container.resolve(),
+                                                             uiNotifier: try container.resolve()) }
         container.register { RemotePairingRoleSelectionViewModel() }
     }
 
