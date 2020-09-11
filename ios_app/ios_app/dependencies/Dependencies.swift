@@ -178,7 +178,6 @@ class Dependencies {
             sessionService: try container.resolve(),
             bleManager: try container.resolve()
         ) as ColocatedSessionService }
-        container.register(.singleton) { ColocatedPairingPasswordServiceImpl()  as ColocatedPairingPasswordService }
     }
 
     private func registerViewModels(container: DependencyContainer) {
