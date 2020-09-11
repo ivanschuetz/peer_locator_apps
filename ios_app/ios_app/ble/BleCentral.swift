@@ -240,7 +240,9 @@ extension BleCentralImpl: CBPeripheralDelegate {
             // temporarily disabled as it causes noise when ble is always on
             // on RSSI measurements we continuously trigger validation
             // TODO tackle. should it stay disabled?
-//            peripheral.readValue(for: validationCharacteristic)
+            // TODO if we want to trigger read from app, instead of here,
+            // we need an observable with "(validation)characteristic ready"
+            peripheral.readValue(for: validationCharacteristic)
         } else {
             log.e("Service doesn't have validation characteristic.", .ble)
         }
