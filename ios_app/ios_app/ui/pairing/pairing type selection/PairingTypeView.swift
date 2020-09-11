@@ -1,8 +1,8 @@
 import SwiftUI
 import Combine
 
-struct SessionView: View {
-    @ObservedObject private var viewModel: SessionViewModel
+struct PairingTypeView: View {
+    @ObservedObject private var viewModel: PairingTypeViewModel
     private let viewModelProvider: ViewModelProvider
 
     init(viewModelProvider: ViewModelProvider) {
@@ -30,31 +30,6 @@ struct SessionView: View {
             NavigationLink(destination: Lazy(RemotePairingRoleSelectionView(viewModelProvider: viewModelProvider))) {
                 Text("No")
             }
-//            Button("Create session", action: {
-//                viewModel.createSession()
-//            })
-//            .padding(.bottom, 30)
-//            HStack {
-//                Text(viewModel.createdSessionLink).background(Color.red)
-//                Button("Copy", action: {
-//                    viewModel.onCopyLinkTap()
-//                })
-//            }
-//            .padding(.bottom, 30)
-//            HStack {
-//                TextField("", text: $viewModel.sessionLinkInput)
-//                    .multilineTextAlignment(.center)
-//                    .padding(.top, 20)
-//                    .padding(.bottom, 20)
-//                    .background(Color.green)
-//                Button("Paste", action: {
-//                    viewModel.onPasteLinkTap()
-//                })
-//            }
-//            .padding(.bottom, 30)
-//            Button("Join session", action: {
-//                viewModel.joinSession()
-//            })
         }
         .navigationBarTitle(Text("Session"), displayMode: .inline)
         .navigationBarBackButtonHidden(true)
@@ -66,6 +41,6 @@ struct SessionView: View {
 
 struct SessionView_Previews: PreviewProvider {
     static var previews: some View {
-        SessionView(viewModelProvider: DummyViewModelProvider())
+        PairingTypeView(viewModelProvider: DummyViewModelProvider())
     }
 }

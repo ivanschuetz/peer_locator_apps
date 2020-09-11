@@ -11,8 +11,10 @@
 		84014D4B2506BBCB0057BBFD /* PeerForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84014D482506BBBA0057BBFD /* PeerForWidget.swift */; };
 		84014D4C2506BCAA0057BBFD /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
 		8402CD7D250A818C00DDE03F /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 8402CD7C250A818C00DDE03F /* CodeScanner */; };
-		84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* SessionView.swift */; };
-		84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* SessionViewModel.swift */; };
+		8402CD80250ABA1300DDE03F /* RemotePairingJoinerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8402CD7F250ABA1300DDE03F /* RemotePairingJoinerView.swift */; };
+		8402CD82250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8402CD81250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift */; };
+		84094EF824EACC3C0028BBDF /* PairingTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* PairingTypeView.swift */; };
+		84094EFA24EACC4E0028BBDF /* PairingTypeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* PairingTypeViewModel.swift */; };
 		840A8CB22509052800E73815 /* ColocatedPairingPasswordService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */; };
 		840A8CB5250908DA00E73815 /* ColocatedPasswordProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A8CB4250908DA00E73815 /* ColocatedPasswordProvider.swift */; };
 		840A8CB62509099100E73815 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDAB2508FF58006EF93F /* Globals.swift */; };
@@ -134,8 +136,8 @@
 		84BCCDAC2508FF58006EF93F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCCDAB2508FF58006EF93F /* Globals.swift */; };
 		84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1124EFDAAD004CE510 /* Json.swift */; };
 		84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1324F00E9F004CE510 /* Crypto.swift */; };
-		84BEFEDA24F62E77006E4B61 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFED924F62E77006E4B61 /* HomeViewModel.swift */; };
-		84BEFEDC24F62E7F006E4B61 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEDB24F62E7F006E4B61 /* HomeView.swift */; };
+		84BEFEDA24F62E77006E4B61 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFED924F62E77006E4B61 /* RootViewModel.swift */; };
+		84BEFEDC24F62E7F006E4B61 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEDB24F62E7F006E4B61 /* RootView.swift */; };
 		84BEFEDE24F63B31006E4B61 /* MeetingCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEDD24F63B31006E4B61 /* MeetingCreatedView.swift */; };
 		84BEFEE024F63B61006E4B61 /* MeetingCreatedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */; };
 		84BEFEE424F66CF7006E4B61 /* MeetingJoinedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */; };
@@ -248,8 +250,10 @@
 		84014D462506B5880057BBFD /* ploc_watch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ploc_watch Extension.entitlements"; sourceTree = "<group>"; };
 		84014D472506B5B20057BBFD /* ploc_widgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ploc_widgetExtension.entitlements; sourceTree = "<group>"; };
 		84014D482506BBBA0057BBFD /* PeerForWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerForWidget.swift; sourceTree = "<group>"; };
-		84094EF724EACC3C0028BBDF /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
-		84094EF924EACC4E0028BBDF /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
+		8402CD7F250ABA1300DDE03F /* RemotePairingJoinerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePairingJoinerView.swift; sourceTree = "<group>"; };
+		8402CD81250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePairingJoinerViewModel.swift; sourceTree = "<group>"; };
+		84094EF724EACC3C0028BBDF /* PairingTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTypeView.swift; sourceTree = "<group>"; };
+		84094EF924EACC4E0028BBDF /* PairingTypeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTypeViewModel.swift; sourceTree = "<group>"; };
 		840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingPasswordService.swift; sourceTree = "<group>"; };
 		840A8CB4250908DA00E73815 /* ColocatedPasswordProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPasswordProvider.swift; sourceTree = "<group>"; };
 		841C331724F4F24000F99B93 /* Result+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Convenience.swift"; sourceTree = "<group>"; };
@@ -345,8 +349,8 @@
 		84BCCDAB2508FF58006EF93F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		84BE8E1124EFDAAD004CE510 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
 		84BE8E1324F00E9F004CE510 /* Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto.swift; sourceTree = "<group>"; };
-		84BEFED924F62E77006E4B61 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
-		84BEFEDB24F62E7F006E4B61 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		84BEFED924F62E77006E4B61 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
+		84BEFEDB24F62E7F006E4B61 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		84BEFEDD24F63B31006E4B61 /* MeetingCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingCreatedView.swift; sourceTree = "<group>"; };
 		84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingCreatedViewModel.swift; sourceTree = "<group>"; };
 		84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingJoinedView.swift; sourceTree = "<group>"; };
@@ -413,13 +417,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		84094EF624EACAAC0028BBDF /* session */ = {
+		8402CD7E250AB9FA00DDE03F /* joiner */ = {
 			isa = PBXGroup;
 			children = (
-				84094EF724EACC3C0028BBDF /* SessionView.swift */,
-				84094EF924EACC4E0028BBDF /* SessionViewModel.swift */,
+				8402CD7F250ABA1300DDE03F /* RemotePairingJoinerView.swift */,
+				8402CD81250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift */,
 			);
-			path = session;
+			path = joiner;
+			sourceTree = "<group>";
+		};
+		84094EF624EACAAC0028BBDF /* pairing type selection */ = {
+			isa = PBXGroup;
+			children = (
+				84094EF724EACC3C0028BBDF /* PairingTypeView.swift */,
+				84094EF924EACC4E0028BBDF /* PairingTypeViewModel.swift */,
+			);
+			path = "pairing type selection";
 			sourceTree = "<group>";
 		};
 		840A8CB3250906E300E73815 /* colocated peering */ = {
@@ -473,12 +486,12 @@
 			path = core;
 			sourceTree = "<group>";
 		};
-		846E28BE2501237300E66F57 /* views */ = {
+		846E28BE2501237300E66F57 /* shared views */ = {
 			isa = PBXGroup;
 			children = (
 				846E28BF2501238100E66F57 /* SettingsButton.swift */,
 			);
-			path = views;
+			path = "shared views";
 			sourceTree = "<group>";
 		};
 		8489BAE524EAF42F006D1CD3 /* common */ = {
@@ -507,8 +520,9 @@
 			isa = PBXGroup;
 			children = (
 				84BCCD9E2508CCD8006EF93F /* role selection */,
-				84BEFEE224F66CEE006E4B61 /* joiner */,
 				84BEFEE124F66CDE006E4B61 /* creator */,
+				8402CD7E250AB9FA00DDE03F /* joiner */,
+				84BEFEE224F66CEE006E4B61 /* joined */,
 			);
 			path = "remote pairing";
 			sourceTree = "<group>";
@@ -712,14 +726,6 @@
 			path = watch;
 			sourceTree = "<group>";
 		};
-		84B73D56250A1A3400C2328D /* common */ = {
-			isa = PBXGroup;
-			children = (
-				84B73D57250A1A3D00C2328D /* Lazy.swift */,
-			);
-			path = common;
-			sourceTree = "<group>";
-		};
 		84BCCD972508B47B006EF93F /* role section */ = {
 			isa = PBXGroup;
 			children = (
@@ -757,43 +763,41 @@
 			path = creator;
 			sourceTree = "<group>";
 		};
-		84BEFEE224F66CEE006E4B61 /* joiner */ = {
+		84BEFEE224F66CEE006E4B61 /* joined */ = {
 			isa = PBXGroup;
 			children = (
 				84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */,
 				84BEFEE524F66D01006E4B61 /* MeetingJoinedViewModel.swift */,
 			);
-			path = joiner;
+			path = joined;
 			sourceTree = "<group>";
 		};
 		84DC104B24B4A2ED0064DEBE /* ui */ = {
 			isa = PBXGroup;
 			children = (
-				84B73D56250A1A3400C2328D /* common */,
-				848AE80A2507F15F00DB192A /* remote pairing */,
-				848AE8092507F14C00DB192A /* colocated pairing */,
-				846E28BE2501237300E66F57 /* views */,
-				8490C24D24F7FD74002FAFE9 /* formatters */,
+				84DC105224B4A3BD0064DEBE /* root */,
+				84F1183C250BA5300034D9EF /* pairing */,
 				84BEFED824F62D94006E4B61 /* meeting */,
-				841C331924F53AD300F99B93 /* UINotifications.swift */,
-				84094EF624EACAAC0028BBDF /* session */,
-				84E3DC8924C7261500E2F175 /* services */,
 				84A211E52501594D008B370E /* settings */,
-				84DC105224B4A3BD0064DEBE /* home */,
+				846E28BE2501237300E66F57 /* shared views */,
+				8490C24D24F7FD74002FAFE9 /* formatters */,
+				84E3DC8924C7261500E2F175 /* services */,
+				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				84B5370D24FA833D000B42C7 /* Sharer.swift */,
 				84D1D7AF25015047005A3710 /* SettingsShower.swift */,
 				84BCCD9C2508C1B6006EF93F /* DummyViewModelProvider.swift */,
+				84B73D57250A1A3D00C2328D /* Lazy.swift */,
 			);
 			path = ui;
 			sourceTree = "<group>";
 		};
-		84DC105224B4A3BD0064DEBE /* home */ = {
+		84DC105224B4A3BD0064DEBE /* root */ = {
 			isa = PBXGroup;
 			children = (
-				84BEFED924F62E77006E4B61 /* HomeViewModel.swift */,
-				84BEFEDB24F62E7F006E4B61 /* HomeView.swift */,
+				84BEFED924F62E77006E4B61 /* RootViewModel.swift */,
+				84BEFEDB24F62E7F006E4B61 /* RootView.swift */,
 			);
-			path = home;
+			path = root;
 			sourceTree = "<group>";
 		};
 		84DC105324B4A5800064DEBE /* ble */ = {
@@ -852,6 +856,16 @@
 				841C331724F4F24000F99B93 /* Result+Convenience.swift */,
 			);
 			path = extensions;
+			sourceTree = "<group>";
+		};
+		84F1183C250BA5300034D9EF /* pairing */ = {
+			isa = PBXGroup;
+			children = (
+				84094EF624EACAAC0028BBDF /* pairing type selection */,
+				848AE8092507F14C00DB192A /* colocated pairing */,
+				848AE80A2507F15F00DB192A /* remote pairing */,
+			);
+			path = pairing;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1124,8 +1138,8 @@
 			files = (
 				842CC95D2502C4810003F96F /* SoundPlayer.swift in Sources */,
 				84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */,
-				84094EFA24EACC4E0028BBDF /* SessionViewModel.swift in Sources */,
-				84094EF824EACC3C0028BBDF /* SessionView.swift in Sources */,
+				84094EFA24EACC4E0028BBDF /* PairingTypeViewModel.swift in Sources */,
+				84094EF824EACC3C0028BBDF /* PairingTypeView.swift in Sources */,
 				84B6DCBC24FBC28400AA7E6D /* Triangle.swift in Sources */,
 				848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */,
 				84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */,
@@ -1146,6 +1160,7 @@
 				846E28C02501238100E66F57 /* SettingsButton.swift in Sources */,
 				844CFD002506762F00F76832 /* BleRestarterWhenAppComesToFg.swift in Sources */,
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,
+				8402CD80250ABA1300DDE03F /* RemotePairingJoinerView.swift in Sources */,
 				841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */,
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
 				84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */,
@@ -1157,7 +1172,7 @@
 				84BEFEE024F63B61006E4B61 /* MeetingCreatedViewModel.swift in Sources */,
 				84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */,
 				84E3DC7E24C6F64300E2F175 /* Log.swift in Sources */,
-				84BEFEDC24F62E7F006E4B61 /* HomeView.swift in Sources */,
+				84BEFEDC24F62E7F006E4B61 /* RootView.swift in Sources */,
 				84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */,
 				84BCCDAA2508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift in Sources */,
 				84BCCDA22508CCFC006EF93F /* RemotePairingRoleSelectionView.swift in Sources */,
@@ -1166,6 +1181,7 @@
 				84BCCDAC2508FF58006EF93F /* Globals.swift in Sources */,
 				842CC95925029ED80003F96F /* PeerVoice.swift in Sources */,
 				8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */,
+				8402CD82250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift in Sources */,
 				84DC104824B49E340064DEBE /* MeetingView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
 				84A211E42501590A008B370E /* SettingsView.swift in Sources */,
@@ -1195,7 +1211,7 @@
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */,
 				84BCCD9D2508C1B6006EF93F /* DummyViewModelProvider.swift in Sources */,
-				84BEFEDA24F62E77006E4B61 /* HomeViewModel.swift in Sources */,
+				84BEFEDA24F62E77006E4B61 /* RootViewModel.swift in Sources */,
 				84B6DCAE24FBAC7C00AA7E6D /* Peer.swift in Sources */,
 				84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */,
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,

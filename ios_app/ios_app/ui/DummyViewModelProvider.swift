@@ -9,16 +9,12 @@ class DummyViewModelProvider: ViewModelProvider {
                                 settingsShower: NoopSettingsShower(), bleEnabledService: NoopBleEnabledService())
     }
 
-    func session() -> SessionViewModel {
-        SessionViewModel(sessionService: NoopCurrentSessionService(),
-                         remoteSessionManager: NoopRemoteSessionManager(),
-                         clipboard: NoopClipboard(),
-                         uiNotifier: NoopUINotifier(),
-                         settingsShower: NoopSettingsShower())
+    func session() -> PairingTypeViewModel {
+        PairingTypeViewModel(settingsShower: NoopSettingsShower())
     }
 
-    func home() -> HomeViewModel {
-        HomeViewModel(
+    func root() -> RootViewModel {
+        RootViewModel(
             sessionService: NoopCurrentSessionService(),
             uiNotifier: NoopUINotifier(),
             settingsShower: NoopSettingsShower())
@@ -37,6 +33,12 @@ class DummyViewModelProvider: ViewModelProvider {
                                settingsShower: NoopSettingsShower())
     }
 
+    func meetingJoiner() -> RemotePairingJoinerViewModel {
+        RemotePairingJoinerViewModel(sessionManager: NoopRemoteSessionManager(), sessionService: NoopCurrentSessionService(),
+                                     clipboard: NoopClipboard(), uiNotifier: NoopUINotifier(),
+                                     settingsShower: NoopSettingsShower())
+    }
+
     func settings() -> SettingsViewModel {
         SettingsViewModel()
     }
@@ -46,7 +48,9 @@ class DummyViewModelProvider: ViewModelProvider {
     }
 
     func remotePairingRole() -> RemotePairingRoleSelectionViewModel {
-        RemotePairingRoleSelectionViewModel()
+        RemotePairingRoleSelectionViewModel(remoteSessionManager: NoopRemoteSessionManager(),
+                                            sessionService: NoopCurrentSessionService(),
+                                            uiNotifier: NoopUINotifier())
     }
 
     func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel {

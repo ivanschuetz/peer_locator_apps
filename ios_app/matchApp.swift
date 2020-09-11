@@ -11,7 +11,7 @@ struct matchApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                HomeView(viewModelProvider: container)
+                RootView(viewModelProvider: container)
                     .onOpenURL { url in
                         let deeplinkHandler: DeeplinkHandler = try! container.resolve()
                         deeplinkHandler.handle(link: url)

@@ -2,16 +2,20 @@ import Foundation
 import Dip
 
 protocol ViewModelProvider {
-    func meeting() -> MeetingViewModel
-    func session() -> SessionViewModel
-    func home() -> HomeViewModel
-    func meetingCreated() -> MeetingCreatedViewModel
-    func meetingJoined() -> MeetingJoinedViewModel
+    func session() -> PairingTypeViewModel
+    func root() -> RootViewModel
     func settings() -> SettingsViewModel
+
     func colocatedPairingRole() -> ColocatedPairingRoleSelectionViewModel
     func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel
     func colocatedPassword() -> ColocatedPairingPasswordViewModel
+
     func remotePairingRole() -> RemotePairingRoleSelectionViewModel
+    func meetingCreated() -> MeetingCreatedViewModel
+    func meetingJoined() -> MeetingJoinedViewModel
+    func meetingJoiner() -> RemotePairingJoinerViewModel
+
+    func meeting() -> MeetingViewModel
 }
 
 class Dependencies {
@@ -182,12 +186,8 @@ class Dependencies {
                                               sessionService: try container.resolve(),
                                               settingsShower: try container.resolve(),
                                               bleEnabledService: try container.resolve()) }
-        container.register { SessionViewModel(sessionService: try container.resolve(),
-                                              remoteSessionManager: try container.resolve(),
-                                              clipboard: try container.resolve(),
-                                              uiNotifier: try container.resolve(),
-                                              settingsShower: try container.resolve()) }
-        container.register { HomeViewModel(sessionService: try container.resolve(),
+        container.register { PairingTypeViewModel(settingsShower: try container.resolve()) }
+        container.register { RootViewModel(sessionService: try container.resolve(),
                                            uiNotifier: try container.resolve(),
                                            settingsShower: try container.resolve()) }
         container.register { MeetingCreatedViewModel(sessionManager: try container.resolve(),
@@ -205,7 +205,18 @@ class Dependencies {
         container.register { ColocatedPairingPasswordViewModel(sessionService: try container.resolve()) }
         container.register { ColocatedPairingJoinerViewModel(passwordService: try container.resolve(),
                                                              uiNotifier: try container.resolve()) }
-        container.register { RemotePairingRoleSelectionViewModel() }
+        container.register { RemotePairingRoleSelectionViewModel(
+            remoteSessionManager: try container.resolve(),
+            sessionService: try container.resolve(),
+            uiNotifier: try container.resolve())
+        }
+        container.register { RemotePairingJoinerViewModel(
+            sessionManager: try container.resolve(),
+            sessionService: try container.resolve(),
+            clipboard: try container.resolve(),
+            uiNotifier: try container.resolve(),
+            settingsShower: try container.resolve())
+        }
     }
 
     private func registerWatch(container: DependencyContainer) {
@@ -232,11 +243,11 @@ extension DependencyContainer: ViewModelProvider {
         try! resolve()
     }
 
-    func session() -> SessionViewModel {
+    func session() -> PairingTypeViewModel {
         try! resolve()
     }
 
-    func home() -> HomeViewModel {
+    func root() -> RootViewModel {
         try! resolve()
     }
 
@@ -265,6 +276,10 @@ extension DependencyContainer: ViewModelProvider {
     }
 
     func remotePairingRole() -> RemotePairingRoleSelectionViewModel {
+        try! resolve()
+    }
+
+    func meetingJoiner() -> RemotePairingJoinerViewModel {
         try! resolve()
     }
 }

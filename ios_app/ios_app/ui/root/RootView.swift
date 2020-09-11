@@ -1,8 +1,8 @@
 import SwiftUI
 import Combine
 
-struct HomeView: View {
-    @ObservedObject private var viewModel: HomeViewModel
+struct RootView: View {
+    @ObservedObject private var viewModel: RootViewModel
 
     private let viewModelProvider: ViewModelProvider
 
@@ -11,7 +11,7 @@ struct HomeView: View {
     // in session created when session is not ready. Instantiate view models lazily (and ensure cleared when leaving)?
     // or maybe use only one view model for everything?
     init(viewModelProvider: ViewModelProvider) {
-        self.viewModel = viewModelProvider.home()
+        self.viewModel = viewModelProvider.root()
         self.viewModelProvider = viewModelProvider
     }
 
@@ -22,8 +22,8 @@ struct HomeView: View {
             }
     }
 
-    private func viewForState(state: HomeViewState) -> some View {
-        log.d("Updating home view for state: \(state)", .ui)
+    private func viewForState(state: RootViewState) -> some View {
+        log.d("Updating root view for state: \(state)", .ui)
         switch state {
         case .noMeeting:
             return AnyView(noMeetingView())
@@ -33,7 +33,7 @@ struct HomeView: View {
     }
 
     private func noMeetingView() -> some View {
-        SessionView(viewModelProvider: viewModelProvider)
+        PairingTypeView(viewModelProvider: viewModelProvider)
     }
 
     private func meetingActiveView() -> some View {
@@ -41,9 +41,9 @@ struct HomeView: View {
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
+struct RootView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(viewModelProvider: DummyViewModelProvider())
+        RootView(viewModelProvider: DummyViewModelProvider())
     }
 }
 

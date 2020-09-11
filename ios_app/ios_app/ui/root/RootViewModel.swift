@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-enum HomeViewState {
+enum RootViewState {
     case noMeeting
 
     // For now only a "waiting" screen, for simplicity
@@ -16,11 +16,11 @@ enum HomeViewState {
     case meetingActive
 }
 
-class HomeViewModel: ObservableObject {
+class RootViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
     private let uiNotifier: UINotifier
 
-    @Published var state: HomeViewState = .noMeeting
+    @Published var state: RootViewState = .noMeeting
     @Published var showSettingsModal: Bool = false
 
     private var stateCancellable: AnyCancellable?
@@ -40,7 +40,7 @@ class HomeViewModel: ObservableObject {
 
     private func handleSessionState(_ sessionRes: Result<SharedSessionData?, ServicesError>) {
         let viewState = toViewState(sessionRes: sessionRes)
-        log.d("New session state in home: \(sessionRes), view state: \(viewState)", .session)
+        log.d("New session state in root: \(sessionRes), view state: \(viewState)", .session)
         state = viewState
 
         if case .failure(let e) = sessionRes {
@@ -49,7 +49,7 @@ class HomeViewModel: ObservableObject {
     }
 }
 
-private func toViewState(sessionRes: Result<SharedSessionData?, ServicesError>) -> HomeViewState {
+private func toViewState(sessionRes: Result<SharedSessionData?, ServicesError>) -> RootViewState {
     switch sessionRes {
     case .success(let session):
         if let session = session {
