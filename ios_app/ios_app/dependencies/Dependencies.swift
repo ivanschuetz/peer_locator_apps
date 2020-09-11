@@ -56,7 +56,7 @@ class Dependencies {
         container.register(.singleton) { DeeplinkHandlerImpl(
             sessionManager: try container.resolve(),
             colocatedPasswordService: try container.resolve()
-        )}
+        ) as DeeplinkHandler }
         container.register(.singleton) { SettingsShowerImpl() as SettingsShower }
     }
 
