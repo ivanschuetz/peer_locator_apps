@@ -24,6 +24,8 @@ class ConsoleLog: LogNonVariadicTags {
     }
 
     private func log(level: LogLevel, message: String, tags: [LogTag]) {
+//        if tags.contains(.watch) { return } // TODO remove
+
         let tagsStr = tags.map { "[\($0)]"}.joined(separator: " ")
         let tagPart = tagsStr.isEmpty ? "" : tagsStr + " "
 

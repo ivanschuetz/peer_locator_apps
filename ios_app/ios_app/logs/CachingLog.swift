@@ -53,8 +53,6 @@ class CachingLog: LogNonVariadicTags {
     }
 
     private func log(_ message: LogMessage) {
-//        if message.text.contains("[watch]") { return } // TODO remove
-
         var queue = logs.value
         queue.add(value: message)
         logs.send(queue)
