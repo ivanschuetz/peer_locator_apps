@@ -8,7 +8,8 @@ protocol ColocatedSessionService {
 }
 
 class ColocatedSessionServiceImpl: ColocatedSessionService {
-    private let bleCentral: BleCentral
+    private let meetingValidation: BleMeetingValidation
+    private let colocatedPairing: BleColocatedPairing
     private let keyChain: KeyChain
     private let crypto: Crypto
     private let uiNotifier: UINotifier
@@ -20,10 +21,11 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
     private let shouldReplyWithMyKey = CurrentValueSubject<Bool, Never>(true)
 
-    init(bleCentral: BleCentral, peerKeyReceiver: ColocatedPublicKeyReceiver, keyChain: KeyChain,
-         passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService,
-         crypto: Crypto, uiNotifier: UINotifier, sessionService: CurrentSessionService, bleManager: BleManager) {
-        self.bleCentral = bleCentral
+    init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing, keyChain: KeyChain,
+         passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService, crypto: Crypto,
+         uiNotifier: UINotifier, sessionService: CurrentSessionService, bleManager: BleManager) {
+        self.meetingValidation = meetingValidation
+        self.colocatedPairing = colocatedPairing
         self.keyChain = keyChain
         self.crypto = crypto
         self.uiNotifier = uiNotifier
@@ -37,7 +39,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         // -> possible: retry 3 times, if fails, offer user to retry or re-start the pairing (with a different pw)
         // generally, review this whole file. It's just a happy path poc.
 
-        peripheralReceivedKeyCancellable = peerKeyReceiver.publicKey
+        peripheralReceivedKeyCancellable = colocatedPairing.publicKey
             .combineLatest(shouldReplyWithMyKey.eraseToAnyPublisher())
             .sink { [weak self] key, shouldReply in
                 if let password = passwordProvider.password() {
@@ -92,7 +94,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
             log.d("Received and stored peer's public key. Validating peer (meeting).", .cp)
             // more quick "happy path"... directly after receiving peer's key, validate TODO review
-            _ = bleCentral.validatePeer()
+            _ = meetingValidation.validatePeer()
 
             // TODO we probably should ACK having peer's keys (like we do with the backend)
             // otherwise one participant may show success while the other doesn't have the peer key, which is critical
@@ -128,19 +130,19 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         let res = createStoreSessionDataAndEncryptPublicKey(
             isCreate: false, crypto: crypto, keyChain: keyChain, pw: password,
             sessionIdGenerator: { SessionId(value: UUID().uuidString) })
-        handleSessionCreationResult(result: res, bleCentral: bleCentral, uiNotifier: uiNotifier)
+        handleSessionCreationResult(result: res, colocatedPairing: colocatedPairing, uiNotifier: uiNotifier)
     }
 }
 
 
 // TODO better error handling: if something with session creation or encrypting fails, it means the app is unusable?
 // as we can't pair. crash? big error message? send error logs to cloud?
-private func handleSessionCreationResult(result: Result<EncryptedPublicKey, ServicesError>, bleCentral: BleCentral,
-                                         uiNotifier: UINotifier) {
+private func handleSessionCreationResult(result: Result<EncryptedPublicKey, ServicesError> ,
+                                         colocatedPairing: BleColocatedPairing, uiNotifier: UINotifier) {
     switch result {
     case .success(let encryptedPublicKey):
         log.v("Session data created. Sending public key to peer", .cp)
-        if !bleCentral.write(publicKey: SerializedEncryptedPublicKey(key: encryptedPublicKey)) {
+        if !colocatedPairing.write(publicKey: SerializedEncryptedPublicKey(key: encryptedPublicKey)) {
             log.e("Couldn't write my public key to ble", .cp)
         }
     case .failure(let e):

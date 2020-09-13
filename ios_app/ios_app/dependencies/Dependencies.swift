@@ -88,19 +88,17 @@ class Dependencies {
             central: try container.resolve()
         ) as BleManager }
 
-        // TODO check that these are actually singletons
-        // see https://github.com/AliSoftware/Dip/wiki/type-forwarding
-        // and https://github.com/AliSoftware/Dip/issues/196
-        container.register(peripheral, type: NearbyTokenReceiver.self)
-        container.register(peripheral, type: ColocatedPublicKeyReceiver.self)
-        container.register(bleManager, type: NearbyTokenSender.self)
-
         container.register(.singleton) {
             BleEnabledServiceImpl(bleCentral: try container.resolve()) as BleEnabledService
         }
         container.register(.eagerSingleton) {
             BleRestarterWhenAppComesToFgImpl(bleCentral: try container.resolve()) as BleRestarterWhenAppComesToFg
         }
+
+        container.register(.singleton) { BleNearbyPairing() }
+        container.register(.singleton) { BleColocatedPairing() }
+        container.register(.singleton) { BleMeetingValidation(idService: try container.resolve()) }
+
         #endif
     }
 
@@ -118,8 +116,7 @@ class Dependencies {
             bleManager: try container.resolve(),
             bleIdService: try container.resolve(),
             nearby: try container.resolve(),
-            nearbyTokenSender: try container.resolve(),
-            nearbyTokenReceiver: try container.resolve(),
+            nearbyPairing: try container.resolve(),
             keychain: try container.resolve(),
             uiNotifier: try container.resolve(),
             sessionService: try container.resolve(),
@@ -168,8 +165,8 @@ class Dependencies {
         container.register(.singleton) { ColocatedPairingPasswordServiceImpl() as ColocatedPairingPasswordService }
         container.register(.singleton) { ColocatedPasswordProviderImpl() as ColocatedPasswordProvider }
         container.register(.singleton) { ColocatedSessionServiceImpl(
-            bleCentral: try container.resolve(),
-            peerKeyReceiver: try container.resolve(),
+            meetingValidation: try container.resolve(),
+            colocatedPairing: try container.resolve(),
             keyChain: try container.resolve(),
             passwordProvider: try container.resolve(),
             passwordService: try container.resolve(),

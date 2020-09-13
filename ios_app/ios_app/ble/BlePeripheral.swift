@@ -2,36 +2,23 @@ import Foundation
 import CoreBluetooth
 import Combine
 
-protocol NearbyTokenReceiver {
-    var token: AnyPublisher<SerializedSignedNearbyToken, Never> { get }
-}
-
-protocol ColocatedPublicKeyReceiver {
-    var publicKey: AnyPublisher<SerializedEncryptedPublicKey, Never> { get }
-}
-
 protocol BlePeripheral {
-    var readMyId: PassthroughSubject<BleId, Never> { get }
     func requestStart()
+    // Note: has to be called before requestStart()
+    func register(delegates: [BlePeripheralDelegate])
 }
 
-class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver, ColocatedPublicKeyReceiver {
+class BlePeripheralImpl: NSObject, BlePeripheral {
     private var peripheralManager: CBPeripheralManager?
 
     // Updated when read (note that it's generated on demand / first read)
     private let idService: BleIdService
 
-    let readMyId = PassthroughSubject<BleId, Never>()
-
     private let status = PassthroughSubject<(CBManagerState, CBPeripheralManager), Never>()
     private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
 
-    private let tokenSubject = CurrentValueSubject<SerializedSignedNearbyToken?, Never>(nil)
-    lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
-
-    private let publicKeySubject = CurrentValueSubject<SerializedEncryptedPublicKey?, Never>(nil)
-    lazy var publicKey = publicKeySubject.compactMap{ $0 }.eraseToAnyPublisher()
+    private var delegates: [BlePeripheralDelegate] = []
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -53,6 +40,11 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver, Colocated
                     log.d("Requested peripheral start while not powered on: \(status.toBleState())", .ble)
                 }
             })
+    }
+
+    // Note: has to be called before requestStart()
+    func register(delegates: [BlePeripheralDelegate]) {
+        self.delegates = delegates
     }
 
     func requestStart() {
@@ -84,6 +76,16 @@ class BlePeripheralImpl: NSObject, BlePeripheral, NearbyTokenReceiver, Colocated
             CBAdvertisementDataServiceUUIDsKey: [CBUUID.serviceCBUUID]
         ])
     }
+
+    private func createService() -> CBMutableService {
+        let service = CBMutableService(
+            type: .serviceCBUUID,
+            primary: true
+        )
+        service.characteristics = delegates.map { $0.characteristic }
+        return service
+    }
+
 }
 
 extension BlePeripheralImpl: CBPeripheralManagerDelegate {
@@ -105,34 +107,17 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        switch request.characteristic.uuid {
-        case CBUUID.characteristicCBUUID:
-            handleMyMeetingPublicKeyRead(peripheral: peripheral, request: request)
-        default:
-            // TODO review handling
-            log.e("Unexpected(?): central is reading an unknown characteristic: \(request.characteristic.uuid)", .ble)
-        }
-    }
-
-    private func handleMyMeetingPublicKeyRead(peripheral: CBPeripheralManager, request: CBATTRequest) {
-        if let myId = idService.id() {
-            self.readMyId.send(myId)
-            request.value = myId.data
-            peripheral.respond(to: request, withResult: .success)
-
-        } else {
-            // TODO review handling
-            // This state is valid as peripheral and central are active during colocated pairing too,
-            // where normally there's no session yet
-            // TODO probably we should block reading session data during colocated pairing / non-active session
-            log.v("Peripheral session id was read and there was no session (TODO see comment)")
+        if !delegates.evaluate({ $0.handleEvent(.read(uuid: request.characteristic.uuid,
+                                                      request: request,
+                                                      peripheral: peripheral)) }) {
+            log.e("Not handled read request: \(request)", .ble)
         }
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         log.d("Peripheral received write requests (\(requests.count))", .ble)
 
-        guard requests.count < 2 else {
+        guard requests.count > 1 else {
             log.e("Multiple write requests TODO is this normal? Exit", .ble)
             return
         }
@@ -140,32 +125,14 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
             log.e("Write requests empty TODO is this normal? Exit", .ble)
             return
         }
-
-        switch request.characteristic.uuid {
-        case .nearbyCharacteristicCBUUID:
-            handleNearbyCharacteristicWrite(data: request.value)
-        case .colocatedPublicKeyCBUUID:
-            handleColocatedPublicKeyWrite(data: request.value)
-        default:
-            log.e("Received write for unsupported characteristic. Ignoring", .ble)
+        guard let data = request.value else {
+            log.e("Request has no value. Probably error (TODO confim). Exit.", .ble)
             return
         }
-    }
 
-    private func handleNearbyCharacteristicWrite(data: Data?) {
-        guard let data = data else {
-            log.e("Nearby characteristic write has no data. Exit.", .ble)
-            return
+        if !delegates.evaluate({ $0.handleEvent(.write(uuid: request.characteristic.uuid, data: data)) }) {
+            log.e("Not handled read request: \(request)", .ble)
         }
-        tokenSubject.send(SerializedSignedNearbyToken(data: data))
-    }
-
-    private func handleColocatedPublicKeyWrite(data: Data?) {
-        guard let data = data else {
-            log.e("Colocated public key has no data. Exit.", .ble)
-            return
-        }
-        publicKeySubject.send(SerializedEncryptedPublicKey(data: data))
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
@@ -173,47 +140,8 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     }
 }
 
-private func createService() -> CBMutableService {
-    let service = CBMutableService(
-        type: .serviceCBUUID,
-        primary: true
-    )
-    service.characteristics = [createCharacteristic(), createNearbyCharacteristic(),
-                               createColocatedPairingCharacteristic()]
-    return service
-}
-
-private func createCharacteristic() -> CBCharacteristic {
-    CBMutableCharacteristic(
-        type: .characteristicCBUUID,
-        properties: [.read],
-        value: nil,
-        permissions: [.readable]
-    )
-}
-
-private func createNearbyCharacteristic() -> CBCharacteristic {
-    CBMutableCharacteristic(
-        type: .nearbyCharacteristicCBUUID,
-        properties: [.write],
-        value: nil,
-        // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
-        permissions: [.writeable]
-    )
-}
-
-private func createColocatedPairingCharacteristic() -> CBCharacteristic {
-    CBMutableCharacteristic(
-        type: .colocatedPublicKeyCBUUID,
-        properties: [.write],
-        value: nil,
-        // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
-        permissions: [.writeable]
-    )
-}
-
 class BlePeripheralNoop: NSObject, BlePeripheral {
     var receivedPeerNearbyToken = PassthroughSubject<Data, Never>()
-    let readMyId = PassthroughSubject<BleId, Never>()
     func requestStart() {}
+    func register(delegates: [BlePeripheralDelegate]) {}
 }

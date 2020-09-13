@@ -6,7 +6,7 @@ protocol TokenServiceDelegate {
     func receivedToken(token: SerializedSignedNearbyToken)
 }
 
-class MultipeerTokenServiceImpl: NSObject, NearbyTokenReceiver {
+class MultipeerTokenServiceImpl: NSObject, NearbyPairing {
     private let tokenSubject = CurrentValueSubject<SerializedSignedNearbyToken?, Never>(nil)
     lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
 
@@ -59,6 +59,10 @@ class MultipeerTokenServiceImpl: NSObject, NearbyTokenReceiver {
         _ = session // trigger lazy init
     }
 
+    func sendDiscoveryToken(token: SerializedSignedNearbyToken) {
+        tokenToSend.send(token)
+    }
+
     deinit {
         serviceAdvertiser.stopAdvertisingPeer()
     }
@@ -73,12 +77,6 @@ class MultipeerTokenServiceImpl: NSObject, NearbyTokenReceiver {
                 log.e("Error sending token: \(error)", .peer)
             }
         }
-    }
-}
-
-extension MultipeerTokenServiceImpl: NearbyTokenSender {
-    func sendDiscoveryToken(token: SerializedSignedNearbyToken) {
-        tokenToSend.send(token)
     }
 }
 

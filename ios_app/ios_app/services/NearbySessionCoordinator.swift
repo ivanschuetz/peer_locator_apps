@@ -10,9 +10,9 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
     private var sendNearbyTokenCancellable: Cancellable?
     private var receivedNearbyTokenCancellable: Cancellable?
 
-    init(bleManager: BleManager, bleIdService: BleIdService, nearby: Nearby, nearbyTokenSender: NearbyTokenSender,
-         nearbyTokenReceiver: NearbyTokenReceiver, keychain: KeyChain, uiNotifier: UINotifier,
-         sessionService: SessionService, tokenProcessor: NearbyTokenProcessor) {
+    init(bleManager: BleManager, bleIdService: BleIdService, nearby: Nearby, nearbyPairing: NearbyPairing,
+         keychain: KeyChain, uiNotifier: UINotifier, sessionService: SessionService,
+         tokenProcessor: NearbyTokenProcessor) {
         self.bleManager = bleManager
         self.bleIdService = bleIdService
 
@@ -48,11 +48,11 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 
         sendNearbyTokenCancellable = validatedBlePeer.merge(with: sessionStopped)
             .sink { _ in
-                sendNearbyTokenToPeer(nearby: nearby, nearbyTokenSender: nearbyTokenSender, keychain: keychain,
+                sendNearbyTokenToPeer(nearby: nearby, nearbyPairing: nearbyPairing, keychain: keychain,
                                       uiNotifier: uiNotifier, tokenProcessor: tokenProcessor)
             }
 
-        receivedNearbyTokenCancellable = nearbyTokenReceiver.token.sink { serializedToken in
+        receivedNearbyTokenCancellable = nearbyPairing.token.sink { serializedToken in
             log.i("Received nearby token from peer, starting session", .nearby)
             switch validate(token: serializedToken, sessionService: sessionService, tokenProcessor: tokenProcessor) {
             case .valid(let token):
@@ -66,7 +66,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
     }
 }
 
-private func sendNearbyTokenToPeer(nearby: Nearby, nearbyTokenSender: NearbyTokenSender, keychain: KeyChain,
+private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing, keychain: KeyChain,
                                    uiNotifier: UINotifier, tokenProcessor: NearbyTokenProcessor) {
     if let token = nearby.token() {
 
@@ -77,7 +77,7 @@ private func sendNearbyTokenToPeer(nearby: Nearby, nearbyTokenSender: NearbyToke
         case .success(let mySessionData):
             if let mySessionData = mySessionData {
                 log.i("Sending nearby discovery token to peer: \(token)", .nearby)
-                nearbyTokenSender.sendDiscoveryToken(
+                nearbyPairing.sendDiscoveryToken(
                     token: tokenProcessor.prepareToSend(token: token, privateKey: mySessionData.privateKey)
                 )
             } else {

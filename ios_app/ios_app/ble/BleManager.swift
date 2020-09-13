@@ -8,11 +8,9 @@ protocol BleManager {
     func stop()
 }
 
-protocol NearbyTokenSender {
-    func sendDiscoveryToken(token: SerializedSignedNearbyToken)
-}
+class BleManagerImpl: BleManager {
 
-class BleManagerImpl: BleManager, NearbyTokenSender {
+    // TODO remove?
     let discovered: AnyPublisher<BleParticipant, Never>
 
     private let peripheral: BlePeripheral
@@ -36,12 +34,6 @@ class BleManagerImpl: BleManager, NearbyTokenSender {
         // TODO
     }
 
-    func sendDiscoveryToken(token: SerializedSignedNearbyToken) {
-        if !central.write(nearbyToken: token) {
-            log.e("Couldn't write nearby token", .ble)
-            // TODO handling (and ideally ensure this state can't happen)
-        }
-    }
 }
 
 // TODO probably this has to be abstracted to just "(discovered)Peer"
