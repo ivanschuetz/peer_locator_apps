@@ -2,7 +2,6 @@ import Foundation
 import Combine
 
 protocol ColocatedSessionService {
-//    func ses
     func startPairingSession()
     func generatePassword() -> ColocatedPeeringPassword
 }
@@ -10,7 +9,7 @@ protocol ColocatedSessionService {
 class ColocatedSessionServiceImpl: ColocatedSessionService {
     private let meetingValidation: BleMeetingValidation
     private let colocatedPairing: BleColocatedPairing
-    private let keyChain: KeyChain
+    private let sessionStore: SessionStore
     private let crypto: Crypto
     private let uiNotifier: UINotifier
     private let sessionService: CurrentSessionService
@@ -21,12 +20,12 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
     private let shouldReplyWithMyKey = CurrentValueSubject<Bool, Never>(true)
 
-    init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing, keyChain: KeyChain,
+    init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing, sessionStore: SessionStore,
          passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService, crypto: Crypto,
          uiNotifier: UINotifier, sessionService: CurrentSessionService, bleManager: BleManager) {
         self.meetingValidation = meetingValidation
         self.colocatedPairing = colocatedPairing
-        self.keyChain = keyChain
+        self.sessionStore = sessionStore
         self.crypto = crypto
         self.uiNotifier = uiNotifier
         self.sessionService = sessionService
@@ -83,9 +82,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
         // TODO "transactionally". Currently we store first the participants, if success then our session data...
         // we should store them ideally together. Prob after refactor that merges session data and participants.
-        switch keyChain.putEncodable(key: .participants, value: Participants(participants: [
-            PublicKey(value: publicKeyValue)
-        ])) {
+        switch sessionStore.setPeer(Participant(publicKey: PublicKey(value: publicKeyValue))) {
         case .success:
             if shouldReply {
                 log.d("Received data from peer. Will send back my data", .cp)
@@ -103,7 +100,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             // for now we will mark here directly the session as ready
 
             // Note that this, by setting the current session controls the root navigation
-            let mySessionData: Result<MySessionData?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
+            let mySessionData: Result<MySessionData?, ServicesError> = sessionStore.getSession()
             let sharedSessionData: Result<SharedSessionData?, ServicesError> = mySessionData.map({ mySessionData in
                 mySessionData.map {
                     SharedSessionData(id: $0.sessionId, isReady: .yes, createdByMe: $0.createdByMe)
@@ -128,7 +125,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
     private func initializeMySessionDataAndSendPublicKey(password: ColocatedPeeringPassword) {
         let res = createStoreSessionDataAndEncryptPublicKey(
-            isCreate: false, crypto: crypto, keyChain: keyChain, pw: password,
+            isCreate: false, crypto: crypto, sessionStore: sessionStore, pw: password,
             sessionIdGenerator: { SessionId(value: UUID().uuidString) })
         handleSessionCreationResult(result: res, colocatedPairing: colocatedPairing, uiNotifier: uiNotifier)
     }
@@ -153,11 +150,11 @@ private func handleSessionCreationResult(result: Result<EncryptedPublicKey, Serv
 }
 
 private func createStoreSessionDataAndEncryptPublicKey(
-    isCreate: Bool, crypto: Crypto, keyChain: KeyChain, pw: ColocatedPeeringPassword,
+    isCreate: Bool, crypto: Crypto, sessionStore: SessionStore, pw: ColocatedPeeringPassword,
     sessionIdGenerator: () -> SessionId
 ) -> Result<EncryptedPublicKey, ServicesError> {
 
-    let res = createAndStoreSessionData(isCreate: isCreate, crypto: crypto, keyChain: keyChain,
+    let res = createAndStoreSessionData(isCreate: isCreate, crypto: crypto, sessionStore: sessionStore,
                                         sessionIdGenerator: sessionIdGenerator)
     return res.map { sessionData in
         EncryptedPublicKey(value: crypto.encrypt(str: sessionData.publicKey.value, key: pw.value))
@@ -166,7 +163,7 @@ private func createStoreSessionDataAndEncryptPublicKey(
 
 
 // TODO refactor with same name function in SessionServiceImpl
-private func createAndStoreSessionData(isCreate: Bool, crypto: Crypto, keyChain: KeyChain,
+private func createAndStoreSessionData(isCreate: Bool, crypto: Crypto, sessionStore: SessionStore,
                                        sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
     let keyPair = crypto.createKeyPair()
     log.d("Created key pair: \(keyPair)", .session)
@@ -176,10 +173,10 @@ private func createAndStoreSessionData(isCreate: Bool, crypto: Crypto, keyChain:
         privateKey: keyPair.private_key,
         publicKey: keyPair.public_key,
         participantId: keyPair.public_key.toParticipantId(crypto: crypto),
-        createdByMe: isCreate
+        createdByMe: isCreate,
+        participant: nil
     )
-    let saveRes = keyChain.putEncodable(key: .mySessionData, value: sessionData)
-    switch saveRes {
+    switch sessionStore.save(session: sessionData) {
     case .success:
         return .success(sessionData)
     case .failure(let e):

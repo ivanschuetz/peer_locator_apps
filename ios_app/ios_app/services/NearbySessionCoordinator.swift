@@ -11,7 +11,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
     private var receivedNearbyTokenCancellable: Cancellable?
 
     init(bleManager: BleManager, bleIdService: BleIdService, nearby: Nearby, nearbyPairing: NearbyPairing,
-         keychain: KeyChain, uiNotifier: UINotifier, sessionService: SessionService,
+         keychain: KeyChain, uiNotifier: UINotifier, sessionStore: SessionStore,
          tokenProcessor: NearbyTokenProcessor) {
         self.bleManager = bleManager
         self.bleIdService = bleIdService
@@ -54,7 +54,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 
         receivedNearbyTokenCancellable = nearbyPairing.token.sink { serializedToken in
             log.i("Received nearby token from peer, starting session", .nearby)
-            switch validate(token: serializedToken, sessionService: sessionService, tokenProcessor: tokenProcessor) {
+            switch validate(token: serializedToken, sessionStore: sessionStore, tokenProcessor: tokenProcessor) {
             case .valid(let token):
                 log.i("Nearby token validation succeeded. Starting nearby session", .nearby)
                 nearby.start(peerToken: token)
@@ -105,20 +105,13 @@ private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing,
 // to validate (retrieve peer's public keys) we access session service. Ideally one single service to
 // retrieve session data, or maybe even perform sign/validation with current session data?
 // (keep in mind multiple session suspport in the future)
-private func validate(token: SerializedSignedNearbyToken, sessionService: SessionService,
+private func validate(token: SerializedSignedNearbyToken, sessionStore: SessionStore,
                       tokenProcessor: NearbyTokenProcessor) -> NearbyTokenValidationResult {
-    let res: Result<Participants?, ServicesError> = sessionService.currentSessionParticipants()
+    let res: Result<Participant?, ServicesError> = sessionStore.getSession().map { $0?.participant }
     switch res {
-    case .success(let participants):
-        if let participants = participants {
-            // TODO we should allow to retrieve only the peer instead of "participants" (which includes the own public key)
-            for publicKey in participants.participants {
-                let res = tokenProcessor.validate(token: token, publicKey: publicKey)
-                if case .valid = res {
-                    return res
-                }
-            }
-            return .invalid
+    case .success(let participant):
+        if let participant = participant {
+            return tokenProcessor.validate(token: token, publicKey: participant.publicKey)
         } else {
             // If we get peer's token to be validated it means we should be in an active session
             // Currently can happen, though, as we don't stop the token observable when

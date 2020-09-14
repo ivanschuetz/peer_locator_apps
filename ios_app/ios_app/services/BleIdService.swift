@@ -9,13 +9,13 @@ protocol BleIdService {
 class BleIdServiceImpl: BleIdService {
     private let crypto: Crypto
     private let json: Json
-    private let sessionService: SessionService
+    private let sessionStore: SessionStore
     private let keyChain: KeyChain
 
-    init(crypto: Crypto, json: Json, sessionService: SessionService, keyChain: KeyChain) {
+    init(crypto: Crypto, json: Json, sessionStore: SessionStore, keyChain: KeyChain) {
         self.crypto = crypto
         self.json = json
-        self.sessionService = sessionService
+        self.sessionStore = sessionStore
         self.keyChain = keyChain
     }
 
@@ -70,36 +70,38 @@ class BleIdServiceImpl: BleIdService {
         #endif
 
         log.d("Will validate: \(bleId)", .val)
-        switch sessionService.currentSessionParticipants() {
-        case .success(let participants):
-            if let participants = participants {
-                let res = validate(bleId: bleId, participants: participants)
-                log.d("Validation result: \(res)", .val)
-                return res
+        switch sessionStore.getSession() {
+        case .success(let session):
+            if let session = session {
+                if let participant = session.participant {
+                    let res = validate(bleId: bleId, participant: participant)
+                    log.d("Validation result: \(res)", .val)
+                    return res
+                } else {
+                    log.e("Invalid state?: validating, but session has no peer yet: \(bleId)", .val)
+                    return false
+                }
             } else {
                 log.e("Invalid state?: validating, but no current session. bleId: \(bleId)", .val)
                 return false
             }
-
         case .failure(let e):
             log.e("Error retrieving participants: \(e), returning validate = false", .val)
             return false
         }
     }
 
-    private func validate(bleId: BleId, participants: Participants) -> Bool {
+    private func validate(bleId: BleId, participant: Participant) -> Bool {
         let dataStr = bleId.str()
 
         let signedParticipantPayload: SignedParticipantPayload = json.fromJson(json: dataStr)
         let payloadToSign = signedParticipantPayload.data
 
-        log.v("Will validate participant payload: \(signedParticipantPayload) with participants: \(participants)")
+        log.v("Will validate participant payload: \(signedParticipantPayload) with participant: \(participant)")
 
         let signData = Data(fromHexEncodedString: signedParticipantPayload.sig)!
 
-        return participants.participants.contains { publicKey in
-            crypto.validate(payload: payloadToSign, signature: signData, publicKey: publicKey)
-        }
+        return crypto.validate(payload: payloadToSign, signature: signData, publicKey: participant.publicKey)
     }
 }
 

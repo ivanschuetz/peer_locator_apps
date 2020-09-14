@@ -65,7 +65,7 @@ class Dependencies {
         container.register(.singleton) { BleIdServiceImpl(
             crypto: try container.resolve(),
             json: try container.resolve(),
-            sessionService: try container.resolve(),
+            sessionStore: try container.resolve(),
             keyChain: try container.resolve()
         ) as BleIdService }
 
@@ -120,7 +120,7 @@ class Dependencies {
             nearbyPairing: try container.resolve(),
             keychain: try container.resolve(),
             uiNotifier: try container.resolve(),
-            sessionService: try container.resolve(),
+            sessionStore: try container.resolve(),
             tokenProcessor: try container.resolve()
         ) as NearbySessionCoordinator }
 
@@ -150,7 +150,7 @@ class Dependencies {
         container.register(.singleton) { SessionServiceImpl(
             sessionApi: try container.resolve(),
             crypto: try container.resolve(),
-            keyChain: try container.resolve()
+            sessionStore: try container.resolve()
         ) as SessionService }
         container.register(.eagerSingleton) { P2pServiceImpl(bleManager: try container.resolve(),
                                                              sessionService: try container.resolve()) as P2pService }
@@ -181,7 +181,7 @@ class Dependencies {
         container.register(.singleton) { ColocatedSessionServiceImpl(
             meetingValidation: try container.resolve(),
             colocatedPairing: try container.resolve(),
-            keyChain: try container.resolve(),
+            sessionStore: try container.resolve(),
             passwordProvider: try container.resolve(),
             passwordService: try container.resolve(),
             crypto: try container.resolve(),

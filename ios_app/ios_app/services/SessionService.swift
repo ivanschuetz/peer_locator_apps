@@ -13,22 +13,21 @@ protocol SessionService {
 
     func currentSession() -> Result<SharedSessionData?, ServicesError>
 
-    func currentSessionParticipants() -> Result<Participants?, ServicesError>
     func deleteSessionLocally() -> Result<(), ServicesError>
 }
 
 class SessionServiceImpl: SessionService {
     private let sessionApi: SessionApi
     private let crypto: Crypto
-    private let keyChain: KeyChain
+    private let sessionStore: SessionStore
 
-    init(sessionApi: SessionApi, crypto: Crypto, keyChain: KeyChain) {
+    init(sessionApi: SessionApi, crypto: Crypto, sessionStore: SessionStore) {
         self.sessionApi = sessionApi
         self.crypto = crypto
-        self.keyChain = keyChain
+        self.sessionStore = sessionStore
 
         // TODO remove
-        keyChain.removeAll()
+        sessionStore.clear()
     }
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
@@ -47,21 +46,11 @@ class SessionServiceImpl: SessionService {
     }
 
     func deleteSessionLocally() -> Result<(), ServicesError> {
-        let res = keyChain.remove(.mySessionData).flatMap {
-            keyChain.remove(.participants)
-        }
-        log.d("Delete session locally result: \(res)")
-        return res
+        sessionStore.clear()
     }
 
     private func hasActiveSession() -> Bool {
-        let loadRes: Result<MySessionData?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
-        switch loadRes {
-        case .success(let sessionData): return sessionData != nil
-        case .failure(let e):
-            log.e("Failure checking for active session: \(e)")
-            return false
-        }
+        sessionStore.hasSession()
     }
 
     func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
@@ -111,8 +100,7 @@ class SessionServiceImpl: SessionService {
     }
 
     func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
-        // Retrieve locally stored session
-        let sessionDataRes: Result<MySessionData?, ServicesError> = currentSession()
+        let sessionDataRes: Result<MySessionData?, ServicesError> = sessionStore.getSession()
         switch sessionDataRes {
         case .success(let sessionData):
             if let sessionData = sessionData {
@@ -149,34 +137,21 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    func currentSession() -> Result<MySessionData?, ServicesError> {
-        keyChain.getDecodable(key: .mySessionData)
-    }
-
     func currentSession() -> Result<SharedSessionData?, ServicesError> {
-        let res: Result<MySessionData?, ServicesError> = currentSession()
-        return res.flatMap { sessionData in
-            if let sessionData = sessionData {
-                let participantsRes: Result<Participants?, ServicesError> = keyChain.getDecodable(key: .participants)
-                switch participantsRes {
-                case .success(let participants):
-                    return .success(
-                        SharedSessionData(id: sessionData.sessionId,
-                                          isReady: participants.map { $0.participants.isEmpty ? .yes : .no } ?? .no,
-                                          createdByMe: sessionData.createdByMe)
-                    )
-                case .failure(let e):
-                    return .failure(e)
-                }
+        sessionStore.getSession().map { session in
+            if let session = session {
+                return SharedSessionData(id: session.sessionId,
+                                         isReady: session.participant != nil ? .yes : .no,
+                                         createdByMe: session.createdByMe)
             } else { // No session
-                return .success(nil)
+                return nil
             }
         }
     }
 
-    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
-        keyChain.getDecodable(key: .participants)
-    }
+//    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
+//        keyChain.getDecodable(key: .participants)
+//    }
 
     private func markDeleted(sessionData: MySessionData) -> Result<(), ServicesError> {
         // TODO keep retrying if fails. It's important that the session is deleted.
@@ -203,19 +178,13 @@ class SessionServiceImpl: SessionService {
     }
 
     private func ackAndRequestSessionReady() -> Result<SessionReady, ServicesError> {
-        let sessionDataRes: Result<MySessionData?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
-        switch sessionDataRes {
+        switch sessionStore.getSession() {
         case .success(let sessionData):
             if let sessionData = sessionData {
-                let participatsRes: Result<Participants?, ServicesError> = keyChain.getDecodable(key: .participants)
-                switch participatsRes {
-                case .success(let participants):
-                    let participantsCount = participants.map { $0.participants.count } ?? 0
-                    return sessionApi.ackAndRequestSessionReady(participantId: sessionData.participantId,
-                                                                storedParticipants: participantsCount)
-                case .failure(let e):
-                    return .failure(e)
-                }
+                return sessionApi.ackAndRequestSessionReady(
+                    participantId: sessionData.participantId,
+                    storedParticipants: sessionData.participant == nil ? 1 : 2
+                )
             } else {
                 // TODO review this. Handling?
                 return .failure(.general("Invalid state: no session found to ack"))
@@ -225,40 +194,131 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func storeParticipantsAndAck(session: Session) -> Result<SessionReady, ServicesError> {
-        log.d("Storing participants", .session)
-        switch keyChain.putEncodable(key: .participants, value: Participants(participants: session.keys)) {
-        case .success:
-            return ackAndRequestSessionReady()
+    private func processBackendSession(_ backendSession: Session) -> Result<(), ServicesError> {
+        switch sessionStore.getSession() {
+        case .success(let session):
+            if let session = session {
+                if let peer = determinePeer(backendSession: backendSession, session: session) {
+                    return sessionStore.setPeer(peer).map { _ in () }
+                } else {
+                    log.d("Backend session doesn't have peer yet.", .session)
+                    return .success(())
+                }
+            } else {
+                let msg = "Invalid state: Received backend session but no session data stored. \(backendSession)"
+                log.e(msg, .session)
+                return .failure(.general(msg))
+            }
         case .failure(let e):
-            return .failure(e)
+            let msg = "Error retrieving session: \(e)"
+            log.e(msg, .session)
+            return .failure(.general(msg))
+        }
+    }
+
+    private func determinePeer(backendSession: Session, session: MySessionData) -> Participant? {
+        guard backendSession.keys.count < 3 else {
+            fatalError("Invalid state: there are more than 2 participants in the session: \(backendSession)")
+        }
+
+        if let participant = session.participant {
+            log.w("Suspicious: trying to determine partipant while session already has a participant. " +
+                "Returning existing participant.", .session)
+            return participant
+        } else {
+            let myPublicKey = session.publicKey
+            let publicKeysDifferentToMine = backendSession.keys.filter {
+                $0 != myPublicKey
+            }
+            if publicKeysDifferentToMine.count > 1 {
+                // If there are max 2 keys (checked with guard), i.e. the session is meant to have 2 peers,
+                // there can be just my key and my peer's key, so at most 1 key can be different to mine.
+                // This implies that there can be less (i.e. 0): if the backend's session is not ready yet,
+                // it will not contain the peer's key.
+                fatalError("Invalid state: backend session keys don't include mine: \(backendSession)")
+            }
+            // only: we just checked that this list is at most 1 element length.
+            return publicKeysDifferentToMine.only.map { Participant(publicKey: $0) }
+        }
+    }
+
+    private func storeParticipantsAndAck(session backendSession: Session) -> Result<SessionReady, ServicesError> {
+        switch sessionStore.getSession() {
+        case .success(let session):
+            if let session = session {
+                if let peer = determinePeer(backendSession: backendSession, session: session) {
+                    switch sessionStore.setPeer(peer) {
+                    case .success:
+                        return ackAndRequestSessionReady()
+                    case .failure(let e):
+                        let msg = "Error storing peer: \(e)"
+                        log.e(msg, .session)
+                        return .failure(.general(msg))
+                    }
+                } else {
+                    log.v("The backend session: \(backendSession) doesn't have a peer yet. Session isn't reeady.",
+                          .session)
+                    return .success(.no)
+                }
+            } else {
+                let msg = "Invalid state: Received backend session but no session data stored. \(backendSession)"
+                log.e(msg, .session)
+                return .failure(.general(msg))
+            }
+        case .failure(let e):
+            let msg = "Error retrieving session: \(e)"
+            log.e(msg, .session)
+            return .failure(.general(msg))
         }
     }
 
     private func fetchAndStoreParticipants(sessionId: SessionId) -> Result<FetchAndStoreParticipantsResult, ServicesError> {
         let participantsRes = sessionApi.participants(sessionId: sessionId)
         switch participantsRes {
-        case .success(let session):
-            // We store even if it's empty (shouldn't happen), for overall consistency
-            switch keyChain.putEncodable(key: .participants, value: Participants(participants: session.keys)) {
-            case .success:
-                if session.keys.isEmpty {
-                    return .success(.fetchedNothing)
+        case .success(let backendSession):
+            switch sessionStore.getSession() {
+            case .success(let session):
+                if let session = session {
+                    if let peer = determinePeer(backendSession: backendSession, session: session) {
+                        switch sessionStore.setPeer(peer) {
+                        case .success:
+                            if backendSession.keys.isEmpty {
+                                return .success(.fetchedNothing)
+                            } else {
+                                return .success(.fetchedSomething)
+                            }
+                        case .failure(let e):
+                            let msg = "Error storing peer: \(e)"
+                            log.e(msg, .session)
+                            return .failure(.general(msg))
+                        }
+                    } else {
+                        // TODO is this correct? fetched nothing? what does that mean?
+                        log.v("The backend session: \(backendSession) doesn't have a peer yet. Session isn't reeady.",
+                              .session)
+                        return .success(.fetchedNothing)
+                    }
+
                 } else {
-                    return .success(.fetchedSomething)
+                    let msg = "No session stored"
+                    log.e(msg, .session)
+                    return .failure(.general(msg))
                 }
+
             case .failure(let e):
-                return .failure(.general("Couldn't store participants: \(e)"))
+                let msg = "Error retrieving session: \(e)"
+                log.e(msg, .session)
+                return .failure(.general(msg))
             }
         case .failure(let e):
-            return .failure(.general("Couldn't fetch participants: \(e)"))
+            let msg = "Error retrieving participants from api: \(e)"
+            log.e(msg, .session)
+            return .failure(.general(msg))
         }
     }
 
     private func loadOrCreateSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
-        let loadRes: Result<MySessionData?, ServicesError> =
-            keyChain.getDecodable(key: .mySessionData)
-        switch loadRes {
+        switch sessionStore.getSession() {
         case .success(let data):
             if let data = data {
                 log.d("Loaded session data: \(data)", .session)
@@ -280,9 +340,10 @@ class SessionServiceImpl: SessionService {
             privateKey: keyPair.private_key,
             publicKey: keyPair.public_key,
             participantId: keyPair.public_key.toParticipantId(crypto: crypto),
-            createdByMe: isCreate
+            createdByMe: isCreate,
+            participant: nil
         )
-        let saveRes = keyChain.putEncodable(key: .mySessionData, value: sessionData)
+        let saveRes = sessionStore.save(session: sessionData)
         switch saveRes {
         case .success:
             return .success(sessionData)
@@ -292,6 +353,7 @@ class SessionServiceImpl: SessionService {
     }
 }
 
+// TODO this seems weird
 enum FetchAndStoreParticipantsResult {
     // Note: this currently includes the OWN participant, meaning we'll send an ack
     // just for our own key

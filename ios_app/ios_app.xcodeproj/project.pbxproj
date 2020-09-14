@@ -129,6 +129,7 @@
 		84B70D20250F56C30063D8DE /* BleDeviceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */; };
 		84B70D22250F64410063D8DE /* DetectedDeviceFilterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */; };
 		84B70D24250F68920063D8DE /* DeviceValidatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D23250F68920063D8DE /* DeviceValidatorService.swift */; };
+		84B70D26250F965A0063D8DE /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D25250F965A0063D8DE /* SessionStore.swift */; };
 		84B73D58250A1A3D00C2328D /* Lazy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73D57250A1A3D00C2328D /* Lazy.swift */; };
 		84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
@@ -170,6 +171,9 @@
 		84E3DC8824C723AC00E2F175 /* PeerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC8724C723AC00E2F175 /* PeerService.swift */; };
 		84E3DC8B24C7262000E2F175 /* RadarUIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC8A24C7262000E2F175 /* RadarUIService.swift */; };
 		84E9ACA924C4C3D700DAEBA1 /* Data+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */; };
+		84F10B51250F9B4A00F28C9D /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D25250F965A0063D8DE /* SessionStore.swift */; };
+		84F10B53250FA3FF00F28C9D /* Array+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F10B52250FA3FF00F28C9D /* Array+Convenience.swift */; };
+		84F10B54250FA49E00F28C9D /* Array+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F10B52250FA3FF00F28C9D /* Array+Convenience.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -352,6 +356,7 @@
 		84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDeviceDetector.swift; sourceTree = "<group>"; };
 		84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectedDeviceFilterService.swift; sourceTree = "<group>"; };
 		84B70D23250F68920063D8DE /* DeviceValidatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceValidatorService.swift; sourceTree = "<group>"; };
+		84B70D25250F965A0063D8DE /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		84B73D57250A1A3D00C2328D /* Lazy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lazy.swift; sourceTree = "<group>"; };
 		84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorBleManager.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
@@ -392,6 +397,7 @@
 		84E3DC8724C723AC00E2F175 /* PeerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerService.swift; sourceTree = "<group>"; };
 		84E3DC8A24C7262000E2F175 /* RadarUIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarUIService.swift; sourceTree = "<group>"; };
 		84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+hex.swift"; sourceTree = "<group>"; };
+		84F10B52250FA3FF00F28C9D /* Array+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Convenience.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -628,6 +634,7 @@
 				848AE8072507772B00DB192A /* RemoteSessionManager.swift */,
 				84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */,
 				84B70D23250F68920063D8DE /* DeviceValidatorService.swift */,
+				84B70D25250F965A0063D8DE /* SessionStore.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -892,6 +899,7 @@
 				84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */,
 				841C331724F4F24000F99B93 /* Result+Convenience.swift */,
 				84BC33CE250E3A96000E9E0C /* Sequence+Convenience.swift */,
+				84F10B52250FA3FF00F28C9D /* Array+Convenience.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -1154,6 +1162,8 @@
 				840A8CB72509099F00E73815 /* Globals.swift in Sources */,
 				8459E096250643610058D692 /* SessionService.swift in Sources */,
 				8459E090250643320058D692 /* BleUuids.swift in Sources */,
+				84F10B54250FA49E00F28C9D /* Array+Convenience.swift in Sources */,
+				84F10B51250F9B4A00F28C9D /* SessionStore.swift in Sources */,
 				8459E09D2506438C0058D692 /* Data+hex.swift in Sources */,
 				8459E09B2506437E0058D692 /* SessionId.swift in Sources */,
 				8459E09C250643870058D692 /* SharedSessionData.swift in Sources */,
@@ -1247,9 +1257,11 @@
 				84BCCD992508B490006EF93F /* ColocatedPairingRoleSelectionView.swift in Sources */,
 				843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */,
 				84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */,
+				84F10B53250FA3FF00F28C9D /* Array+Convenience.swift in Sources */,
 				8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */,
 				848AE8062507705900DB192A /* ColocatedSessionService.swift in Sources */,
 				84723B7825025777007C7C6D /* BleEnabledService.swift in Sources */,
+				84B70D26250F965A0063D8DE /* SessionStore.swift in Sources */,
 				8489BAE924EAF453006D1CD3 /* Session.swift in Sources */,
 				84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */,
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,

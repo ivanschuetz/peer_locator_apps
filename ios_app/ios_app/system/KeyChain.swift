@@ -7,7 +7,6 @@ import Valet
 
 enum KeyChainKey: String {
     case mySessionData
-    case participants
 }
 
 protocol KeyChain {
@@ -28,7 +27,7 @@ class KeyChainImpl: KeyChain {
         self.json = json
     }
 
-    private let valet = Identifier(nonEmpty: "vemeet").map { Valet.valet(
+    private let valet = Identifier(nonEmpty: "ploc").map { Valet.valet(
         with: $0,
         accessibility: .afterFirstUnlock
     )}

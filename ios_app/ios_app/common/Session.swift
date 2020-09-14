@@ -1,12 +1,12 @@
 import Foundation
 
-// TODO rename in Meeting (and related)
+// TODO rename in BackendSession or similar
 struct Session {
     let id: SessionId
     let keys: [PublicKey]
 }
 
-struct PublicKey: Encodable, Decodable {
+struct PublicKey: Encodable, Decodable, Equatable {
     let value: String // P521 PEM representation
 }
 
@@ -32,7 +32,7 @@ struct KeyPair {
     let public_key: PublicKey
 }
 
-// TODO rename (My)ParticipantData or similar, maybe?
+// TODO rename SessionData
 struct MySessionData: Encodable, Decodable {
     let sessionId: SessionId
     let privateKey: PrivateKey
@@ -41,8 +41,25 @@ struct MySessionData: Encodable, Decodable {
     let publicKey: PublicKey
     let participantId: ParticipantId
     let createdByMe: Bool
+    let participant: Participant?
+
+    func withParticipant(participant: Participant) -> MySessionData {
+        MySessionData(
+            sessionId: sessionId,
+            privateKey: privateKey,
+            publicKey: publicKey,
+            participantId: participantId,
+            createdByMe: createdByMe,
+            participant: participant
+        )
+    }
 }
 
+struct Participant: Codable {
+    let publicKey: PublicKey
+}
+
+// Public key hash
 struct ParticipantId: Encodable, Decodable {
     let value: String
 }
