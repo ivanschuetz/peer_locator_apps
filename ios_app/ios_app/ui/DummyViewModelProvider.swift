@@ -4,7 +4,9 @@ class DummyViewModelProvider: ViewModelProvider {
 
     func meeting() -> MeetingViewModel {
         let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralNoop())
-        let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager, bleIdService: BleIdServiceNoop())
+        let peerService = PeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager,
+                                          bleIdService: BleIdServiceNoop(),
+                                          validDeviceService: NoopDetectedDeviceFilterService())
         return MeetingViewModel(peerService: peerService, sessionService: NoopCurrentSessionService(),
                                 settingsShower: NoopSettingsShower(), bleEnabledService: NoopBleEnabledService())
     }
@@ -34,8 +36,10 @@ class DummyViewModelProvider: ViewModelProvider {
     }
 
     func meetingJoiner() -> RemotePairingJoinerViewModel {
-        RemotePairingJoinerViewModel(sessionManager: NoopRemoteSessionManager(), sessionService: NoopCurrentSessionService(),
-                                     clipboard: NoopClipboard(), uiNotifier: NoopUINotifier(),
+        RemotePairingJoinerViewModel(sessionManager: NoopRemoteSessionManager(),
+                                     sessionService: NoopCurrentSessionService(),
+                                     clipboard: NoopClipboard(),
+                                     uiNotifier: NoopUINotifier(),
                                      settingsShower: NoopSettingsShower())
     }
 

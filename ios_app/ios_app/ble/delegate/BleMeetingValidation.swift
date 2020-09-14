@@ -1,8 +1,6 @@
 import CoreBluetooth
 import Combine
 
-// TODO more splitting? this is doing validation and distance
-
 class BleMeetingValidation {
     let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
     lazy var discovered = discoveredSubject.eraseToAnyPublisher()
@@ -13,14 +11,22 @@ class BleMeetingValidation {
 
     private var peripheral: CBPeripheral?
 
-    private var discoveredByUuid: [UUID: BleId] = [:]
-
     private var discoveredCharacteristic: CBCharacteristic?
 
     init(idService: BleIdService) {
         self.idService = idService
     }
 
+    // Currently this is called only upon discovering characteristic
+    // TODO we need to trigger validation again (probably using timer)
+    // if user is validated during colocated pairing, we remember uuid as valid
+    // what if uuid changes before the actual meeting? ok, we will detect a new peripheral/uuid and validate that one
+    // so we've 2 valid uuids stored -> the user will be validated.
+    // but anyway, this is not ideal security. We should re-validate each x seconds to prevent replay attacks.
+    // this is not needed pre-mvp though.
+    // TODO at least test that things work (user is validated) if uuid changes.
+    // and test in general colocated to meeting transition, with separation in between
+    // (including e.g. toggling bluetooth)
     func validatePeer() -> Bool {
         guard let peripheral = peripheral else {
             log.e("Attempted to validate peer, but peripheral is not set.", .ble)
@@ -66,16 +72,6 @@ extension BleMeetingValidation: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
         self.peripheral = peripheral
-
-        if let id = discoveredByUuid[peripheral.identifier] {
-            let powerLevelMaybe = (advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber)?.intValue
-            let estimatedDistanceMeters = estimateDistance(
-                rssi: rssi.doubleValue,
-                powerLevelMaybe: powerLevelMaybe
-            )
-            log.d("Distance: \(estimatedDistanceMeters)", .ble)
-            discoveredSubject.send(BleParticipant(id: id, distance: estimatedDistanceMeters))
-        }
     }
 
     func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral, error: Error?) -> Bool {
@@ -84,12 +80,9 @@ extension BleMeetingValidation: BleCentralDelegate {
         }) {
             log.d("Reading the validation characteristic", .ble)
             self.discoveredCharacteristic = characteristic
-            // temporarily disabled as it causes noise when ble is always on
-            // on RSSI measurements we continuously trigger validation
-            // TODO tackle. should it stay disabled?
-            // TODO if we want to trigger read from app, instead of here,
-            // we need an observable with "(validation)characteristic ready"
-            peripheral.readValue(for: characteristic)
+            if !validatePeer() {
+                log.e("Likely invalid state: sending validation request here should always work", .ble)
+            }
             return true
         } else {
             log.e("Service doesn't have validation characteristic.", .ble)
@@ -103,9 +96,8 @@ extension BleMeetingValidation: BleCentralDelegate {
             if let value = characteristic.value {
                 // Unwrap: We send BleId, so we always expect BleId
                 let id = BleId(data: value)!
-                log.d("Received id: \(id), device uuid: \(peripheral.identifier)", .ble)
-                discoveredByUuid[peripheral.identifier] = id
-                discoveredSubject.send(BleParticipant(id: id, distance: -1)) // TODO distance
+                discoveredSubject.send(BleParticipant(deviceUuid: peripheral.identifier, id: id,
+                                                      distance: -1)) // TODO distance: handle this?
             } else {
                 log.w("Verification characteristic had no value", .ble)
             }
@@ -113,40 +105,4 @@ extension BleMeetingValidation: BleCentralDelegate {
         default: return false
         }
     }
-}
-
-func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {
-    log.d("Estimating distance for rssi: \(rssi), power level: \(String(describing: powerLevelMaybe))")
-    return estimatedDistance(
-        rssi: rssi,
-        powerLevel: powerLevel(powerLevelMaybe: powerLevelMaybe)
-    )
-}
-
-func powerLevel(powerLevelMaybe: Int?) -> Double {
-    // It seems we have to hardcode this, at least for Android
-    // TODO do we have to differentiate between device brands? maybe we need a "handshake" where device
-    // communicates it's power level via custom advertisement or gatt?
-    return powerLevelMaybe.map { Double($0) } ?? -80 // measured with Android (pixel 3)
-}
-
-// The power level is the RSSI at one meter. RSSI is negative, so we make it negative too
-// the results seem also not correct, so adjusted
-func powerLevelToUse(_ powerLevel: Double) -> Double {
-    switch powerLevel {
-        case 12...20:
-            return -58
-        case 9..<12:
-            return -72
-        default:
-            return -87
-    }
-}
-
-func estimatedDistance(rssi: Double, powerLevel: Double) -> Double {
-    guard rssi != 0 else {
-        return -1
-    }
-    let pw = powerLevelToUse(powerLevel)
-    return pow(10, (pw - rssi) / 20)  // TODO environment factor
 }

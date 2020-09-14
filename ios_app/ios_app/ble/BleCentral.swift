@@ -220,7 +220,8 @@ extension CBManagerState {
 }
 
 class BleCentralFixedDistance: NSObject, BleCentral {
-    let discovered = Just(BleParticipant(id: BleId(str: "123")!,
+    let discovered = Just(BleParticipant(deviceUuid: UUID(),
+                                         id: BleId(str: "123")!,
                                          distance: 10.2)).eraseToAnyPublisher()
     var discoveredPairing = Just(PairingBleId(str: "123")!).eraseToAnyPublisher()
     let status = Just(BleState.poweredOn).eraseToAnyPublisher()

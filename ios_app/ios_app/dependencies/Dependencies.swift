@@ -80,10 +80,10 @@ class Dependencies {
         #else
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
 
-        let peripheral = container.register(.eagerSingleton) {
+        container.register(.eagerSingleton) {
             BlePeripheralImpl(idService: try container.resolve()) as BlePeripheral
         }
-        let bleManager = container.register(.eagerSingleton) { BleManagerImpl(
+        container.register(.eagerSingleton) { BleManagerImpl(
             peripheral: try container.resolve(),
             central: try container.resolve()
         ) as BleManager }
@@ -95,7 +95,8 @@ class Dependencies {
             BleRestarterWhenAppComesToFgImpl(bleCentral: try container.resolve()) as BleRestarterWhenAppComesToFg
         }
 
-        container.register(.singleton) { BleNearbyPairing() }
+        container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
+        container.register(.singleton) { BleNearbyPairing() as NearbyPairing }
         container.register(.singleton) { BleColocatedPairing() }
         container.register(.singleton) { BleMeetingValidation(idService: try container.resolve()) }
 
@@ -123,9 +124,22 @@ class Dependencies {
             tokenProcessor: try container.resolve()
         ) as NearbySessionCoordinator }
 
-        container.register(.eagerSingleton) { PeerServiceImpl(nearby: try container.resolve(),
-                                             bleManager: try container.resolve(),
-                                             bleIdService: try container.resolve()) as PeerService }
+        container.register(.singleton) { DeviceValidatorServiceImpl(
+            meetingValidation: try container.resolve(),
+            idService: try container.resolve()
+        ) as DeviceValidatorService }
+        container.register(.singleton) { DetectedDeviceFilterServiceImpl(
+            deviceDetector: try container.resolve(),
+            deviceValidator: try container.resolve()
+        ) as DetectedDeviceFilterService }
+
+        container.register(.eagerSingleton) { PeerServiceImpl(
+            nearby: try container.resolve(),
+            bleManager: try container.resolve(),
+            bleIdService: try container.resolve(),
+            validDeviceService: try container.resolve()
+        ) as PeerService }
+        
         container.register(.singleton) { NotificationServiceImpl() as NotificationService }
         container.register(.singleton) { NotificationPermissionImpl() as NotificationPermission }
         container.register(.eagerSingleton) { NotificationsDelegate() }

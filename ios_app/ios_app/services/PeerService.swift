@@ -17,27 +17,13 @@ class PeerServiceImpl: PeerService {
     private let bleManager: BleManager
     private let bleIdService: BleIdService
 
-    init(nearby: Nearby, bleManager: BleManager, bleIdService: BleIdService) {
+    init(nearby: Nearby, bleManager: BleManager, bleIdService: BleIdService,
+         validDeviceService: DetectedDeviceFilterService) {
         self.nearby = nearby
         self.bleManager = bleManager
         self.bleIdService = bleIdService
 
-        let validatedBlePeer = bleManager.discovered
-            // TODO we obviously should validate for each single event here, this is send on each RSSI change!
-            .filter { bleIdService.validate(bleId: $0.id) }
-
-        // TODO handling of invalid peer
-        // note validated means: they're exposing data in our service and characteristic uuid
-        // if serv/char uuid are not variable, this can mean anyone using our app
-        // if they're per-session, it means intentional impostor or some sort of error (?)
-        // TODO think: should the signed data be the session id?
-        // if serv/char uuid not variable, this would allow us to identify the session
-        // but: other people can see if 2 people are meeting
-        // if serv/char variable, it would still help somewhat but also not ideal privacy
-        // best priv is variable serv/char + asymmetric encrypted data (peers offer different payload)
-        // TODO review whetehr this privacy level is needed at this stage
-
-        let blePeer: AnyPublisher<Peer, Never> = validatedBlePeer
+        let blePeer: AnyPublisher<Peer, Never> = validDeviceService.device
             // Split the stream in chunks
             .scan([]) { acc, participant -> [BleParticipant] in
                 if acc.count < bleMeasurementsChunkSize {
@@ -156,7 +142,7 @@ private extension Array where Element == BleParticipant {
             acc + participant.distance
         } / Double(self.count) // division by 0 impossible: we've a "first" guard
 
-        return BleParticipant(id: first.id, distance: average)
+        return BleParticipant(deviceUuid: first.deviceUuid, id: first.id, distance: average)
     }
 }
 

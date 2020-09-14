@@ -16,7 +16,8 @@ class SimulatorBleManager: BleManager {
         // Assumes that start() is called after a session was created and acked
         // this assumptions is important: if we send the discovery event before,
         // there will be no private key to sign the nearby token.
-        discoveredSubject.send(BleParticipant(id: BleId(data: "fakesimulatorid".data(using: .utf8)!)!,
+        discoveredSubject.send(BleParticipant(deviceUuid: UUID(),
+                                              id: BleId(data: "fakesimulatorid".data(using: .utf8)!)!,
                                               distance: 123))
     }
 

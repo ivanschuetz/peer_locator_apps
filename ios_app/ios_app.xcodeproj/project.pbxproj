@@ -126,6 +126,9 @@
 		84B6DCBE24FBC39100AA7E6D /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7A24C6F64300E2F175 /* Log.swift */; };
 		84B6DCBF24FBC39100AA7E6D /* ConsoleLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7C24C6F64300E2F175 /* ConsoleLog.swift */; };
 		84B6DCC024FBC39100AA7E6D /* CachingLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E3DC7D24C6F64300E2F175 /* CachingLog.swift */; };
+		84B70D20250F56C30063D8DE /* BleDeviceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */; };
+		84B70D22250F64410063D8DE /* DetectedDeviceFilterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */; };
+		84B70D24250F68920063D8DE /* DeviceValidatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D23250F68920063D8DE /* DeviceValidatorService.swift */; };
 		84B73D58250A1A3D00C2328D /* Lazy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73D57250A1A3D00C2328D /* Lazy.swift */; };
 		84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
@@ -346,6 +349,9 @@
 		84B6DCB424FBB03500AA7E6D /* SessionId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionId.swift; sourceTree = "<group>"; };
 		84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		84B6DCBA24FBC26800AA7E6D /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
+		84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDeviceDetector.swift; sourceTree = "<group>"; };
+		84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectedDeviceFilterService.swift; sourceTree = "<group>"; };
+		84B70D23250F68920063D8DE /* DeviceValidatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceValidatorService.swift; sourceTree = "<group>"; };
 		84B73D57250A1A3D00C2328D /* Lazy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lazy.swift; sourceTree = "<group>"; };
 		84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorBleManager.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
@@ -512,8 +518,9 @@
 			isa = PBXGroup;
 			children = (
 				847E0EDD250E484E0092E3B2 /* BleNearbyPairing.swift */,
-				847E0EE1250E488A0092E3B2 /* BleMeetingValidation.swift */,
 				847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */,
+				847E0EE1250E488A0092E3B2 /* BleMeetingValidation.swift */,
+				84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */,
 			);
 			path = delegate;
 			sourceTree = "<group>";
@@ -619,6 +626,8 @@
 				844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */,
 				84014D482506BBBA0057BBFD /* PeerForWidget.swift */,
 				848AE8072507772B00DB192A /* RemoteSessionManager.swift */,
+				84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */,
+				84B70D23250F68920063D8DE /* DeviceValidatorService.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -1199,6 +1208,7 @@
 				84BCCDA42508CF86006EF93F /* ColocatedPairingPasswordView.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */,
 				84B6DCB624FBB04200AA7E6D /* SessionId.swift in Sources */,
+				84B70D20250F56C30063D8DE /* BleDeviceDetector.swift in Sources */,
 				848D5F5324CCCADE00F2D80B /* NotificationsPermission.swift in Sources */,
 				84BEFEE024F63B61006E4B61 /* MeetingCreatedViewModel.swift in Sources */,
 				84BE8E1224EFDAAD004CE510 /* Json.swift in Sources */,
@@ -1252,11 +1262,13 @@
 				84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */,
 				84BCCDA82508CFB0006EF93F /* ColocatedPairingJoinerView.swift in Sources */,
 				842CC95725029DAB0003F96F /* Voice.swift in Sources */,
+				84B70D22250F64410063D8DE /* DetectedDeviceFilterService.swift in Sources */,
 				840A8CB22509052800E73815 /* ColocatedPairingPasswordService.swift in Sources */,
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				847E0EE8250E7C590092E3B2 /* BleCentralDelegate.swift in Sources */,
 				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* MultipeerTokenServiceImpl.swift in Sources */,
+				84B70D24250F68920063D8DE /* DeviceValidatorService.swift in Sources */,
 				849B612924EDB99400D321D1 /* SessionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
