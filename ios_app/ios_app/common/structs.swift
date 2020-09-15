@@ -10,6 +10,7 @@ struct PublicKey: Codable, Equatable {
 }
 
 extension PublicKey {
+    // Peer here is generic, it can refer to my peer or me as a peer
     func toPeerId(crypto: Crypto) -> PeerId {
         PeerId(value: crypto.sha256(str: value))
     }
