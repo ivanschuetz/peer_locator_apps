@@ -29,6 +29,8 @@
 		842CC9602502C72B0003F96F /* dist0.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 842CC95E2502C72B0003F96F /* dist0.mp3 */; };
 		842CC9612502C72B0003F96F /* dir0.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 842CC95F2502C72B0003F96F /* dir0.mp3 */; };
 		842CC9632502C7710003F96F /* PeerSounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842CC9622502C7710003F96F /* PeerSounds.swift */; };
+		843186792510ED3A00078EC0 /* LocalSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843186782510ED3A00078EC0 /* LocalSessionManager.swift */; };
+		8431867A2510EEAE00078EC0 /* LocalSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843186782510ED3A00078EC0 /* LocalSessionManager.swift */; };
 		843F7EF124F10477002AA5F8 /* BleId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF024F10477002AA5F8 /* BleId.swift */; };
 		843F7EF324F10582002AA5F8 /* P2pService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF224F10582002AA5F8 /* P2pService.swift */; };
 		844CFD002506762F00F76832 /* BleRestarterWhenAppComesToFg.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CFCFF2506762F00F76832 /* BleRestarterWhenAppComesToFg.swift */; };
@@ -279,6 +281,7 @@
 		842CC95E2502C72B0003F96F /* dist0.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = dist0.mp3; sourceTree = "<group>"; };
 		842CC95F2502C72B0003F96F /* dir0.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = dir0.mp3; sourceTree = "<group>"; };
 		842CC9622502C7710003F96F /* PeerSounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerSounds.swift; sourceTree = "<group>"; };
+		843186782510ED3A00078EC0 /* LocalSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalSessionManager.swift; sourceTree = "<group>"; };
 		843F7EF024F10477002AA5F8 /* BleId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleId.swift; sourceTree = "<group>"; };
 		843F7EF224F10582002AA5F8 /* P2pService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2pService.swift; sourceTree = "<group>"; };
 		844CFCFF2506762F00F76832 /* BleRestarterWhenAppComesToFg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleRestarterWhenAppComesToFg.swift; sourceTree = "<group>"; };
@@ -635,6 +638,7 @@
 				84B70D21250F64410063D8DE /* DetectedDeviceFilterService.swift */,
 				84B70D23250F68920063D8DE /* DeviceValidatorService.swift */,
 				84B70D25250F965A0063D8DE /* SessionStore.swift */,
+				843186782510ED3A00078EC0 /* LocalSessionManager.swift */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -1161,6 +1165,7 @@
 				8459E08F250643260058D692 /* CachingLog.swift in Sources */,
 				840A8CB72509099F00E73815 /* Globals.swift in Sources */,
 				8459E096250643610058D692 /* SessionService.swift in Sources */,
+				8431867A2510EEAE00078EC0 /* LocalSessionManager.swift in Sources */,
 				8459E090250643320058D692 /* BleUuids.swift in Sources */,
 				84F10B54250FA49E00F28C9D /* Array+Convenience.swift in Sources */,
 				84F10B51250F9B4A00F28C9D /* SessionStore.swift in Sources */,
@@ -1267,6 +1272,7 @@
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */,
 				84BCCD9D2508C1B6006EF93F /* DummyViewModelProvider.swift in Sources */,
+				843186792510ED3A00078EC0 /* LocalSessionManager.swift in Sources */,
 				84BEFEDA24F62E77006E4B61 /* RootViewModel.swift in Sources */,
 				84B6DCAE24FBAC7C00AA7E6D /* Peer.swift in Sources */,
 				84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */,

@@ -10,7 +10,6 @@ protocol SessionStore {
     func clear() -> Result<(), ServicesError>
     func hasSession() -> Bool
 
-    func setPeer(_ participant: Participant) -> Result<MySessionData, ServicesError>
 }
 
 class SessionStoreImpl: SessionStore {
@@ -35,27 +34,6 @@ class SessionStoreImpl: SessionStore {
         keyChain.remove(.mySessionData)
     }
 
-    func setPeer(_ participant: Participant) -> Result<MySessionData, ServicesError> {
-        switch getSession() {
-        case .success(let session):
-            if let session = session {
-                let updated = session.withParticipant(participant: participant)
-                switch save(session: updated) {
-                case .success: return .success(updated)
-                case .failure(let e): return .failure(e)
-                }
-            } else {
-                let msg = "No session found to set the participant: \(participant)"
-                log.e(msg, .session)
-                return .failure(.general(msg))
-            }
-        case .failure(let e):
-            let msg = "Error retrieving session to set participant: \(participant), error: \(e)"
-            log.e(msg, .session)
-            return .failure(.general(msg))
-        }
-    }
-
     func hasSession() -> Bool {
         let loadRes: Result<MySessionData?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
         switch loadRes {
@@ -65,5 +43,4 @@ class SessionStoreImpl: SessionStore {
             return false
         }
     }
-
 }

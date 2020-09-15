@@ -139,7 +139,11 @@ class Dependencies {
             bleIdService: try container.resolve(),
             validDeviceService: try container.resolve()
         ) as PeerService }
-        
+
+        container.register(.singleton) { LocalSessionManagerImpl(
+            sessionStore: try container.resolve(),
+            crypto: try container.resolve()
+        ) as LocalSessionManager }
         container.register(.singleton) { NotificationServiceImpl() as NotificationService }
         container.register(.singleton) { NotificationPermissionImpl() as NotificationPermission }
         container.register(.eagerSingleton) { NotificationsDelegate() }
@@ -149,8 +153,7 @@ class Dependencies {
         )}
         container.register(.singleton) { SessionServiceImpl(
             sessionApi: try container.resolve(),
-            crypto: try container.resolve(),
-            sessionStore: try container.resolve()
+            localSessionManager: try container.resolve()
         ) as SessionService }
         container.register(.eagerSingleton) { P2pServiceImpl(bleManager: try container.resolve(),
                                                              sessionService: try container.resolve()) as P2pService }
@@ -181,13 +184,13 @@ class Dependencies {
         container.register(.singleton) { ColocatedSessionServiceImpl(
             meetingValidation: try container.resolve(),
             colocatedPairing: try container.resolve(),
-            sessionStore: try container.resolve(),
             passwordProvider: try container.resolve(),
             passwordService: try container.resolve(),
             crypto: try container.resolve(),
             uiNotifier: try container.resolve(),
             sessionService: try container.resolve(),
-            bleManager: try container.resolve()
+            bleManager: try container.resolve(),
+            localSessionManager: try container.resolve()
         ) as ColocatedSessionService }
     }
 

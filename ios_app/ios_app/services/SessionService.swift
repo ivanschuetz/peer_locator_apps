@@ -44,16 +44,14 @@ protocol SessionService {
 
 class SessionServiceImpl: SessionService {
     private let sessionApi: SessionApi
-    private let crypto: Crypto
-    private let sessionStore: SessionStore
+    private let localSessionManager: LocalSessionManager
 
-    init(sessionApi: SessionApi, crypto: Crypto, sessionStore: SessionStore) {
+    init(sessionApi: SessionApi, localSessionManager: LocalSessionManager) {
         self.sessionApi = sessionApi
-        self.crypto = crypto
-        self.sessionStore = sessionStore
+        self.localSessionManager = localSessionManager
 
         // TODO remove
-        sessionStore.clear()
+        localSessionManager.clear()
     }
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
@@ -74,7 +72,7 @@ class SessionServiceImpl: SessionService {
                 return handleSessionResult(backendSession: backendSession, session: session)
             case .failure(let e):
                 log.e("Error creating backend session. Deleting local session", .session)
-                if case .failure(e) = sessionStore.clear() {
+                if case .failure(e) = localSessionManager.clear() {
                     log.e("Error deleting local session: \(e)", .session)
                 }
                 return .failure(e)
@@ -89,13 +87,13 @@ class SessionServiceImpl: SessionService {
     }
 
     func refreshSession() -> Result<SharedSessionData, ServicesError> {
-        withLocalSession {
+        localSessionManager.withSession {
             refreshSession(sessionData: $0)
         }
     }
 
     func currentSession() -> Result<SharedSessionData?, ServicesError> {
-        sessionStore.getSession().map { session in
+        localSessionManager.getSession().map { session in
             if let session = session {
                 return SharedSessionData(id: session.sessionId,
                                          isReady: session.isReady(),
@@ -107,14 +105,10 @@ class SessionServiceImpl: SessionService {
     }
 
     func deleteSessionLocally() -> Result<(), ServicesError> {
-        sessionStore.clear()
+        localSessionManager.clear()
     }
 
     // MARK: private
-
-    private func hasActiveSession() -> Bool {
-        sessionStore.hasSession()
-    }
 
     private func joinSession(id sessionId: SessionId,
                              sessionData: MySessionData) -> Result<SharedSessionData, ServicesError> {
@@ -179,7 +173,7 @@ class SessionServiceImpl: SessionService {
     }
 
     private func ackAndRequestSessionReady() -> Result<Bool, ServicesError> {
-        withLocalSession {
+        localSessionManager.withSession {
             ackAndRequestSessionReady(sessionData: $0)
         }
     }
@@ -192,7 +186,7 @@ class SessionServiceImpl: SessionService {
     }
 
     private func processBackendSession(_ backendSession: Session) -> Result<(), ServicesError> {
-        withLocalSession {
+        localSessionManager.withSession {
             processBackendSession(backendSession, sessionData: $0)
         }
     }
@@ -200,7 +194,7 @@ class SessionServiceImpl: SessionService {
     private func processBackendSession(_ backendSession: Session,
                                        sessionData: MySessionData) -> Result<(), ServicesError> {
         if let peer = backendSession.determinePeer(session: sessionData) {
-            return sessionStore.setPeer(peer).map { _ in () }
+            return localSessionManager.savePeer(peer).map { _ in () }
         } else {
             log.d("Backend session doesn't have peer yet.", .session)
             return .success(())
@@ -210,7 +204,7 @@ class SessionServiceImpl: SessionService {
     private func storePeerIfPresentAndAck(backendSession: Session,
                                           session: MySessionData) -> Result<Bool, ServicesError> {
         if let peer = backendSession.determinePeer(session: session) {
-            switch sessionStore.setPeer(peer) {
+            switch localSessionManager.savePeer(peer) {
             case .success:
                 return ackAndRequestSessionReady()
             case .failure(let e):
@@ -227,51 +221,15 @@ class SessionServiceImpl: SessionService {
 
     private func loadOrCreateSessionData(isCreate: Bool,
                                          sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
-        sessionStore.getSession().flatMap { session in
+        localSessionManager.getSession().flatMap { session in
             if let session = session {
                 log.d("Loaded local session: \(session)", .session)
                 return .success(session)
             } else {
-                return createAndStoreSessionData(isCreate: isCreate, sessionIdGenerator: sessionIdGenerator)
+                return localSessionManager.initLocalSession(iCreatedIt: isCreate,
+                                                            sessionIdGenerator: sessionIdGenerator)
             }
         }
-    }
-
-    private func withLocalSession<T>(f: (MySessionData) -> Result<T, ServicesError>) -> Result<T, ServicesError> {
-        sessionStore.getSession().flatMap { session in
-            if let session = session {
-                return f(session)
-            } else {
-                let msg = "Invalid state: no local session"
-                log.e(msg, .session)
-                return .failure(.general(msg))
-            }
-        }
-    }
-
-    private func createAndStoreSessionData(isCreate: Bool,
-                                           sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
-        let session = createSessionData(isCreate: isCreate, sessionIdGenerator: sessionIdGenerator)
-        let saveRes = sessionStore.save(session: session)
-        switch saveRes {
-        case .success:
-            return .success(session)
-        case .failure(let e):
-            return .failure(.general("Couldn't save session data in keychain: \(e)"))
-        }
-    }
-
-    private func createSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> MySessionData {
-        let keyPair = crypto.createKeyPair()
-        log.d("Created key pair", .session)
-        return MySessionData(
-            sessionId: sessionIdGenerator(),
-            privateKey: keyPair.private_key,
-            publicKey: keyPair.public_key,
-            participantId: keyPair.public_key.toParticipantId(crypto: crypto),
-            createdByMe: isCreate,
-            participant: nil
-        )
     }
 }
 

@@ -9,27 +9,30 @@ protocol ColocatedSessionService {
 class ColocatedSessionServiceImpl: ColocatedSessionService {
     private let meetingValidation: BleMeetingValidation
     private let colocatedPairing: BleColocatedPairing
-    private let sessionStore: SessionStore
     private let crypto: Crypto
     private let uiNotifier: UINotifier
     private let sessionService: CurrentSessionService
     private let bleManager: BleManager
+    private let passwordProvider: ColocatedPasswordProvider
+    private let localSessionManager: LocalSessionManager
 
-    private var passwordCancellable: Cancellable?
-    private var peripheralReceivedKeyCancellable: Cancellable?
+    private var receivedPasswordCancellable: Cancellable?
+    private var receivedPeerKeyCancellable: Cancellable?
 
     private let shouldReplyWithMyKey = CurrentValueSubject<Bool, Never>(true)
 
-    init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing, sessionStore: SessionStore,
+    init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing,
          passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService, crypto: Crypto,
-         uiNotifier: UINotifier, sessionService: CurrentSessionService, bleManager: BleManager) {
+         uiNotifier: UINotifier, sessionService: CurrentSessionService, bleManager: BleManager,
+         localSessionManager: LocalSessionManager) {
         self.meetingValidation = meetingValidation
         self.colocatedPairing = colocatedPairing
-        self.sessionStore = sessionStore
         self.crypto = crypto
         self.uiNotifier = uiNotifier
         self.sessionService = sessionService
         self.bleManager = bleManager
+        self.passwordProvider = passwordProvider
+        self.localSessionManager = localSessionManager
 
         // TODO error handling during close pairing:
         // - received corrupted data
@@ -38,20 +41,13 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         // -> possible: retry 3 times, if fails, offer user to retry or re-start the pairing (with a different pw)
         // generally, review this whole file. It's just a happy path poc.
 
-        peripheralReceivedKeyCancellable = colocatedPairing.publicKey
+        receivedPeerKeyCancellable = colocatedPairing.publicKey
             .combineLatest(shouldReplyWithMyKey.eraseToAnyPublisher())
             .sink { [weak self] key, shouldReply in
-                if let password = passwordProvider.password() {
-                    self?.handleReceivedKey(key: key, password: password, shouldReply: shouldReply)
-                } else {
-                    let msg = "Invalid state? peer sent us their public key but we haven't stored a pw."
-                    log.e(msg, .cp)
-                    uiNotifier.show(.success(msg))
-                    // TODO better handling
-                }
+                self?.handleReceivedKey(key: key, shouldReply: shouldReply)
         }
 
-        passwordCancellable = passwordService.password
+        receivedPasswordCancellable = passwordService.password
             .sink { [weak self] in
                 self?.handleReceivedPassword($0)
             }
@@ -70,6 +66,17 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         return ColocatedPeeringPassword(value: "123")
     }
 
+    private func handleReceivedKey(key: SerializedEncryptedPublicKey, shouldReply: Bool) {
+        if let password = passwordProvider.password() {
+            handleReceivedKey(key: key, password: password, shouldReply: shouldReply)
+        } else {
+            let msg = "Invalid state? peer sent us their public key but we haven't stored a pw."
+            log.e(msg, .cp)
+            uiNotifier.show(.success(msg))
+            // TODO better handling
+        }
+    }
+
     private func handleReceivedKey(key: SerializedEncryptedPublicKey, password: ColocatedPeeringPassword,
                                    shouldReply: Bool) {
 
@@ -82,7 +89,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
         // TODO "transactionally". Currently we store first the participants, if success then our session data...
         // we should store them ideally together. Prob after refactor that merges session data and participants.
-        switch sessionStore.setPeer(Participant(publicKey: PublicKey(value: publicKeyValue))) {
+        switch localSessionManager.savePeer(Participant(publicKey: PublicKey(value: publicKeyValue))) {
         case .success:
             if shouldReply {
                 log.d("Received data from peer. Will send back my data", .cp)
@@ -100,9 +107,8 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             // for now we will mark here directly the session as ready
 
             // Note that this, by setting the current session controls the root navigation
-            let mySessionData: Result<MySessionData?, ServicesError> = sessionStore.getSession()
-            let sharedSessionData: Result<SharedSessionData?, ServicesError> = mySessionData.map({ mySessionData in
-                mySessionData.map {
+            let sharedSessionData: Result<SharedSessionData?, ServicesError> = localSessionManager.getSession()
+                .map({ mySessionData in mySessionData.map {
                     SharedSessionData(id: $0.sessionId, isReady: true, createdByMe: $0.createdByMe)
                 }
             })
@@ -125,7 +131,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
     private func initializeMySessionDataAndSendPublicKey(password: ColocatedPeeringPassword) {
         let res = createStoreSessionDataAndEncryptPublicKey(
-            isCreate: false, crypto: crypto, sessionStore: sessionStore, pw: password,
+            isCreate: false, crypto: crypto, localSessionManager: localSessionManager, pw: password,
             sessionIdGenerator: { SessionId(value: UUID().uuidString) })
         handleSessionCreationResult(result: res, colocatedPairing: colocatedPairing, uiNotifier: uiNotifier)
     }
@@ -150,38 +156,13 @@ private func handleSessionCreationResult(result: Result<EncryptedPublicKey, Serv
 }
 
 private func createStoreSessionDataAndEncryptPublicKey(
-    isCreate: Bool, crypto: Crypto, sessionStore: SessionStore, pw: ColocatedPeeringPassword,
+    isCreate: Bool, crypto: Crypto, localSessionManager: LocalSessionManager, pw: ColocatedPeeringPassword,
     sessionIdGenerator: () -> SessionId
 ) -> Result<EncryptedPublicKey, ServicesError> {
-
-    let res = createAndStoreSessionData(isCreate: isCreate, crypto: crypto, sessionStore: sessionStore,
-                                        sessionIdGenerator: sessionIdGenerator)
-    return res.map { sessionData in
-        EncryptedPublicKey(value: crypto.encrypt(str: sessionData.publicKey.value, key: pw.value))
-    }
-}
-
-
-// TODO refactor with same name function in SessionServiceImpl
-private func createAndStoreSessionData(isCreate: Bool, crypto: Crypto, sessionStore: SessionStore,
-                                       sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
-    let keyPair = crypto.createKeyPair()
-    log.d("Created key pair: \(keyPair)", .session)
-    let sessionId = sessionIdGenerator()
-    let sessionData = MySessionData(
-        sessionId: sessionId,
-        privateKey: keyPair.private_key,
-        publicKey: keyPair.public_key,
-        participantId: keyPair.public_key.toParticipantId(crypto: crypto),
-        createdByMe: isCreate,
-        participant: nil
-    )
-    switch sessionStore.save(session: sessionData) {
-    case .success:
-        return .success(sessionData)
-    case .failure(let e):
-        return .failure(.general("Couldn't save session data in keychain: \(e)"))
-    }
+    localSessionManager.initLocalSession(iCreatedIt: isCreate, sessionIdGenerator: sessionIdGenerator)
+        .map { sessionData in
+            EncryptedPublicKey(value: crypto.encrypt(str: sessionData.publicKey.value, key: pw.value))
+        }
 }
 
 // TODO rename deeplink password?
