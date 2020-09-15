@@ -9,7 +9,7 @@ protocol ColocatedSessionService {
 class ColocatedSessionServiceImpl: ColocatedSessionService {
     private let meetingValidation: BleMeetingValidation
     private let colocatedPairing: BleColocatedPairing
-    private let crypto: Crypto
+    private let peerMediator: ColocatedPeerMediator
     private let uiNotifier: UINotifier
     private let sessionService: CurrentSessionService
     private let bleManager: BleManager
@@ -22,12 +22,12 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
     private let shouldReplyWithMyKey = CurrentValueSubject<Bool, Never>(true)
 
     init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing,
-         passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService, crypto: Crypto,
-         uiNotifier: UINotifier, sessionService: CurrentSessionService, bleManager: BleManager,
-         localSessionManager: LocalSessionManager) {
+         passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService,
+         peerMediator: ColocatedPeerMediator, uiNotifier: UINotifier, sessionService: CurrentSessionService,
+         bleManager: BleManager, localSessionManager: LocalSessionManager) {
         self.meetingValidation = meetingValidation
         self.colocatedPairing = colocatedPairing
-        self.crypto = crypto
+        self.peerMediator = peerMediator
         self.uiNotifier = uiNotifier
         self.sessionService = sessionService
         self.bleManager = bleManager
@@ -82,14 +82,14 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
         let encryptedKey = key.toEncryptedPublicKey()
 
-        guard let publicKeyValue = crypto.decrypt(str: encryptedKey.value, key: password.value) else {
+        guard let peer = peerMediator.processPeer(key: encryptedKey, password: password) else {
             log.e("Received an invalid peer public key: \(encryptedKey). Exit.", .cp)
             return
         }
 
         // TODO "transactionally". Currently we store first the participants, if success then our session data...
         // we should store them ideally together. Prob after refactor that merges session data and participants.
-        switch localSessionManager.savePeer(Participant(publicKey: PublicKey(value: publicKeyValue))) {
+        switch localSessionManager.savePeer(peer) {
         case .success:
             if shouldReply {
                 log.d("Received data from peer. Will send back my data", .cp)
@@ -130,39 +130,26 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
     }
 
     private func initializeMySessionDataAndSendPublicKey(password: ColocatedPeeringPassword) {
-        let res = createStoreSessionDataAndEncryptPublicKey(
-            isCreate: false, crypto: crypto, localSessionManager: localSessionManager, pw: password,
-            sessionIdGenerator: { SessionId(value: UUID().uuidString) })
-        handleSessionCreationResult(result: res, colocatedPairing: colocatedPairing, uiNotifier: uiNotifier)
-    }
-}
+        let result = localSessionManager.initLocalSession(iCreatedIt: false,
+                                                       sessionIdGenerator: { SessionId(value: UUID().uuidString) })
+            .map { session in
+                peerMediator.prepare(session: session, password: password)
+            }
 
-
-// TODO better error handling: if something with session creation or encrypting fails, it means the app is unusable?
-// as we can't pair. crash? big error message? send error logs to cloud?
-private func handleSessionCreationResult(result: Result<EncryptedPublicKey, ServicesError> ,
-                                         colocatedPairing: BleColocatedPairing, uiNotifier: UINotifier) {
-    switch result {
-    case .success(let encryptedPublicKey):
-        log.v("Session data created. Sending public key to peer", .cp)
-        if !colocatedPairing.write(publicKey: SerializedEncryptedPublicKey(key: encryptedPublicKey)) {
-            log.e("Couldn't write my public key to ble", .cp)
+        // TODO better error handling: if something with session creation or encrypting fails, it means the app is unusable?
+        // as we can't pair. crash? big error message? send error logs to cloud?
+        switch result {
+        case .success(let encryptedPublicKey):
+            log.v("Session data created. Sending public key to peer", .cp)
+            if !colocatedPairing.write(publicKey: SerializedEncryptedPublicKey(key: encryptedPublicKey)) {
+                log.e("Couldn't write my public key to ble", .cp)
+            }
+        case .failure(let e):
+            let msg = "Error generating or encrypting my session data: \(e)"
+            log.e(msg, .cp)
+            uiNotifier.show(.error(msg))
         }
-    case .failure(let e):
-        let msg = "Error generating or encrypting my session data: \(e)"
-        log.e(msg, .cp)
-        uiNotifier.show(.error(msg))
     }
-}
-
-private func createStoreSessionDataAndEncryptPublicKey(
-    isCreate: Bool, crypto: Crypto, localSessionManager: LocalSessionManager, pw: ColocatedPeeringPassword,
-    sessionIdGenerator: () -> SessionId
-) -> Result<EncryptedPublicKey, ServicesError> {
-    localSessionManager.initLocalSession(iCreatedIt: isCreate, sessionIdGenerator: sessionIdGenerator)
-        .map { sessionData in
-            EncryptedPublicKey(value: crypto.encrypt(str: sessionData.publicKey.value, key: pw.value))
-        }
 }
 
 // TODO rename deeplink password?

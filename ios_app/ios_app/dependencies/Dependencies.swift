@@ -180,13 +180,16 @@ class Dependencies {
             ) as RemoteSessionManager }
 
         container.register(.singleton) { ColocatedPairingPasswordServiceImpl() as ColocatedPairingPasswordService }
+        container.register(.singleton) { ColocatedPeerMediatorImpl(
+            crypto: try container.resolve()) as ColocatedPeerMediator
+        }
         container.register(.singleton) { ColocatedPasswordProviderImpl() as ColocatedPasswordProvider }
         container.register(.singleton) { ColocatedSessionServiceImpl(
             meetingValidation: try container.resolve(),
             colocatedPairing: try container.resolve(),
             passwordProvider: try container.resolve(),
             passwordService: try container.resolve(),
-            crypto: try container.resolve(),
+            peerMediator: try container.resolve(),
             uiNotifier: try container.resolve(),
             sessionService: try container.resolve(),
             bleManager: try container.resolve(),
