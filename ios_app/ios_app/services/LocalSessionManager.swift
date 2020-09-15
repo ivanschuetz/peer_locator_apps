@@ -41,9 +41,9 @@ class LocalSessionManagerImpl: LocalSessionManager {
         log.d("Created key pair", .session)
         return Session(
             id: sessionIdGenerator(),
-            privateKey: keyPair.private_key,
-            publicKey: keyPair.public_key,
-            peerId: keyPair.public_key.toPeerId(crypto: crypto),
+            privateKey: keyPair.privateKey,
+            publicKey: keyPair.publicKey,
+            peerId: keyPair.publicKey.toPeerId(crypto: crypto),
             createdByMe: isCreate,
             peer: nil
         )

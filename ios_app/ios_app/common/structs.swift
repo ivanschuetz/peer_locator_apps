@@ -19,6 +19,19 @@ struct PrivateKey: Codable {
     let value: String // P521 PEM representation
 }
 
+// Public key hash
+struct PeerId: Codable {
+    let value: String
+}
+
+struct Peer: Codable {
+    let publicKey: PublicKey
+}
+
+struct SessionId: Codable, Equatable {
+    let value: String
+}
+
 // Note: client generated
 extension SessionId {
     func createLink() -> SessionLink {
@@ -29,8 +42,8 @@ extension SessionId {
 }
 
 struct KeyPair {
-    let private_key: PrivateKey
-    let public_key: PublicKey
+    let privateKey: PrivateKey
+    let publicKey: PublicKey
 }
 
 struct Session: Codable {
@@ -59,15 +72,6 @@ struct Session: Codable {
     }
 }
 
-struct Peer: Codable {
-    let publicKey: PublicKey
-}
-
-// Public key hash
-struct PeerId: Codable {
-    let value: String
-}
-
 struct SessionLink {
     let url: URL
 
@@ -88,4 +92,39 @@ struct SessionLink {
 struct SessionPayloadToSign: Codable {
     // For now a red herring. Normally we should encrypt, with a nonce.
     let id: String
+}
+
+struct SharedSessionData: Equatable {
+    let id: SessionId
+    let isReady: Bool
+    let createdByMe: Bool
+}
+
+enum DetectedPeerSource {
+    case ble, nearby
+}
+
+struct Location: Equatable {
+    let x: Float
+    let y: Float
+}
+
+struct DetectedPeer: Equatable, Hashable {
+    let name: String
+    // TODO think about optional distance (and other field). if dist isn't set, should the point disappear or show
+    // the last loc with a "stale" status? requires to clear: can dist disappear only when out of range?
+    // Note that this applies only to Nearby. BLE dist (i.e. rssi) is maybe always set, but check this too.
+    let dist: Float?
+    let loc: Location?
+    let dir: Direction?
+    let src: DetectedPeerSource
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+}
+
+struct Direction: Equatable {
+    let x: Float
+    let y: Float
 }

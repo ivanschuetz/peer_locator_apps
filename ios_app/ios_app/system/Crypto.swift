@@ -25,8 +25,8 @@ class CryptoImpl: Crypto {
     func createKeyPair() -> KeyPair {
         let privateKey = P521.Signing.PrivateKey()
         let publicKey = privateKey.publicKey
-        return KeyPair(private_key: PrivateKey(value: privateKey.pemRepresentation),
-                       public_key: PublicKey(value: publicKey.pemRepresentation))
+        return KeyPair(privateKey: PrivateKey(value: privateKey.pemRepresentation),
+                       publicKey: PublicKey(value: publicKey.pemRepresentation))
     }
 
     func sign(privateKey: PrivateKey, payload: Data) -> Data {
@@ -48,7 +48,6 @@ class CryptoImpl: Crypto {
         log.v("Validated payload: \(payload), signature: \(signature.toHex()), public key: \(publicKey), res: \(res)")
         return res
     }
-
 
     func validate(payload: String, signature: Data, publicKey: PublicKey) -> Bool {
         let data = payload.data(using: .utf8)!
