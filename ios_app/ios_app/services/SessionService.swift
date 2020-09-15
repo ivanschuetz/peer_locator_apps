@@ -1,7 +1,6 @@
 import Foundation
 
-// TODO rename RemoteSessionService
-protocol SessionService {
+protocol RemoteSessionService {
     /**
      * Initializes a local and backend session.
      */
@@ -36,13 +35,9 @@ protocol SessionService {
      * @returns whether session is ready, i.e. both peers have ack-ed having stored the peer's public key
      */
     func refreshSession() -> Result<Session, ServicesError>
-
-    func currentSession() -> Result<Session?, ServicesError>
-
-    func deleteSessionLocally() -> Result<(), ServicesError>
 }
 
-class SessionServiceImpl: SessionService {
+class RemoteSessionServiceImpl: RemoteSessionService {
     private let sessionApi: SessionApi
     private let localSessionManager: LocalSessionManager
 
@@ -90,14 +85,6 @@ class SessionServiceImpl: SessionService {
         localSessionManager.withSession {
             refreshSession($0)
         }
-    }
-
-    func currentSession() -> Result<Session?, ServicesError> {
-        localSessionManager.getSession()
-    }
-
-    func deleteSessionLocally() -> Result<(), ServicesError> {
-        localSessionManager.clear()
     }
 
     // MARK: private
@@ -254,7 +241,7 @@ private extension BackendSession {
     }
 }
 
-class NoopSessionService: SessionService {
+class NoopRemoteSessionService: RemoteSessionService {
     func deleteSessionLocally() -> Result<(), ServicesError> {
         .success(())
     }

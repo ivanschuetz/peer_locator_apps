@@ -7,10 +7,10 @@ protocol RemoteSessionManager {
 }
 
 class RemoteSessionManagerImpl: RemoteSessionManager {
-    private let sessionService: SessionService
+    private let sessionService: RemoteSessionService
     private let currentSessionService: CurrentSessionService
 
-    init(sessionService: SessionService, currentSessionService: CurrentSessionService) {
+    init(sessionService: RemoteSessionService, currentSessionService: CurrentSessionService) {
         self.sessionService = sessionService
         self.currentSessionService = currentSessionService
     }

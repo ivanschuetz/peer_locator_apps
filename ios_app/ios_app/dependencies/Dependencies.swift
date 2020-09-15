@@ -151,14 +151,14 @@ class Dependencies {
             peerService: try container.resolve(),
             notificationService: try container.resolve()
         )}
-        container.register(.singleton) { SessionServiceImpl(
+        container.register(.singleton) { RemoteSessionServiceImpl(
             sessionApi: try container.resolve(),
             localSessionManager: try container.resolve()
-        ) as SessionService }
+        ) as RemoteSessionService }
         container.register(.eagerSingleton) { P2pServiceImpl(bleManager: try container.resolve(),
                                                              sessionService: try container.resolve()) as P2pService }
         container.register(.singleton) {
-            CurrentSessionServiceImpl(sessionService: try container.resolve(),
+            CurrentSessionServiceImpl(localSessionManager: try container.resolve(),
                                       uiNotifier: try container.resolve()) as CurrentSessionService
         }
         container.register(.singleton) {

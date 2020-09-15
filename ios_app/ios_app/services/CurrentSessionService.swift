@@ -1,6 +1,5 @@
 import Combine
 
-// TODO rename SessionService? (since SessionService will be renamed in RemoteSessionService)
 protocol CurrentSessionService {
     var session: AnyPublisher<Result<Session?, ServicesError>, Never> { get }
 
@@ -16,14 +15,14 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 
     let session: AnyPublisher<Result<Session?, ServicesError>, Never>
 
-    private let sessionService: SessionService
+    private let localSessionManager: LocalSessionManager
     private let uiNotifier: UINotifier
 
-    init(sessionService: SessionService, uiNotifier: UINotifier) {
-        self.sessionService = sessionService
+    init(localSessionManager: LocalSessionManager, uiNotifier: UINotifier) {
+        self.localSessionManager = localSessionManager
         self.uiNotifier = uiNotifier
 
-        sessionSubject = CurrentValueSubject(sessionService.currentSession())
+        sessionSubject = CurrentValueSubject(localSessionManager.getSession())
         session = sessionSubject
 //            .handleEvents(receiveOutput: { session in
 //                log.d("Current session was updated to: \(session)", .session)
@@ -36,7 +35,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
     }
 
     func deleteSessionLocally() {
-        switch sessionService.deleteSessionLocally() {
+        switch localSessionManager.clear() {
         case .success:
             sessionSubject.send(.success(nil))
             uiNotifier.show(.success("Session deleted"))
