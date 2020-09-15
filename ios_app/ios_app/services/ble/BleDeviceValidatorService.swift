@@ -1,16 +1,20 @@
 import Foundation
 import Combine
 
-protocol DeviceValidatorService {
+/**
+ * Performs the validation on the signed data retrieved from peer.
+ * Exposes valid devices in a dictionary, with the ble device UUID as key.
+ */
+protocol BleDeviceValidatorService {
     var validDevices: AnyPublisher<[UUID: BleId], Never> { get }
 }
 
-class DeviceValidatorServiceImpl: DeviceValidatorService {
+class BleDeviceValidatorServiceImpl: BleDeviceValidatorService {
     let validDevices: AnyPublisher<[UUID: BleId], Never>
 
-    init(meetingValidation: BleMeetingValidation, idService: BleIdService) {
+    init(validationDataReader: BleValidationDataReader, idService: BleIdService) {
 
-        validDevices = meetingValidation.discovered
+        validDevices = validationDataReader.read
             .scan([UUID: BleId](), { dict, peer in
                 var mutDict = dict
                 if idService.validate(bleId: peer.id) {

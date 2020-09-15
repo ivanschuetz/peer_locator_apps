@@ -89,7 +89,7 @@ class Dependencies {
         ) as BleManager }
 
         container.register(.singleton) {
-            BleEnabledServiceImpl(bleCentral: try container.resolve()) as BleEnabledService
+            BleEnablerImpl(bleCentral: try container.resolve()) as BleEnabler
         }
         container.register(.eagerSingleton) {
             BleRestarterWhenAppComesToFgImpl(bleCentral: try container.resolve()) as BleRestarterWhenAppComesToFg
@@ -98,7 +98,7 @@ class Dependencies {
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
         container.register(.singleton) { BleNearbyPairing() as NearbyPairing }
         container.register(.singleton) { BleColocatedPairing() }
-        container.register(.singleton) { BleMeetingValidation(idService: try container.resolve()) }
+        container.register(.singleton) { BleValidationDataReader(idService: try container.resolve()) }
 
         #endif
     }
@@ -124,14 +124,14 @@ class Dependencies {
             tokenProcessor: try container.resolve()
         ) as NearbySessionCoordinator }
 
-        container.register(.singleton) { DeviceValidatorServiceImpl(
-            meetingValidation: try container.resolve(),
+        container.register(.singleton) { BleDeviceValidatorServiceImpl(
+            validationDataReader: try container.resolve(),
             idService: try container.resolve()
-        ) as DeviceValidatorService }
-        container.register(.singleton) { DetectedDeviceFilterServiceImpl(
+        ) as BleDeviceValidatorService }
+        container.register(.singleton) { DetectedBleDeviceFilterServiceImpl(
             deviceDetector: try container.resolve(),
             deviceValidator: try container.resolve()
-        ) as DetectedDeviceFilterService }
+        ) as DetectedBleDeviceFilterService }
 
         container.register(.eagerSingleton) { DetectedPeerServiceImpl(
             nearby: try container.resolve(),
@@ -155,8 +155,8 @@ class Dependencies {
             sessionApi: try container.resolve(),
             localSessionManager: try container.resolve()
         ) as RemoteSessionService }
-        container.register(.eagerSingleton) { P2pServiceImpl(bleManager: try container.resolve(),
-                                                             sessionService: try container.resolve()) as P2pService }
+        container.register(.eagerSingleton) { BleActivatorImpl(bleManager: try container.resolve(),
+                                                             sessionService: try container.resolve()) as BleActivator }
         container.register(.singleton) {
             CurrentSessionServiceImpl(localSessionManager: try container.resolve(),
                                       uiNotifier: try container.resolve()) as CurrentSessionService
@@ -201,7 +201,7 @@ class Dependencies {
         container.register { MeetingViewModel(peerService: try container.resolve(),
                                               sessionService: try container.resolve(),
                                               settingsShower: try container.resolve(),
-                                              bleEnabledService: try container.resolve()) }
+                                              bleEnabler: try container.resolve()) }
         container.register { PairingTypeViewModel(settingsShower: try container.resolve()) }
         container.register { RootViewModel(sessionService: try container.resolve(),
                                            uiNotifier: try container.resolve(),

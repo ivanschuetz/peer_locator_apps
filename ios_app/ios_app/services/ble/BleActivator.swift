@@ -1,9 +1,16 @@
 import Foundation
 import Combine
 
-protocol P2pService {}
+/**
+ * Observes relevant events to start/stop the central and peripheral
+ * Note: Not related with enabling ble itself (this is done by BleEnabler)
+ * TODO: the current implementation seems outdated. Review.
+ * TODO: coordination with BleEnabler? E.g. if we detect that ble was enabled,
+ * shouldn't we activate too?
+ */
+protocol BleActivator {}
 
-class P2pServiceImpl: P2pService {
+class BleActivatorImpl: BleActivator {
     private let bleManager: BleManager
 
     private var currentSessionCancellable: AnyCancellable?

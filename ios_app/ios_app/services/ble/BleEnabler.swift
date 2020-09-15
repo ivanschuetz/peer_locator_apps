@@ -2,12 +2,13 @@ import Foundation
 import Combine
 import CoreBluetooth
 
-protocol BleEnabledService {
+protocol BleEnabler {
     var bleEnabled: AnyPublisher<Bool, Never> { get }
+    // TODO review: are we calling this at the correct times?
     func enable()
 }
 
-class BleEnabledServiceImpl: BleEnabledService {
+class BleEnablerImpl: BleEnabler {
     let bleEnabled: AnyPublisher<Bool, Never>
 
     init(bleCentral: BleCentral) {
@@ -21,7 +22,7 @@ class BleEnabledServiceImpl: BleEnabledService {
     }
 }
 
-class SimulatorBleEnabledServiceImpl: BleEnabledService {
+class SimulatorBleEnablerImpl: BleEnabler {
     let bleEnabled: AnyPublisher<Bool, Never> = Just(true)
         .eraseToAnyPublisher()
     func enable() {}

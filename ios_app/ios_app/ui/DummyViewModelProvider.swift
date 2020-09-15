@@ -8,7 +8,7 @@ class DummyViewModelProvider: ViewModelProvider {
                                           bleIdService: BleIdServiceNoop(),
                                           validDeviceService: NoopDetectedDeviceFilterService())
         return MeetingViewModel(peerService: peerService, sessionService: NoopCurrentSessionService(),
-                                settingsShower: NoopSettingsShower(), bleEnabledService: NoopBleEnabledService())
+                                settingsShower: NoopSettingsShower(), bleEnabler: NoopBleEnabler())
     }
 
     func session() -> PairingTypeViewModel {

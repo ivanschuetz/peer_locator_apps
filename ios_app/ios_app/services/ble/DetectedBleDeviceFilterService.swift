@@ -21,10 +21,10 @@ protocol DetectedBleDeviceFilterService {
 // best priv is variable serv/char + asymmetric encrypted data (peers offer different payload)
 // TODO review whetehr this privacy level is needed at this stage
 
-class DetectedDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
+class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
     let device: AnyPublisher<BlePeer, Never>
 
-    init(deviceDetector: BleDeviceDetector, deviceValidator: DeviceValidatorService) {
+    init(deviceDetector: BleDeviceDetector, deviceValidator: BleDeviceValidatorService) {
         device = deviceDetector.discovered.combineLatest(deviceValidator.validDevices).compactMap { detected, valid in
             // Forward only if detected device was validated
             valid[detected.uuid].map {

@@ -1,6 +1,9 @@
 import Foundation
 import Combine
 
+/**
+ * Broadcasts merged ble and nearby inputs, while ensuring that the peer is validated.
+ */
 // TODO we also have p2pservice now: isn't it the same thing? merge?
 protocol DetectedPeerService {
     // peer == nil -> out of range (which includes peer has ble off)
@@ -18,7 +21,7 @@ class DetectedPeerServiceImpl: DetectedPeerService {
     private let bleIdService: BleIdService
 
     init(nearby: Nearby, bleManager: BleManager, bleIdService: BleIdService,
-         validDeviceService: DetectedDeviceFilterService) {
+         validDeviceService: DetectedBleDeviceFilterService) {
         self.nearby = nearby
         self.bleManager = bleManager
         self.bleIdService = bleIdService

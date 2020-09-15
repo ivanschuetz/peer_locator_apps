@@ -16,19 +16,19 @@ class MeetingViewModel: ObservableObject {
 
     private let sessionService: CurrentSessionService
     private let settingsShower: SettingsShower
-    private let bleEnabledService: BleEnabledService
+    private let bleEnabler: BleEnabler
 
     init(peerService: DetectedPeerService, sessionService: CurrentSessionService,
-         settingsShower: SettingsShower, bleEnabledService: BleEnabledService) {
+         settingsShower: SettingsShower, bleEnabler: BleEnabler) {
         self.sessionService = sessionService
         self.settingsShower = settingsShower
-        self.bleEnabledService = bleEnabledService
+        self.bleEnabler = bleEnabler
 
         peerCancellable = peerService.peer.sink { [weak self] peer in
             self?.handlePeer(peerMaybe: peer)
         }
 
-        bleEnabledCancellable = bleEnabledService.bleEnabled.sink { [weak self] enabled in
+        bleEnabledCancellable = bleEnabler.bleEnabled.sink { [weak self] enabled in
             self?.mainViewContent = enabled ? .connected : .enableBle
         }
     }
@@ -56,7 +56,7 @@ class MeetingViewModel: ObservableObject {
     }
 
     func requestEnableBle() {
-        bleEnabledService.enable()
+        bleEnabler.enable()
     }
 }
 

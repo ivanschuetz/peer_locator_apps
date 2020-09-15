@@ -53,7 +53,7 @@ class NoopSettingsShower: SettingsShower {
     func hide() {}
 }
 
-class NoopBleEnabledService: BleEnabledService {
+class NoopBleEnabler: BleEnabler {
     var bleEnabled: AnyPublisher<Bool, Never> = Just(true).eraseToAnyPublisher()
     func enable() {}
 }

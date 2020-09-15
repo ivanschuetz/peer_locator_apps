@@ -7,7 +7,7 @@ protocol ColocatedSessionService {
 }
 
 class ColocatedSessionServiceImpl: ColocatedSessionService {
-    private let meetingValidation: BleMeetingValidation
+    private let meetingValidation: BleValidationDataReader
     private let colocatedPairing: BleColocatedPairing
     private let peerMediator: ColocatedPeerMediator
     private let uiNotifier: UINotifier
@@ -21,7 +21,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
     private let shouldReplyWithMyKey = CurrentValueSubject<Bool, Never>(true)
 
-    init(meetingValidation: BleMeetingValidation, colocatedPairing: BleColocatedPairing,
+    init(meetingValidation: BleValidationDataReader, colocatedPairing: BleColocatedPairing,
          passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService,
          peerMediator: ColocatedPeerMediator, uiNotifier: UINotifier, sessionService: CurrentSessionService,
          bleManager: BleManager, localSessionManager: LocalSessionManager) {
