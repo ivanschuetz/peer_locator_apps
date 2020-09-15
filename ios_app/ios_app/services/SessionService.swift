@@ -84,9 +84,9 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
+    func refreshSession() -> Result<SharedSessionData, ServicesError> {
         withLocalSession {
-            refreshSessionData(sessionData: $0)
+            refreshSession(sessionData: $0)
         }
     }
 
@@ -118,37 +118,28 @@ class SessionServiceImpl: SessionService {
             // Join returns the current participants too (like the participants call)
             .joinSession(id: sessionId, publicKey: sessionData.publicKey)
             .flatMap { backendSession in
-                storeParticipantsAndAck(session: backendSession).flatMap { ready in
-                    if ready {
-                        switch markDeleted(sessionData: sessionData) {
-                        case .success: return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
-                                                                         createdByMe: sessionData.createdByMe))
-                        case .failure(let e): return .failure(e)
-                        }
-                    } else {
-                        return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
-                                                          createdByMe: sessionData.createdByMe))
-                    }
-                }
+                handleSessionResult(backendSession: backendSession, session: sessionData)
             }
     }
 
-    private func refreshSessionData(sessionData: MySessionData) -> Result<SharedSessionData, ServicesError> {
-        // Retrieve participants from server and store locally
-        fetchAndStoreParticipants(sessionId: sessionData.sessionId).flatMap { _ in
-            // Ack the participants and see whether session is ready (everyone acked all the participants)
-            ackAndRequestSessionReady().flatMap { ready in
-                if ready {
-                    let markDeletedRes = markDeleted(sessionData: sessionData)
-                    switch markDeletedRes {
-                    case .success: return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
-                                                                     createdByMe: sessionData.createdByMe))
-                    case .failure(let e): return .failure(e)
-                    }
-                } else {
-                    return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
-                                                      createdByMe: sessionData.createdByMe))
+    private func refreshSession(sessionData: MySessionData) -> Result<SharedSessionData, ServicesError> {
+        sessionApi.participants(sessionId: sessionData.sessionId).flatMap { backendSession in
+            handleSessionResult(backendSession: backendSession, session: sessionData)
+        }
+    }
+
+    private func handleSessionResult(backendSession: Session,
+                                     session: MySessionData) -> Result<SharedSessionData, ServicesError> {
+        storeParticipantsAndAck(backendSession: backendSession, session: session).flatMap { ready in
+            if ready {
+                switch markDeleted(sessionData: session) {
+                case .success: return .success(SharedSessionData(id: session.sessionId, isReady: ready,
+                                                                 createdByMe: session.createdByMe))
+                case .failure(let e): return .failure(e)
                 }
+            } else {
+                return .success(SharedSessionData(id: session.sessionId, isReady: ready,
+                                                  createdByMe: session.createdByMe))
             }
         }
     }
@@ -206,13 +197,7 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func storeParticipantsAndAck(session backendSession: Session) -> Result<Bool, ServicesError> {
-        withLocalSession {
-            storeParticipantsAndAck(session: backendSession, session: $0)
-        }
-    }
-
-    private func storeParticipantsAndAck(session backendSession: Session,
+    private func storeParticipantsAndAck(backendSession: Session,
                                          session: MySessionData) -> Result<Bool, ServicesError> {
         if let peer = backendSession.determinePeer(session: session) {
             switch sessionStore.setPeer(peer) {
@@ -230,43 +215,8 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func fetchAndStoreParticipants(sessionId: SessionId) -> Result<FetchAndStoreParticipantsResult, ServicesError> {
-        withLocalSession { session in
-            switch sessionApi.participants(sessionId: sessionId) {
-            case .success(let backendSession):
-                return fetchAndStoreParticipants(backendSession: backendSession, session: session)
-            case .failure(let e):
-                let msg = "Error retrieving participants from api: \(e)"
-                log.e(msg, .session)
-                return .failure(.general(msg))
-            }
-        }
-    }
-
-    private func fetchAndStoreParticipants(backendSession: Session,
-                                           session: MySessionData) -> Result<FetchAndStoreParticipantsResult, ServicesError> {
-        if let peer = backendSession.determinePeer(session: session) {
-            switch sessionStore.setPeer(peer) {
-            case .success:
-                if backendSession.keys.isEmpty {
-                    return .success(.fetchedNothing)
-                } else {
-                    return .success(.fetchedSomething)
-                }
-            case .failure(let e):
-                let msg = "Error storing peer: \(e)"
-                log.e(msg, .session)
-                return .failure(.general(msg))
-            }
-        } else {
-            // TODO is this correct? fetched nothing? what does that mean?
-            log.v("The backend session: \(backendSession) doesn't have a peer yet. Session isn't reeady.",
-                  .session)
-            return .success(.fetchedNothing)
-        }
-    }
-
-    private func loadOrCreateSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
+    private func loadOrCreateSessionData(isCreate: Bool,
+                                         sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
         sessionStore.getSession().flatMap { session in
             if let session = session {
                 log.d("Loaded local session: \(session)", .session)
@@ -313,18 +263,6 @@ class SessionServiceImpl: SessionService {
             participant: nil
         )
     }
-}
-
-// TODO this seems weird
-enum FetchAndStoreParticipantsResult {
-    // Note: this currently includes the OWN participant, meaning we'll send an ack
-    // just for our own key
-    // this is not optimal, but for now for simplicty
-    // probably we sould send ack only when we receive participants that are not ourselves
-    // TODO revisit
-    case fetchedSomething
-
-    case fetchedNothing
 }
 
 class NoopSessionService: SessionService {
