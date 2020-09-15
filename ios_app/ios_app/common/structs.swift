@@ -55,19 +55,33 @@ struct Session: Codable {
     let peerId: PeerId
     let createdByMe: Bool
     let peer: Peer?
+    let isReady: Bool
 
-    func withPeer(peer: Peer) -> Session {
+    func withPeer(_ peer: Peer) -> Session {
         Session(
             id: id,
             privateKey: privateKey,
             publicKey: publicKey,
             peerId: peerId,
             createdByMe: createdByMe,
-            peer: peer
+            peer: peer,
+            isReady: isReady
         )
     }
 
-    func isReady() -> Bool {
+    func withIsReady(_ isReady: Bool) -> Session {
+        Session(
+            id: id,
+            privateKey: privateKey,
+            publicKey: publicKey,
+            peerId: peerId,
+            createdByMe: createdByMe,
+            peer: peer,
+            isReady: isReady
+        )
+    }
+
+    func hasPeer() -> Bool {
         peer != nil
     }
 }

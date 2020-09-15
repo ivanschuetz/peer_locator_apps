@@ -5,6 +5,7 @@ protocol LocalSessionManager {
                           sessionIdGenerator: () -> SessionId) -> Result<Session, ServicesError>
 
     func savePeer(_ peer: Peer) -> Result<Session, ServicesError>
+    func saveIsReady(_ isReady: Bool) -> Result<Session, ServicesError>
 
     func getSession() -> Result<Session?, ServicesError>
     // Differently to getSession(), we expect here to find a session. If there's none we get a failure result
@@ -26,7 +27,7 @@ class LocalSessionManagerImpl: LocalSessionManager {
 
     func initLocalSession(iCreatedIt: Bool,
                           sessionIdGenerator: () -> SessionId) -> Result<Session, ServicesError> {
-        let session = createSessionData(isCreate: iCreatedIt, sessionIdGenerator: sessionIdGenerator)
+        let session = createSession(isCreate: iCreatedIt, sessionIdGenerator: sessionIdGenerator)
         let saveRes = sessionStore.save(session: session)
         switch saveRes {
         case .success:
@@ -36,7 +37,7 @@ class LocalSessionManagerImpl: LocalSessionManager {
         }
     }
 
-    private func createSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Session {
+    private func createSession(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Session {
         let keyPair = crypto.createKeyPair()
         log.d("Created key pair", .session)
         return Session(
@@ -45,26 +46,39 @@ class LocalSessionManagerImpl: LocalSessionManager {
             publicKey: keyPair.publicKey,
             peerId: keyPair.publicKey.toPeerId(crypto: crypto),
             createdByMe: isCreate,
-            peer: nil
+            peer: nil,
+            isReady: false
         )
     }
 
     func savePeer(_ peer: Peer) -> Result<Session, ServicesError> {
+        updateSession {
+            $0.withPeer(peer)
+        }
+    }
+
+    func saveIsReady(_ isReady: Bool) -> Result<Session, ServicesError> {
+        updateSession {
+            $0.withIsReady(isReady)
+        }
+    }
+
+    private func updateSession(f: (Session) -> Session) -> Result<Session, ServicesError> {
         switch sessionStore.getSession() {
         case .success(let session):
             if let session = session {
-                let updated = session.withPeer(peer: peer)
+                let updated = f(session)
                 switch sessionStore.save(session: updated) {
                 case .success: return .success(updated)
                 case .failure(let e): return .failure(e)
                 }
             } else {
-                let msg = "No session found to set the peer: \(peer)"
+                let msg = "No session found to update"
                 log.e(msg, .session)
                 return .failure(.general(msg))
             }
         case .failure(let e):
-            let msg = "Error retrieving session to set peer: \(peer), error: \(e)"
+            let msg = "Error retrieving session to update, error: \(e)"
             log.e(msg, .session)
             return .failure(.general(msg))
         }

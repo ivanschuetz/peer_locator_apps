@@ -96,7 +96,7 @@ class SessionServiceImpl: SessionService {
         localSessionManager.getSession().map { session in
             if let session = session {
                 return SharedSessionData(id: session.id,
-                                         isReady: session.isReady(),
+                                         isReady: session.isReady,
                                          createdByMe: session.createdByMe)
             } else {
                 return nil
@@ -135,15 +135,17 @@ class SessionServiceImpl: SessionService {
     private func handleSessionResult(backendSession: BackendSession,
                                      session: Session) -> Result<SharedSessionData, ServicesError> {
         storePeerIfPresentAndAck(backendSession: backendSession, session: session).flatMap { ready in
-            if ready {
-                switch markDeleted(session: session) {
-                case .success: return .success(SharedSessionData(id: session.id, isReady: ready,
-                                                                 createdByMe: session.createdByMe))
-                case .failure(let e): return .failure(e)
+            return localSessionManager.saveIsReady(ready).flatMap { session in
+                if ready {
+                        switch markDeleted(session: session) {
+                        case .success: return .success(SharedSessionData(id: session.id, isReady: ready,
+                                                                         createdByMe: session.createdByMe))
+                        case .failure(let e): return .failure(e)
+                        }
+                } else {
+                    return .success(SharedSessionData(id: session.id, isReady: ready,
+                                                      createdByMe: session.createdByMe))
                 }
-            } else {
-                return .success(SharedSessionData(id: session.id, isReady: ready,
-                                                  createdByMe: session.createdByMe))
             }
         }
     }
@@ -181,7 +183,7 @@ class SessionServiceImpl: SessionService {
     private func ackAndRequestSessionReady(session: Session) -> Result<Bool, ServicesError> {
         sessionApi.ackAndRequestSessionReady(
             peerId: session.peerId,
-            storedPeers: session.isReady() ? 2 : 1
+            storedPeers: session.hasPeer() ? 2 : 1
         )
     }
 
