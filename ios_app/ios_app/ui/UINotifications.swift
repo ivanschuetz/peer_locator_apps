@@ -2,15 +2,6 @@ import Foundation
 import UIKit
 import SwiftEntryKit
 
-enum UINotification {
-    case success(_ message: String)
-    case error(_ message: String)
-}
-
-protocol UINotifier {
-    func show(_ notification: UINotification)
-}
-
 class UINotifierImpl: UINotifier {
     func show(_ notification: UINotification) {
         let data: (message: String, color: UIColor) = {
