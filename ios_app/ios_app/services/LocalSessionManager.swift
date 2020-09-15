@@ -4,7 +4,7 @@ protocol LocalSessionManager {
     func initLocalSession(iCreatedIt: Bool,
                           sessionIdGenerator: () -> SessionId) -> Result<Session, ServicesError>
 
-    func savePeer(_ participant: Participant) -> Result<Session, ServicesError>
+    func savePeer(_ peer: Peer) -> Result<Session, ServicesError>
 
     func getSession() -> Result<Session?, ServicesError>
     // Differently to getSession(), we expect here to find a session. If there's none we get a failure result
@@ -43,28 +43,28 @@ class LocalSessionManagerImpl: LocalSessionManager {
             id: sessionIdGenerator(),
             privateKey: keyPair.private_key,
             publicKey: keyPair.public_key,
-            participantId: keyPair.public_key.toParticipantId(crypto: crypto),
+            peerId: keyPair.public_key.toPeerId(crypto: crypto),
             createdByMe: isCreate,
-            participant: nil
+            peer: nil
         )
     }
 
-    func savePeer(_ participant: Participant) -> Result<Session, ServicesError> {
+    func savePeer(_ peer: Peer) -> Result<Session, ServicesError> {
         switch sessionStore.getSession() {
         case .success(let session):
             if let session = session {
-                let updated = session.withParticipant(participant: participant)
+                let updated = session.withPeer(peer: peer)
                 switch sessionStore.save(session: updated) {
                 case .success: return .success(updated)
                 case .failure(let e): return .failure(e)
                 }
             } else {
-                let msg = "No session found to set the participant: \(participant)"
+                let msg = "No session found to set the peer: \(peer)"
                 log.e(msg, .session)
                 return .failure(.general(msg))
             }
         case .failure(let e):
-            let msg = "Error retrieving session to set participant: \(participant), error: \(e)"
+            let msg = "Error retrieving session to set peer: \(peer), error: \(e)"
             log.e(msg, .session)
             return .failure(.general(msg))
         }

@@ -2,7 +2,7 @@ import CoreBluetooth
 import Combine
 
 class BleMeetingValidation {
-    let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
+    let discoveredSubject = PassthroughSubject<BlePeer, Never>()
     lazy var discovered = discoveredSubject.eraseToAnyPublisher()
 
     private let characteristicUuid = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376512")
@@ -96,8 +96,8 @@ extension BleMeetingValidation: BleCentralDelegate {
             if let value = characteristic.value {
                 // Unwrap: We send BleId, so we always expect BleId
                 let id = BleId(data: value)!
-                discoveredSubject.send(BleParticipant(deviceUuid: peripheral.identifier, id: id,
-                                                      distance: -1)) // TODO distance: handle this?
+                discoveredSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id,
+                                               distance: -1)) // TODO distance: handle this?
             } else {
                 log.w("Verification characteristic had no value", .ble)
             }

@@ -107,20 +107,20 @@ private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing,
 // (keep in mind multiple session suspport in the future)
 private func validate(token: SerializedSignedNearbyToken, sessionStore: SessionStore,
                       tokenProcessor: NearbyTokenProcessor) -> NearbyTokenValidationResult {
-    let res: Result<Participant?, ServicesError> = sessionStore.getSession().map { $0?.participant }
+    let res: Result<Peer?, ServicesError> = sessionStore.getSession().map { $0?.peer }
     switch res {
-    case .success(let participant):
-        if let participant = participant {
-            return tokenProcessor.validate(token: token, publicKey: participant.publicKey)
+    case .success(let peer):
+        if let peer = peer {
+            return tokenProcessor.validate(token: token, publicKey: peer.publicKey)
         } else {
             // If we get peer's token to be validated it means we should be in an active session
             // Currently can happen, though, as we don't stop the token observable when
             // the session is deleted --> TODO fix
-            log.e("Invalid state: No participants stored (see comment). Can't validate nearby token", .nearby, .session)
+            log.e("Invalid state: No peers stored (see comment). Can't validate nearby token", .nearby, .session)
             return .invalid
         }
     case .failure(let e):
-        log.e("Critical: Couldn't retrieve participants from keychain: \(e). Can't validate nearby token", .nearby)
+        log.e("Critical: Couldn't retrieve peers from keychain: \(e). Can't validate nearby token", .nearby)
         return .invalid
     }
 }

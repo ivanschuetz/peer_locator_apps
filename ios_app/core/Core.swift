@@ -7,14 +7,14 @@ protocol Bootstrapper {
 
 protocol SessionApi {
 
-    // TODO: review api here: when creating, there can't be partipants yet, so it
+    // TODO: review api here: when creating, there can't be peers yet, so it
     // doesn't make sense to return public keys
     func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError>
 
     func joinSession(id: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError>
-    func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<Bool, ServicesError>
-    func participants(sessionId: SessionId) -> Result<BackendSession, ServicesError>
-    func delete(peerId: ParticipantId) -> Result<(), ServicesError>
+    func ackAndRequestSessionReady(peerId: PeerId, storedPeers: Int) -> Result<Bool, ServicesError>
+    func peers(sessionId: SessionId) -> Result<BackendSession, ServicesError>
+    func delete(peerId: PeerId) -> Result<(), ServicesError>
 }
 
 class CoreImpl: SessionApi, Bootstrapper {
@@ -50,24 +50,24 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<Bool, ServicesError> {
-        log.d("Will ack and request session ready, participantId: \(participantId), participants: \(storedParticipants)")
-        let res = ffi_ack(participantId.value, Int32(storedParticipants))
+    func ackAndRequestSessionReady(peerId: PeerId, storedPeers: Int) -> Result<Bool, ServicesError> {
+        log.d("Will ack and request session ready, peerId: \(peerId), storedPeers: \(storedPeers)")
+        let res = ffi_ack(peerId.value, Int32(storedPeers))
         switch res.status {
         case 1: return .success(res.is_ready)
         default: return .failure(.general("Ack error: \(res)"))
         }
     }
 
-    func participants(sessionId: SessionId) -> Result<BackendSession, ServicesError> {
+    func peers(sessionId: SessionId) -> Result<BackendSession, ServicesError> {
         let res = ffi_participants(sessionId.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
-        default: return .failure(.general("Fetch participants error: \(res)"))
+        default: return .failure(.general("Fetch peers error: \(res)"))
         }
     }
 
-    func delete(peerId: ParticipantId) -> Result<(), ServicesError> {
+    func delete(peerId: PeerId) -> Result<(), ServicesError> {
         let res = ffi_delete(peerId.value)
         switch res.status {
         case 1: return .success(())

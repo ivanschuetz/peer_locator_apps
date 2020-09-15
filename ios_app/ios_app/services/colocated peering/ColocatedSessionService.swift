@@ -87,8 +87,8 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             return
         }
 
-        // TODO "transactionally". Currently we store first the participants, if success then our session data...
-        // we should store them ideally together. Prob after refactor that merges session data and participants.
+        // TODO "transactionally". Currently we store first the peers, if success then our session data...
+        // we should store them ideally together. Prob after refactor that merges session data and peers.
         switch localSessionManager.savePeer(peer) {
         case .success:
             if shouldReply {
@@ -101,7 +101,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             _ = meetingValidation.validatePeer()
 
             // TODO we probably should ACK having peer's keys (like we do with the backend)
-            // otherwise one participant may show success while the other doesn't have the peer key, which is critical
+            // otherwise one peer may show success while the other doesn't have the peer key, which is critical
             // (for colocated mostly not, as they'd notice immediately, but still, at least for correctness)
             // ack like everything else would probably need a retry too
             // for now we will mark here directly the session as ready

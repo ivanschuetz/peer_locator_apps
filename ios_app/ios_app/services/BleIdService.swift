@@ -53,8 +53,8 @@ class BleIdServiceImpl: BleIdService {
         let signature = crypto.sign(privateKey: session.privateKey, payload: payloadToSignStr)
         let signatureStr = signature.toHex()
 
-        // The total data sent to participants: "data"(useless) with the corresponding signature
-        let payload = SignedParticipantPayload(data: payloadToSignStr, sig: signatureStr)
+        // The total data sent to peers: "data"(useless) with the corresponding signature
+        let payload = SignedPeerPayload(data: payloadToSignStr, sig: signatureStr)
         let payloadStr = json.toJson(encodable: payload)
         // TODO is unwrap here safe
         return BleId(data: payloadStr.data(using: .utf8)!)
@@ -73,8 +73,8 @@ class BleIdServiceImpl: BleIdService {
         switch sessionStore.getSession() {
         case .success(let session):
             if let session = session {
-                if let participant = session.participant {
-                    let res = validate(bleId: bleId, participant: participant)
+                if let peer = session.peer {
+                    let res = validate(bleId: bleId, peer: peer)
                     log.d("Validation result: \(res)", .val)
                     return res
                 } else {
@@ -86,26 +86,27 @@ class BleIdServiceImpl: BleIdService {
                 return false
             }
         case .failure(let e):
-            log.e("Error retrieving participants: \(e), returning validate = false", .val)
+            log.e("Error retrieving peers: \(e), returning validate = false", .val)
             return false
         }
     }
 
-    private func validate(bleId: BleId, participant: Participant) -> Bool {
+    private func validate(bleId: BleId, peer: Peer) -> Bool {
         let dataStr = bleId.str()
 
-        let signedParticipantPayload: SignedParticipantPayload = json.fromJson(json: dataStr)
-        let payloadToSign = signedParticipantPayload.data
+        let signedPeerPayload: SignedPeerPayload = json.fromJson(json: dataStr)
+        let payloadToSign = signedPeerPayload.data
 
-        log.v("Will validate participant payload: \(signedParticipantPayload) with participant: \(participant)")
+        log.v("Will validate peer payload: \(signedPeerPayload) with peer: \(peer)")
 
-        let signData = Data(fromHexEncodedString: signedParticipantPayload.sig)!
+        // TODO unwrap safe here?
+        let signData = Data(fromHexEncodedString: signedPeerPayload.sig)!
 
-        return crypto.validate(payload: payloadToSign, signature: signData, publicKey: participant.publicKey)
+        return crypto.validate(payload: payloadToSign, signature: signData, publicKey: peer.publicKey)
     }
 }
 
-struct SignedParticipantPayload: Codable {
+struct SignedPeerPayload: Codable {
     let data: String // random
     let sig: String
 }

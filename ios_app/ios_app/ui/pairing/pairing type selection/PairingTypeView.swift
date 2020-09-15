@@ -10,7 +10,7 @@ struct PairingTypeView: View {
         self.viewModelProvider = viewModelProvider
     }
 
-    // TODO show a note somewhere that there can be only 2 participants
+    // TODO show a note somewhere that there can be only 2 peers
     // maybe a notification after creating the session
     // "your meeting was created! link: x, note that max. 2 devices can register"
 

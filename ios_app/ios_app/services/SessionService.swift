@@ -113,7 +113,7 @@ class SessionServiceImpl: SessionService {
     private func joinSession(id sessionId: SessionId,
                              session: Session) -> Result<SharedSessionData, ServicesError> {
         sessionApi
-            // Join returns the current participants too (like the participants call)
+            // Join returns the current peers too (like the peers call)
             .joinSession(id: sessionId, publicKey: session.publicKey)
             .flatMap { backendSession in
                 handleSessionResult(backendSession: backendSession, session: session)
@@ -121,7 +121,7 @@ class SessionServiceImpl: SessionService {
     }
 
     private func refreshSession(_ session: Session) -> Result<SharedSessionData, ServicesError> {
-        sessionApi.participants(sessionId: session.id).flatMap { backendSession in
+        sessionApi.peers(sessionId: session.id).flatMap { backendSession in
             handleSessionResult(backendSession: backendSession, session: session)
         }
     }
@@ -130,7 +130,7 @@ class SessionServiceImpl: SessionService {
      * - Stores peer's public key, if already present in the session
      * (we could request it before peer joined, in which case there's no peer)
      * - Acks to backend that we stored the key
-     * - Marks session as deleted if ack returns that session is ready (both participants ack-ed)
+     * - Marks session as deleted if ack returns that session is ready (both peers ack-ed)
      */
     private func handleSessionResult(backendSession: BackendSession,
                                      session: Session) -> Result<SharedSessionData, ServicesError> {
@@ -150,7 +150,7 @@ class SessionServiceImpl: SessionService {
 
     private func markDeleted(session: Session) -> Result<(), ServicesError> {
         // TODO keep retrying if fails. It's important that the session is deleted.
-        let peerId = session.participantId
+        let peerId = session.peerId
 
         // TODO why calls 2x logged in server? see:
 //        📗 17:49:01 Called participants with session_id: A6C0884C-9365-4623-AEA4-2BB902455C4B
@@ -180,8 +180,8 @@ class SessionServiceImpl: SessionService {
 
     private func ackAndRequestSessionReady(session: Session) -> Result<Bool, ServicesError> {
         sessionApi.ackAndRequestSessionReady(
-            participantId: session.participantId,
-            storedParticipants: session.participant == nil ? 1 : 2
+            peerId: session.peerId,
+            storedPeers: session.isReady() ? 2 : 1
         )
     }
 
@@ -234,15 +234,15 @@ class SessionServiceImpl: SessionService {
 }
 
 private extension BackendSession {
-    func determinePeer(session: Session) -> Participant? {
+    func determinePeer(session: Session) -> Peer? {
         guard keys.count < 3 else {
-            fatalError("Invalid state: there are more than 2 participants in the session: \(self)")
+            fatalError("Invalid state: there are more than 2 peers in the session: \(self)")
         }
 
-        if let participant = session.participant {
-            log.w("Suspicious: trying to determine partipant while session already has a participant. " +
-                "Returning existing participant.", .session)
-            return participant
+        if let peer = session.peer {
+            log.w("Suspicious: trying to determine peer while session already has a peer. " +
+                "Returning existing peer.", .session)
+            return peer
         } else {
             let myPublicKey = session.publicKey
             let publicKeysDifferentToMine = keys.filter {
@@ -256,7 +256,7 @@ private extension BackendSession {
                 fatalError("Invalid state: backend session keys don't include mine: \(self)")
             }
             // only: we just checked that this list is at most 1 element length.
-            return publicKeysDifferentToMine.only.map { Participant(publicKey: $0) }
+            return publicKeysDifferentToMine.only.map { Peer(publicKey: $0) }
         }
     }
 }
@@ -282,7 +282,7 @@ class NoopSessionService: SessionService {
         .success(nil)
     }
 
-    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
+    func currentSessionPeers() -> Result<Peers?, ServicesError> {
         .success(nil)
     }
 }

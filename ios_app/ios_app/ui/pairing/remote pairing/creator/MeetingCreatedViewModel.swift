@@ -52,10 +52,10 @@ class MeetingCreatedViewModel: ObservableObject {
     }
 
     func updateSession() {
-        // TODO call when opening the screen, maybe also pull to refresh "update participants status..."
+        // TODO call when opening the screen, maybe also pull to refresh "update peers status..."
         // show a progress indicator when checking, next to the sessions status label
         // maybe also button? "is the session ready?" with
-        // text yes: "all the participants are connected and ready to meet", no: "not all participants are ready"
+        // text yes: "all the peers are connected and ready to meet", no: "not all peers are ready"
         sessionManager.refresh()
     }
 

@@ -5,7 +5,7 @@ class BleColocatedPairing {
     private let characteristicUuid = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376514")
     lazy var publicKey = publicKeySubject.compactMap{ $0 }.eraseToAnyPublisher()
 
-    let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
+    let discoveredSubject = PassthroughSubject<BlePeer, Never>()
     lazy var discovered = discoveredSubject.eraseToAnyPublisher()
 
     private let publicKeySubject = CurrentValueSubject<SerializedEncryptedPublicKey?, Never>(nil)

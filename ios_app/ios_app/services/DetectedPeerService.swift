@@ -25,15 +25,15 @@ class DetectedPeerServiceImpl: DetectedPeerService {
 
         let blePeer: AnyPublisher<DetectedPeer, Never> = validDeviceService.device
             // Split the stream in chunks
-            .scan([]) { acc, participant -> [BleParticipant] in
+            .scan([]) { acc, peer -> [BlePeer] in
                 if acc.count < bleMeasurementsChunkSize {
-                    return acc + [participant]
+                    return acc + [peer]
                 } else {
                     return [] // Start new chunk
                 }
             }
             // Calculate average for each chunk
-            .compactMap { chunk -> BleParticipant? in
+            .compactMap { chunk -> BlePeer? in
                 if chunk.count == bleMeasurementsChunkSize {
                     return chunk.filterAndAverageDistance()
                 } else {
@@ -104,7 +104,7 @@ class DetectedPeerServiceImpl: DetectedPeerService {
     }
 }
 
-private extension Array where Element == BleParticipant {
+private extension Array where Element == BlePeer {
 
     // Removes abnormal distance jumps and averages the normal values
     func filterAndAverageDistance() -> Element? {
@@ -117,13 +117,13 @@ private extension Array where Element == BleParticipant {
         let sortedArray = sorted { $0.distance < $1.distance }
 
         // The delta between each pair of distances, used to filter out abnormal jumps
-        let distanceDeltas = sortedArray.reduce(([], -1)) { acc, bleParticipant -> ([Double], Double) in
+        let distanceDeltas = sortedArray.reduce(([], -1)) { acc, blePeer -> ([Double], Double) in
             if acc.1 == -1 {
                 // first element (disance has default value -1): no previous element, so
                 // no distance (just pass through empty array)
-                return (acc.0, bleParticipant.distance)
+                return (acc.0, blePeer.distance)
             } else {
-                return (acc.0 + [bleParticipant.distance - acc.1], bleParticipant.distance)
+                return (acc.0 + [blePeer.distance - acc.1], blePeer.distance)
             }
         }
 
@@ -131,7 +131,7 @@ private extension Array where Element == BleParticipant {
         // while not even moving the devices (note: measured iOS - iOS).
         // If there are edge cases where one of such jumps represent reality, it's not an issue discarding it,
         // since we'll get the change in the next batch
-        var measurementsToAverage: [BleParticipant]
+        var measurementsToAverage: [BlePeer]
         if let outsiderIndex = distanceDeltas.0.firstIndex(where: { $0 > 1 }) {
             measurementsToAverage = Array(sortedArray[0...outsiderIndex])
         } else {
@@ -139,11 +139,11 @@ private extension Array where Element == BleParticipant {
         }
 
         // Compute an average for the current batch (without the jumps)
-        let average = measurementsToAverage.reduce(0) { acc, participant in
-            acc + participant.distance
+        let average = measurementsToAverage.reduce(0) { acc, peer in
+            acc + peer.distance
         } / Double(self.count) // division by 0 impossible: we've a "first" guard
 
-        return BleParticipant(deviceUuid: first.deviceUuid, id: first.id, distance: average)
+        return BlePeer(deviceUuid: first.deviceUuid, id: first.id, distance: average)
     }
 }
 

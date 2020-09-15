@@ -8,8 +8,8 @@ enum RootViewState {
     // For now only a "waiting" screen, for simplicity
     // maybe we can integrate creating/joined only as text
 //    case meetingWaiting
-//    case meetingCreated // "Session created!" "Waiting for the other participant to accept"
-//    case meetingJoined // "Session joined!" "Waiting for the other participant to acknowledge"
+//    case meetingCreated // "Session created!" "Waiting for the other peer to accept"
+//    case meetingJoined // "Session joined!" "Waiting for the other peer to acknowledge"
 
 //    case meetingReady "the meeting is ready!" but should probably be a dialog/notification
 

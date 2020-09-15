@@ -3,7 +3,7 @@ import Combine
 import CoreBluetooth
 
 protocol DetectedDeviceFilterService {
-    var device: AnyPublisher<BleParticipant, Never> { get }
+    var device: AnyPublisher<BlePeer, Never> { get }
 }
 
 // TODO handling of invalid peer?
@@ -18,13 +18,13 @@ protocol DetectedDeviceFilterService {
 // TODO review whetehr this privacy level is needed at this stage
 
 class DetectedDeviceFilterServiceImpl: DetectedDeviceFilterService {
-    let device: AnyPublisher<BleParticipant, Never>
+    let device: AnyPublisher<BlePeer, Never>
 
     init(deviceDetector: BleDeviceDetector, deviceValidator: DeviceValidatorService) {
         device = deviceDetector.discovered.combineLatest(deviceValidator.validDevices).compactMap { detected, valid in
             // Forward only if detected device was validated
             valid[detected.uuid].map {
-                detected.toParticipant(bleId: $0)
+                detected.toPeer(bleId: $0)
             }
         }
         .eraseToAnyPublisher()
@@ -32,13 +32,13 @@ class DetectedDeviceFilterServiceImpl: DetectedDeviceFilterService {
 }
 
 extension BleDetectedDevice {
-    func toParticipant(bleId: BleId) -> BleParticipant {
+    func toPeer(bleId: BleId) -> BlePeer {
         let powerLevelMaybe = (advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber)?.intValue
         let estimatedDistanceMeters = estimateDistance(
             rssi: rssi.doubleValue,
             powerLevelMaybe: powerLevelMaybe
         )
-        return BleParticipant(deviceUuid: uuid, id: bleId, distance: estimatedDistanceMeters)
+        return BlePeer(deviceUuid: uuid, id: bleId, distance: estimatedDistanceMeters)
     }
 }
 
@@ -85,5 +85,5 @@ struct BleDetectedDevice {
 }
 
 class NoopDetectedDeviceFilterService: DetectedDeviceFilterService {
-    let device = Just(BleParticipant(deviceUuid: UUID(), id: BleId(str: "123")!, distance: 10.2)).eraseToAnyPublisher()
+    let device = Just(BlePeer(deviceUuid: UUID(), id: BleId(str: "123")!, distance: 10.2)).eraseToAnyPublisher()
 }

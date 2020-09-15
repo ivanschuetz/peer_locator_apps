@@ -8,7 +8,7 @@ enum BleState {
 
 protocol BleCentral {
     var status: AnyPublisher<BleState, Never> { get }
-    var discovered: AnyPublisher<BleParticipant, Never> { get }
+    var discovered: AnyPublisher<BlePeer, Never> { get }
 
     // Starts central if status is powered on. If request is sent before status is on, it will be
     // processed when status in on.
@@ -21,7 +21,7 @@ class BleCentralImpl: NSObject, BleCentral {
     let statusSubject = PassthroughSubject<BleState, Never>()
     lazy var status = statusSubject.eraseToAnyPublisher()
 
-    let discoveredSubject = PassthroughSubject<BleParticipant, Never>()
+    let discoveredSubject = PassthroughSubject<BlePeer, Never>()
     lazy var discovered = discoveredSubject.eraseToAnyPublisher()
 
     let discoveredPairingSubject = PassthroughSubject<PairingBleId, Never>()
@@ -192,7 +192,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
 
 class BleCentralNoop: NSObject, BleCentral {
     let status: AnyPublisher<BleState, Never> = Just(.poweredOn).eraseToAnyPublisher()
-    let discovered = PassthroughSubject<BleParticipant, Never>().eraseToAnyPublisher()
+    let discovered = PassthroughSubject<BlePeer, Never>().eraseToAnyPublisher()
     let discoveredPairing = PassthroughSubject<PairingBleId, Never>().eraseToAnyPublisher()
     let statusMsg = PassthroughSubject<String, Never>()
     func requestStart() {}
@@ -220,9 +220,7 @@ extension CBManagerState {
 }
 
 class BleCentralFixedDistance: NSObject, BleCentral {
-    let discovered = Just(BleParticipant(deviceUuid: UUID(),
-                                         id: BleId(str: "123")!,
-                                         distance: 10.2)).eraseToAnyPublisher()
+    let discovered = Just(BlePeer(deviceUuid: UUID(), id: BleId(str: "123")!, distance: 10.2)).eraseToAnyPublisher()
     var discoveredPairing = Just(PairingBleId(str: "123")!).eraseToAnyPublisher()
     let status = Just(BleState.poweredOn).eraseToAnyPublisher()
     func requestStart() {}

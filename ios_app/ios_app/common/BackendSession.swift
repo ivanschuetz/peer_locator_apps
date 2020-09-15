@@ -10,8 +10,8 @@ struct PublicKey: Codable, Equatable {
 }
 
 extension PublicKey {
-    func toParticipantId(crypto: Crypto) -> ParticipantId {
-        ParticipantId(value: crypto.sha256(str: value))
+    func toPeerId(crypto: Crypto) -> PeerId {
+        PeerId(value: crypto.sha256(str: value))
     }
 }
 
@@ -39,37 +39,38 @@ struct Session: Codable {
     // TODO (low prio): review: the own public key seems not necessary to store at the moment
     // it may help for debugging? Maybe remove in the future.
     let publicKey: PublicKey
-    let participantId: ParticipantId
+    let peerId: PeerId
     let createdByMe: Bool
-    let participant: Participant?
+    let peer: Peer?
 
-    func withParticipant(participant: Participant) -> Session {
+    func withPeer(peer: Peer) -> Session {
         Session(
             id: id,
             privateKey: privateKey,
             publicKey: publicKey,
-            participantId: participantId,
+            peerId: peerId,
             createdByMe: createdByMe,
-            participant: participant
+            peer: peer
         )
     }
 
     func isReady() -> Bool {
-        participant != nil
+        peer != nil
     }
 }
 
-struct Participant: Codable {
+struct Peer: Codable {
     let publicKey: PublicKey
 }
 
 // Public key hash
-struct ParticipantId: Codable {
+struct PeerId: Codable {
     let value: String
 }
 
-struct Participants: Codable {
-    let participants: [PublicKey]
+// TODO why not [Peer]?
+struct Peers: Codable {
+    let peers: [PublicKey]
 }
 
 struct SessionLink {

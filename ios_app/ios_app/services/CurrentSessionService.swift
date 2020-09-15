@@ -6,8 +6,8 @@ protocol CurrentSessionService {
 
     func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>)
 
-    // Locally opposed to the automatic deletion in the backend after participants have exchanged data
-    // Here the user isn't interested in the session anymore: the session data / keys / participants data are removed
+    // Locally opposed to the automatic deletion in the backend after peers have exchanged data
+    // Here the user isn't interested in the session anymore: the session data / keys / peers data are removed
     func deleteSessionLocally()
 }
 
