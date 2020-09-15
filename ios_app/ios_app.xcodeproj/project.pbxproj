@@ -457,7 +457,7 @@
 			path = "pairing type selection";
 			sourceTree = "<group>";
 		};
-		840A8CB3250906E300E73815 /* colocated peering */ = {
+		840A8CB3250906E300E73815 /* colocated pairing */ = {
 			isa = PBXGroup;
 			children = (
 				848AE8052507705900DB192A /* ColocatedSessionService.swift */,
@@ -465,7 +465,7 @@
 				840A8CB4250908DA00E73815 /* ColocatedPasswordProvider.swift */,
 				8431867B2510F29E00078EC0 /* ColocatedPeerMediator.swift */,
 			);
-			path = "colocated peering";
+			path = "colocated pairing";
 			sourceTree = "<group>";
 		};
 		842CC95525029D970003F96F /* sound */ = {
@@ -611,7 +611,7 @@
 		84993A1924B5C1250044AA27 /* services */ = {
 			isa = PBXGroup;
 			children = (
-				840A8CB3250906E300E73815 /* colocated peering */,
+				840A8CB3250906E300E73815 /* colocated pairing */,
 				848D5F4B24CCA75800F2D80B /* notifications */,
 				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
 				84E3DC8724C723AC00E2F175 /* DetectedPeerService.swift */,
