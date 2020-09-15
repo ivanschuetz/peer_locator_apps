@@ -50,8 +50,12 @@ class RemotePairingJoinerViewModel: ObservableObject {
             uiNotifier.show(.error("Invalid session link input: \(sessionLinkInput). Nothing to join"))
             return
         }
-
-        sessionManager.join(link: SessionLink(value: url))
+        guard let sessionLink = SessionLink(url: url) else {
+            log.e("Invalid session url: \(url). Nothing to join", .session)
+            uiNotifier.show(.error("Invalid session url: \(url). Nothing to join"))
+            return
+        }
+        sessionManager.join(sessionId: sessionLink.sessionId)
     }
     
     func onSettingsButtonTap() {

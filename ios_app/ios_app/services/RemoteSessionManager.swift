@@ -2,7 +2,7 @@ import Foundation
 
 protocol RemoteSessionManager {
     func create()
-    func join(link: SessionLink)
+    func join(sessionId: SessionId)
     func refresh()
 }
 
@@ -19,8 +19,8 @@ class RemoteSessionManagerImpl: RemoteSessionManager {
         currentSessionService.setSessionResult(sessionService.createSession().map { $0 })
     }
 
-    func join(link: SessionLink) {
-        currentSessionService.setSessionResult(sessionService.joinSession(link: link).map { $0 })
+    func join(sessionId: SessionId) {
+        currentSessionService.setSessionResult(sessionService.joinSession(id: sessionId).map { $0 })
     }
 
     func refresh() {

@@ -4,7 +4,8 @@ import Combine
 
 class MeetingCreatedViewModel: ObservableObject {
     @Published var linkText: String = ""
-    @Published var link: URL? = nil
+    @Published var linkUrl: URL? = nil
+    @Published var sessionLinkInput: String = ""
 
     private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
@@ -12,8 +13,6 @@ class MeetingCreatedViewModel: ObservableObject {
     private let settingsShower: SettingsShower
 
     private var sessionCancellable: Cancellable?
-
-    @Published var sessionLinkInput: String = ""
 
     init(sessionManager: RemoteSessionManager, sessionService: CurrentSessionService, clipboard: Clipboard,
          uiNotifier: UINotifier, settingsShower: SettingsShower) {
@@ -23,20 +22,24 @@ class MeetingCreatedViewModel: ObservableObject {
         self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session.sink { [weak self] sharedSessionDataRes in
-            switch sharedSessionDataRes {
-            case .success(let sessionData):
-                if let sessionData = sessionData {
-                    let link = sessionData.id.createLink()
-                    self?.link = link.value
-                    self?.linkText = link.value.absoluteString
-                }
-            case .failure(let e):
-                // If there are issues retrieving session this screen normally shouldn't be presented
-                // TODO ensure that only one message of a type shows at a time
-                let msg = "Couldn't retrieve session: \(e). NOTE: shouldn't happen in this screen."
-                log.e(msg, .ui)
-                uiNotifier.show(.error(msg))
+            self?.handle(sessionDataRes: sharedSessionDataRes)
+        }
+    }
+
+    private func handle(sessionDataRes: Result<SharedSessionData?, ServicesError>) {
+        switch sessionDataRes {
+        case .success(let sessionData):
+            if let sessionData = sessionData {
+                let link = sessionData.id.createLink()
+                linkUrl = link.url
+                linkText = link.url.absoluteString
             }
+        case .failure(let e):
+            // If there are issues retrieving session this screen normally shouldn't be presented
+            // TODO ensure that only one message of a type shows at a time
+            let msg = "Couldn't retrieve session: \(e). NOTE: shouldn't happen in this screen."
+            log.e(msg, .ui)
+            uiNotifier.show(.error(msg))
         }
     }
 

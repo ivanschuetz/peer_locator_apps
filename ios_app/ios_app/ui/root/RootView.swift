@@ -60,6 +60,6 @@ class NoopBleEnabledService: BleEnabledService {
 
 class NoopRemoteSessionManager: RemoteSessionManager {
     func create() {}
-    func join(link: SessionLink) {}
+    func join(sessionId: SessionId) {}
     func refresh() {}
 }

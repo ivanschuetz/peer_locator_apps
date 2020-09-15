@@ -23,7 +23,9 @@ struct PrivateKey: Encodable, Decodable {
 
 extension SessionId {
     func createLink() -> SessionLink {
-        SessionLink(value: URL(string: "ploc://\(value)")!)
+        // Unwrap: we know that the string is a valid url
+        // Unwrap: we know that the url is a valid session id, so initializer can't fail
+        SessionLink(url: URL(string: "ploc://\(value)")!)!
     }
 }
 
@@ -70,17 +72,19 @@ struct Participants: Encodable, Decodable {
 }
 
 struct SessionLink {
-    let value: URL
-    // TODO validate URL on initialization
-}
+    let url: URL
 
-extension SessionLink {
-    func extractSessionId() -> Result<SessionId, ServicesError> {
-        if let id = value.host {
-            return .success(SessionId(value: id))
-        } else {
-            return .failure(.general("Invalid session link: \(self)"))
+    init?(url: URL) {
+        // TODO more validation?
+        if url.host == nil {
+            return nil
         }
+        self.url = url
+    }
+
+    var sessionId: SessionId {
+        // Unwrap: we verified in the initializer that host is not nil
+        SessionId(value: url.host!)
     }
 }
 

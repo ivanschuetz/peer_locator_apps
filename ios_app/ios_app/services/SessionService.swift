@@ -3,7 +3,7 @@ import Foundation
 // TODO rename RemoteSessionService
 protocol SessionService {
     func createSession() -> Result<SharedSessionData, ServicesError>
-    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError>
+    func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError>
 
     // Fetches participants, acks having stored the participants and returns whether the session is ready
     // (all participants have stored all other participants)
@@ -53,17 +53,7 @@ class SessionServiceImpl: SessionService {
         sessionStore.hasSession()
     }
 
-    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
-        switch link.extractSessionId() {
-        case .success(let sessionId):
-            return joinSession(sessionId: sessionId)
-        case .failure(let e):
-            log.e("Can't join session: invalid link: \(link)")
-            return .failure(e)
-        }
-    }
-
-    private func joinSession(sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
+    func joinSession(id sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
         log.d("Joining session: \(sessionId)", .session)
         switch loadOrCreateSessionData(isCreate: false, sessionIdGenerator: { sessionId }) {
         case .success(let sessionData):
@@ -374,8 +364,8 @@ class NoopSessionService: SessionService {
         .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: true))
     }
 
-    func joinSession(link: SessionLink) -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: try! link.extractSessionId().get(), isReady: .no, createdByMe: false))
+    func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: id, isReady: .no, createdByMe: false))
     }
 
     func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
