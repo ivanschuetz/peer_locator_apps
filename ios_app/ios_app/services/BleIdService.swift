@@ -20,11 +20,11 @@ class BleIdServiceImpl: BleIdService {
     }
 
     func id() -> BleId? {
-        let sessionDataRes: Result<MySessionData?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
-        switch sessionDataRes {
-        case .success(let sessionData):
-            if let sessionData = sessionData {
-                return id(sessionData: sessionData)
+        let sessionRes: Result<Session?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
+        switch sessionRes {
+        case .success(let session):
+            if let session = session {
+                return id(session: session)
             } else {
                 // This state is valid as devices can be close and with ble services (central/peripheral) on
                 // without session data: we are in this state during colocated pairing
@@ -40,7 +40,7 @@ class BleIdServiceImpl: BleIdService {
         }
     }
 
-    private func id(sessionData: MySessionData) -> BleId? {
+    private func id(session: Session) -> BleId? {
         // Some data to be signed
         // We don't need this data directly: we're just interested in verifying the user, i.e. the signature
         // TODO actual random string. For now hardcoded for easier debugging.
@@ -50,13 +50,13 @@ class BleIdServiceImpl: BleIdService {
         let payloadToSignStr = json.toJson(encodable: SessionPayloadToSign(id: randomString))
 
         // Create our signature
-        let signature = crypto.sign(privateKey: sessionData.privateKey,
-                                    payload: payloadToSignStr)
+        let signature = crypto.sign(privateKey: session.privateKey, payload: payloadToSignStr)
         let signatureStr = signature.toHex()
 
         // The total data sent to participants: "data"(useless) with the corresponding signature
         let payload = SignedParticipantPayload(data: payloadToSignStr, sig: signatureStr)
         let payloadStr = json.toJson(encodable: payload)
+        // TODO is unwrap here safe
         return BleId(data: payloadStr.data(using: .utf8)!)
     }
 

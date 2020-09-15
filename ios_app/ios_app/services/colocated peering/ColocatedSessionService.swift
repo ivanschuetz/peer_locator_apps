@@ -109,7 +109,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             // Note that this, by setting the current session controls the root navigation
             let sharedSessionData: Result<SharedSessionData?, ServicesError> = localSessionManager.getSession()
                 .map({ mySessionData in mySessionData.map {
-                    SharedSessionData(id: $0.sessionId, isReady: true, createdByMe: $0.createdByMe)
+                    SharedSessionData(id: $0.id, isReady: true, createdByMe: $0.createdByMe)
                 }
             })
             sessionService.setSessionResult(sharedSessionData)

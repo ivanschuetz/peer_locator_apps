@@ -71,7 +71,7 @@ private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing,
     if let token = nearby.token() {
 
         // TODO consider making prefs/keychain reactive and fetching reactively. Not sure if benefitial here.
-        let mySessionDataRes: Result<MySessionData?, ServicesError> =
+        let mySessionDataRes: Result<Session?, ServicesError> =
             keychain.getDecodable(key: .mySessionData)
         switch mySessionDataRes {
         case .success(let mySessionData):

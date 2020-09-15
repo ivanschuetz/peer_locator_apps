@@ -19,7 +19,7 @@ struct PrivateKey: Codable {
     let value: String // P521 PEM representation
 }
 
-
+// Note: client generated
 extension SessionId {
     func createLink() -> SessionLink {
         // Unwrap: we know that the string is a valid url
@@ -33,9 +33,8 @@ struct KeyPair {
     let public_key: PublicKey
 }
 
-// TODO rename SessionData
-struct MySessionData: Codable {
-    let sessionId: SessionId
+struct Session: Codable {
+    let id: SessionId
     let privateKey: PrivateKey
     // TODO (low prio): review: the own public key seems not necessary to store at the moment
     // it may help for debugging? Maybe remove in the future.
@@ -44,9 +43,9 @@ struct MySessionData: Codable {
     let createdByMe: Bool
     let participant: Participant?
 
-    func withParticipant(participant: Participant) -> MySessionData {
-        MySessionData(
-            sessionId: sessionId,
+    func withParticipant(participant: Participant) -> Session {
+        Session(
+            id: id,
             privateKey: privateKey,
             publicKey: publicKey,
             participantId: participantId,

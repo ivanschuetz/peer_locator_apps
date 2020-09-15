@@ -2,15 +2,15 @@ import Foundation
 
 protocol LocalSessionManager {
     func initLocalSession(iCreatedIt: Bool,
-                          sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError>
+                          sessionIdGenerator: () -> SessionId) -> Result<Session, ServicesError>
 
-    func savePeer(_ participant: Participant) -> Result<MySessionData, ServicesError>
+    func savePeer(_ participant: Participant) -> Result<Session, ServicesError>
 
-    func getSession() -> Result<MySessionData?, ServicesError>
+    func getSession() -> Result<Session?, ServicesError>
     // Differently to getSession(), we expect here to find a session. If there's none we get a failure result
-    func withSession<T>(f: (MySessionData) -> Result<T, ServicesError>) -> Result<T, ServicesError>
+    func withSession<T>(f: (Session) -> Result<T, ServicesError>) -> Result<T, ServicesError>
 
-    func save(session: MySessionData) -> Result<(), ServicesError>
+    func save(session: Session) -> Result<(), ServicesError>
 
     func clear() -> Result<(), ServicesError>
 }
@@ -25,7 +25,7 @@ class LocalSessionManagerImpl: LocalSessionManager {
     }
 
     func initLocalSession(iCreatedIt: Bool,
-                          sessionIdGenerator: () -> SessionId) -> Result<MySessionData, ServicesError> {
+                          sessionIdGenerator: () -> SessionId) -> Result<Session, ServicesError> {
         let session = createSessionData(isCreate: iCreatedIt, sessionIdGenerator: sessionIdGenerator)
         let saveRes = sessionStore.save(session: session)
         switch saveRes {
@@ -36,11 +36,11 @@ class LocalSessionManagerImpl: LocalSessionManager {
         }
     }
 
-    private func createSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> MySessionData {
+    private func createSessionData(isCreate: Bool, sessionIdGenerator: () -> SessionId) -> Session {
         let keyPair = crypto.createKeyPair()
         log.d("Created key pair", .session)
-        return MySessionData(
-            sessionId: sessionIdGenerator(),
+        return Session(
+            id: sessionIdGenerator(),
             privateKey: keyPair.private_key,
             publicKey: keyPair.public_key,
             participantId: keyPair.public_key.toParticipantId(crypto: crypto),
@@ -49,7 +49,7 @@ class LocalSessionManagerImpl: LocalSessionManager {
         )
     }
 
-    func savePeer(_ participant: Participant) -> Result<MySessionData, ServicesError> {
+    func savePeer(_ participant: Participant) -> Result<Session, ServicesError> {
         switch sessionStore.getSession() {
         case .success(let session):
             if let session = session {
@@ -70,7 +70,7 @@ class LocalSessionManagerImpl: LocalSessionManager {
         }
     }
 
-    func withSession<T>(f: (MySessionData) -> Result<T, ServicesError>) -> Result<T, ServicesError> {
+    func withSession<T>(f: (Session) -> Result<T, ServicesError>) -> Result<T, ServicesError> {
         sessionStore.getSession().flatMap { session in
             if let session = session {
                 return f(session)
@@ -82,11 +82,11 @@ class LocalSessionManagerImpl: LocalSessionManager {
         }
     }
 
-    func getSession() -> Result<MySessionData?, ServicesError> {
+    func getSession() -> Result<Session?, ServicesError> {
         sessionStore.getSession()
     }
 
-    func save(session: MySessionData) -> Result<(), ServicesError> {
+    func save(session: Session) -> Result<(), ServicesError> {
         sessionStore.save(session: session)
     }
 

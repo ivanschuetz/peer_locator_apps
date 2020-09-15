@@ -1,10 +1,6 @@
 import Foundation
 import Valet
 
-// TODO layer with functions to access things with functions (e.g. sessionData())
-// TODO consider merging session data and participants. This belongs together. It should make easier also to support
-// multiple sessions
-
 enum KeyChainKey: String {
     case mySessionData
 }

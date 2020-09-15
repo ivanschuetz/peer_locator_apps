@@ -20,11 +20,11 @@ class RemotePairingJoinerViewModel: ObservableObject {
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
 
-        sessionCancellable = sessionService.session.sink { [weak self] sharedSessionDataRes in
-            switch sharedSessionDataRes {
-            case .success(let sessionData):
-                if let sessionData = sessionData {
-                    if sessionData.createdByMe {
+        sessionCancellable = sessionService.session.sink { [weak self] sharedSessionRes in
+            switch sharedSessionRes {
+            case .success(let session):
+                if let session = session {
+                    if session.createdByMe {
                         // TODO revise this. Ideally we shouldn't throw fatal errors.
                         fatalError("Invalid state: If I'm in joiner view, I can't have created the session.")
                     }

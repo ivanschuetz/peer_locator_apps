@@ -17,7 +17,7 @@ class SessionDataDispatcherImpl: SessionDataDispatcher {
         .eraseToAnyPublisher()
 
         session = phoneBridge.messages.compactMap { message in
-            message["sessionData"] as? Result<SharedSessionData?, ServicesError>
+            message["session"] as? Result<SharedSessionData?, ServicesError>
         }
         .eraseToAnyPublisher()
     }

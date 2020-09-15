@@ -25,8 +25,8 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 
         sessionSubject = CurrentValueSubject(sessionService.currentSession())
         session = sessionSubject
-//            .handleEvents(receiveOutput: { sessionData in
-//                log.d("Current session was updated to: \(sessionData)", .session)
+//            .handleEvents(receiveOutput: { session in
+//                log.d("Current session was updated to: \(session)", .session)
 //            })
             .eraseToAnyPublisher()
     }
