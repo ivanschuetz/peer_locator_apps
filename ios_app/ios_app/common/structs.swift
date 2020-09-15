@@ -108,12 +108,6 @@ struct SessionPayloadToSign: Codable {
     let id: String
 }
 
-struct SharedSessionData: Equatable {
-    let id: SessionId
-    let isReady: Bool
-    let createdByMe: Bool
-}
-
 enum DetectedPeerSource {
     case ble, nearby
 }

@@ -38,7 +38,7 @@ class RootViewModel: ObservableObject {
         }
     }
 
-    private func handleSessionState(_ sessionRes: Result<SharedSessionData?, ServicesError>) {
+    private func handleSessionState(_ sessionRes: Result<Session?, ServicesError>) {
         let viewState = toViewState(sessionRes: sessionRes)
         log.d("New session state in root: \(sessionRes), view state: \(viewState)", .session)
         state = viewState
@@ -49,7 +49,7 @@ class RootViewModel: ObservableObject {
     }
 }
 
-private func toViewState(sessionRes: Result<SharedSessionData?, ServicesError>) -> RootViewState {
+private func toViewState(sessionRes: Result<Session?, ServicesError>) -> RootViewState {
     switch sessionRes {
     case .success(let session):
         if let session = session {

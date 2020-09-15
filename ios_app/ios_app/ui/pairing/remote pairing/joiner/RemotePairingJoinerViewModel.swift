@@ -20,8 +20,8 @@ class RemotePairingJoinerViewModel: ObservableObject {
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
 
-        sessionCancellable = sessionService.session.sink { [weak self] sharedSessionRes in
-            switch sharedSessionRes {
+        sessionCancellable = sessionService.session.sink { [weak self] sessionRes in
+            switch sessionRes {
             case .success(let session):
                 if let session = session {
                     if session.createdByMe {

@@ -12,8 +12,8 @@ class P2pServiceImpl: P2pService {
         self.bleManager = bleManager
 
         currentSessionCancellable = sessionService.session
-            .map({ sharedSessionRes -> Bool in
-                switch sharedSessionRes {
+            .map({ sessionRes -> Bool in
+                switch sessionRes {
                 case .success(let session):
                     if let session = session {
                         return session.isReady

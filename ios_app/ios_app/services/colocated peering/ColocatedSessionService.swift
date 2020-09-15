@@ -107,12 +107,14 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             // for now we will mark here directly the session as ready
 
             // Note that this, by setting the current session controls the root navigation
-            let sharedSessionData: Result<SharedSessionData?, ServicesError> = localSessionManager.getSession()
-                .map({ mySessionData in mySessionData.map {
-                    SharedSessionData(id: $0.id, isReady: true, createdByMe: $0.createdByMe)
-                }
-            })
-            sessionService.setSessionResult(sharedSessionData)
+
+            switch localSessionManager.saveIsReady(true) {
+            case .success(let session):
+                sessionService.setSessionResult(Result.success(session).map { $0 })
+            case .failure(let e):
+                log.e("Error updating session isReady: \(e)", .cp)
+                sessionService.setSessionResult(.failure(e))
+            }
 
         case .failure(let e):
             log.e("Couldn't save peer key: \(e)", .cp)

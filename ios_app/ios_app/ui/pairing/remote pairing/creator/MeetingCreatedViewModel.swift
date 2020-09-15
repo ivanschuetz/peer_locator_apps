@@ -21,12 +21,12 @@ class MeetingCreatedViewModel: ObservableObject {
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
 
-        sessionCancellable = sessionService.session.sink { [weak self] sharedSessionRes in
-            self?.handle(sessionRes: sharedSessionRes)
+        sessionCancellable = sessionService.session.sink { [weak self] in
+            self?.handle(sessionRes: $0)
         }
     }
 
-    private func handle(sessionRes: Result<SharedSessionData?, ServicesError>) {
+    private func handle(sessionRes: Result<Session?, ServicesError>) {
         switch sessionRes {
         case .success(let session):
             if let session = session {

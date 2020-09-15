@@ -2,9 +2,9 @@ import Combine
 
 // TODO rename SessionService? (since SessionService will be renamed in RemoteSessionService)
 protocol CurrentSessionService {
-    var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> { get }
+    var session: AnyPublisher<Result<Session?, ServicesError>, Never> { get }
 
-    func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>)
+    func setSessionResult(_ result: Result<Session?, ServicesError>)
 
     // Locally opposed to the automatic deletion in the backend after peers have exchanged data
     // Here the user isn't interested in the session anymore: the session data / keys / peers data are removed
@@ -12,9 +12,9 @@ protocol CurrentSessionService {
 }
 
 class CurrentSessionServiceImpl: CurrentSessionService {
-    private let sessionSubject: CurrentValueSubject<Result<SharedSessionData?, ServicesError>, Never>
+    private let sessionSubject: CurrentValueSubject<Result<Session?, ServicesError>, Never>
 
-    let session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never>
+    let session: AnyPublisher<Result<Session?, ServicesError>, Never>
 
     private let sessionService: SessionService
     private let uiNotifier: UINotifier
@@ -31,7 +31,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
             .eraseToAnyPublisher()
     }
 
-    func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>) {
+    func setSessionResult(_ result: Result<Session?, ServicesError>) {
         sessionSubject.send(result)
     }
 
@@ -48,9 +48,9 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 }
 
 class NoopCurrentSessionService: CurrentSessionService {
-    var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> = Just(.success(nil))
+    var session: AnyPublisher<Result<Session?, ServicesError>, Never> = Just(.success(nil))
         .eraseToAnyPublisher()
 
-    func setSessionResult(_ result: Result<SharedSessionData?, ServicesError>) {}
+    func setSessionResult(_ result: Result<Session?, ServicesError>) {}
     func deleteSessionLocally() {}
 }

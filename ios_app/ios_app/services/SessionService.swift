@@ -5,7 +5,7 @@ protocol SessionService {
     /**
      * Initializes a local and backend session.
      */
-    func createSession() -> Result<SharedSessionData, ServicesError>
+    func createSession() -> Result<Session, ServicesError>
 
     /**
      * Joins an existing backend session. This consists of the following steps:
@@ -15,7 +15,7 @@ protocol SessionService {
      * - Storing the peer's public key returned by call.
      * - Acking to the backend that the public key was stored.
      */
-    func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError>
+    func joinSession(id: SessionId) -> Result<Session, ServicesError>
 
     /**
      * Retrieves the backend's session data (i.e. peer's public key) and acks to the backend
@@ -35,9 +35,9 @@ protocol SessionService {
      *
      * @returns whether session is ready, i.e. both peers have ack-ed having stored the peer's public key
      */
-    func refreshSession() -> Result<SharedSessionData, ServicesError>
+    func refreshSession() -> Result<Session, ServicesError>
 
-    func currentSession() -> Result<SharedSessionData?, ServicesError>
+    func currentSession() -> Result<Session?, ServicesError>
 
     func deleteSessionLocally() -> Result<(), ServicesError>
 }
@@ -54,7 +54,7 @@ class SessionServiceImpl: SessionService {
         localSessionManager.clear()
     }
 
-    func createSession() -> Result<SharedSessionData, ServicesError> {
+    func createSession() -> Result<Session, ServicesError> {
 //        guard !hasActiveSession() else {
 //            return .failure(.general("Can't create session: there's already one."))
 //        }
@@ -80,28 +80,20 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    func joinSession(id sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
+    func joinSession(id sessionId: SessionId) -> Result<Session, ServicesError> {
         loadOrCreateSession(isCreate: false, sessionIdGenerator: { sessionId }).flatMap {
             joinSession(id: sessionId, session: $0)
         }
     }
 
-    func refreshSession() -> Result<SharedSessionData, ServicesError> {
+    func refreshSession() -> Result<Session, ServicesError> {
         localSessionManager.withSession {
             refreshSession($0)
         }
     }
 
-    func currentSession() -> Result<SharedSessionData?, ServicesError> {
-        localSessionManager.getSession().map { session in
-            if let session = session {
-                return SharedSessionData(id: session.id,
-                                         isReady: session.isReady,
-                                         createdByMe: session.createdByMe)
-            } else {
-                return nil
-            }
-        }
+    func currentSession() -> Result<Session?, ServicesError> {
+        localSessionManager.getSession()
     }
 
     func deleteSessionLocally() -> Result<(), ServicesError> {
@@ -111,7 +103,7 @@ class SessionServiceImpl: SessionService {
     // MARK: private
 
     private func joinSession(id sessionId: SessionId,
-                             session: Session) -> Result<SharedSessionData, ServicesError> {
+                             session: Session) -> Result<Session, ServicesError> {
         sessionApi
             // Join returns the current peers too (like the peers call)
             .joinSession(id: sessionId, publicKey: session.publicKey)
@@ -120,7 +112,7 @@ class SessionServiceImpl: SessionService {
             }
     }
 
-    private func refreshSession(_ session: Session) -> Result<SharedSessionData, ServicesError> {
+    private func refreshSession(_ session: Session) -> Result<Session, ServicesError> {
         sessionApi.peers(sessionId: session.id).flatMap { backendSession in
             handleSessionResult(backendSession: backendSession, session: session)
         }
@@ -133,18 +125,17 @@ class SessionServiceImpl: SessionService {
      * - Marks session as deleted if ack returns that session is ready (both peers ack-ed)
      */
     private func handleSessionResult(backendSession: BackendSession,
-                                     session: Session) -> Result<SharedSessionData, ServicesError> {
+                                     session: Session) -> Result<Session, ServicesError> {
         storePeerIfPresentAndAck(backendSession: backendSession, session: session).flatMap { ready in
             return localSessionManager.saveIsReady(ready).flatMap { session in
+                log.d("Updated local session ready status: \(ready)", .session)
                 if ready {
                         switch markDeleted(session: session) {
-                        case .success: return .success(SharedSessionData(id: session.id, isReady: ready,
-                                                                         createdByMe: session.createdByMe))
+                        case .success: return .success(session)
                         case .failure(let e): return .failure(e)
                         }
                 } else {
-                    return .success(SharedSessionData(id: session.id, isReady: ready,
-                                                      createdByMe: session.createdByMe))
+                    return .success(session)
                 }
             }
         }
@@ -268,19 +259,19 @@ class NoopSessionService: SessionService {
         .success(())
     }
 
-    func createSession() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: true))
+    func createSession() -> Result<Session, ServicesError> {
+        .failure(.general("Noop failure"))
     }
 
-    func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: id, isReady: false, createdByMe: false))
+    func joinSession(id: SessionId) -> Result<Session, ServicesError> {
+        .failure(.general("Noop failure"))
     }
 
-    func refreshSession() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: false))
+    func refreshSession() -> Result<Session, ServicesError> {
+        .failure(.general("Noop failure"))
     }
 
-    func currentSession() -> Result<SharedSessionData?, ServicesError> {
+    func currentSession() -> Result<Session?, ServicesError> {
         .success(nil)
     }
 

@@ -14,8 +14,8 @@ class WatchEventsForwarderImpl: WatchEventsForwarder {
         self.sessionService = sessionService
         self.watchBridge = watchBridge
 
-        sessionCancellable = sessionService.session.sink { sharedSessionDataRes in
-            switch sharedSessionDataRes {
+        sessionCancellable = sessionService.session.sink { sessionRes in
+            switch sessionRes {
             case .success(let session):
                 let msg = ["session": session as Any]
                 log.d("Sending session data to watch: \(msg)", .watch)

@@ -2,12 +2,12 @@ import Foundation
 import Combine
 
 protocol SessionDataDispatcher {
-    var session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never> { get }
+    var session: AnyPublisher<Result<Session?, ServicesError>, Never> { get }
     var peer: AnyPublisher<DetectedPeer, Never> { get }
 }
 
 class SessionDataDispatcherImpl: SessionDataDispatcher {
-    let session: AnyPublisher<Result<SharedSessionData?, ServicesError>, Never>
+    let session: AnyPublisher<Result<Session?, ServicesError>, Never>
     let peer: AnyPublisher<DetectedPeer, Never>
 
     init(phoneBridge: PhoneBridge) {
@@ -17,7 +17,7 @@ class SessionDataDispatcherImpl: SessionDataDispatcher {
         .eraseToAnyPublisher()
 
         session = phoneBridge.messages.compactMap { message in
-            message["session"] as? Result<SharedSessionData?, ServicesError>
+            message["session"] as? Result<Session?, ServicesError>
         }
         .eraseToAnyPublisher()
     }
