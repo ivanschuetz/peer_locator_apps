@@ -105,7 +105,7 @@ class BleIdServiceImpl: BleIdService {
     }
 }
 
-struct SignedParticipantPayload: Encodable, Decodable {
+struct SignedParticipantPayload: Codable {
     let data: String // random
     let sig: String
 }

@@ -5,7 +5,7 @@ struct BackendSession {
     let keys: [PublicKey]
 }
 
-struct PublicKey: Encodable, Decodable, Equatable {
+struct PublicKey: Codable, Equatable {
     let value: String // P521 PEM representation
 }
 
@@ -15,7 +15,7 @@ extension PublicKey {
     }
 }
 
-struct PrivateKey: Encodable, Decodable {
+struct PrivateKey: Codable {
     let value: String // P521 PEM representation
 }
 
@@ -34,7 +34,7 @@ struct KeyPair {
 }
 
 // TODO rename SessionData
-struct MySessionData: Encodable, Decodable {
+struct MySessionData: Codable {
     let sessionId: SessionId
     let privateKey: PrivateKey
     // TODO (low prio): review: the own public key seems not necessary to store at the moment
@@ -65,12 +65,11 @@ struct Participant: Codable {
 }
 
 // Public key hash
-struct ParticipantId: Encodable, Decodable {
+struct ParticipantId: Codable {
     let value: String
 }
 
-// TODO all Encodable, Decodable -> Codable
-struct Participants: Encodable, Decodable {
+struct Participants: Codable {
     let participants: [PublicKey]
 }
 
@@ -91,7 +90,7 @@ struct SessionLink {
     }
 }
 
-struct SessionPayloadToSign: Encodable, Decodable {
+struct SessionPayloadToSign: Codable {
     // For now a red herring. Normally we should encrypt, with a nonce.
     let id: String
 }
