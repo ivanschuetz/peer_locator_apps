@@ -7,7 +7,7 @@ class PeerSoundsImpl: PeerSounds {
     private var distSoundCancellable: AnyCancellable?
     private var dirSoundCancellable: AnyCancellable?
 
-    init(peerService: PeerService, soundPlayer: SoundPlayer) {
+    init(peerService: DetectedPeerService, soundPlayer: SoundPlayer) {
         let peerObservable = peerService.peer
             // TODO RunLoop.main maybe wrong here? probably for UI updates?
             .throttle(for: 5, scheduler: RunLoop.main, latest: false)

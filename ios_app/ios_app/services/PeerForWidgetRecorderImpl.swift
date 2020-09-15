@@ -6,7 +6,7 @@ protocol PeerForWidgetRecorder {}
 class PeerForWidgetRecorderImpl: PeerForWidgetRecorder {
     private var peerCancellable: Cancellable?
 
-    init(peerService: PeerService, preferences: Preferences, json: Json) {
+    init(peerService: DetectedPeerService, preferences: Preferences, json: Json) {
         peerCancellable = peerService.peer
             .throttle(for: 10, scheduler: RunLoop.main, latest: false)
             .sink { peer in

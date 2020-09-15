@@ -133,12 +133,12 @@ class Dependencies {
             deviceValidator: try container.resolve()
         ) as DetectedDeviceFilterService }
 
-        container.register(.eagerSingleton) { PeerServiceImpl(
+        container.register(.eagerSingleton) { DetectedPeerServiceImpl(
             nearby: try container.resolve(),
             bleManager: try container.resolve(),
             bleIdService: try container.resolve(),
             validDeviceService: try container.resolve()
-        ) as PeerService }
+        ) as DetectedPeerService }
 
         container.register(.singleton) { LocalSessionManagerImpl(
             sessionStore: try container.resolve(),

@@ -10,7 +10,7 @@ class WatchEventsForwarderImpl: WatchEventsForwarder {
     private var sessionCancellable: Cancellable?
     private var peerCancellable: Cancellable?
 
-    init(sessionService: CurrentSessionService, watchBridge: WatchBridge, peerService: PeerService) {
+    init(sessionService: CurrentSessionService, watchBridge: WatchBridge, peerService: DetectedPeerService) {
         self.sessionService = sessionService
         self.watchBridge = watchBridge
 
@@ -37,7 +37,7 @@ class WatchEventsForwarderImpl: WatchEventsForwarder {
         }
 
         // Testing
-//        let peer = Peer(name: "foo", dist: 123, loc: nil, dir: nil, src: .ble)
+//        let peer = DetectedPeer(name: "foo", dist: 123, loc: nil, dir: nil, src: .ble)
 //        let msg = ["peer": peer as Any]
 //        log.d("Sending peer to watch: \(msg)", .watch)
 //        watchBridge.send(msg: msg)

@@ -2,16 +2,16 @@ import Foundation
 import Combine
 
 // TODO we also have p2pservice now: isn't it the same thing? merge?
-protocol PeerService {
+protocol DetectedPeerService {
     // peer == nil -> out of range (which includes peer has ble off)
-    var peer: AnyPublisher<Peer?, Never> { get }
+    var peer: AnyPublisher<DetectedPeer?, Never> { get }
 }
 
 // Higher values -> slower UI updates
 private let bleMeasurementsChunkSize = 5
 
-class PeerServiceImpl: PeerService {
-    let peer: AnyPublisher<Peer?, Never>
+class DetectedPeerServiceImpl: DetectedPeerService {
+    let peer: AnyPublisher<DetectedPeer?, Never>
 
     private let nearby: Nearby
     private let bleManager: BleManager
@@ -23,7 +23,7 @@ class PeerServiceImpl: PeerService {
         self.bleManager = bleManager
         self.bleIdService = bleIdService
 
-        let blePeer: AnyPublisher<Peer, Never> = validDeviceService.device
+        let blePeer: AnyPublisher<DetectedPeer, Never> = validDeviceService.device
             // Split the stream in chunks
             .scan([]) { acc, participant -> [BleParticipant] in
                 if acc.count < bleMeasurementsChunkSize {
@@ -43,7 +43,7 @@ class PeerServiceImpl: PeerService {
             }
             .map { blePeer in
                 // TODO generate peer's name when creating/joining session, allow user to override (the peer)
-                Peer(name: "TODO BLE peer name",
+                DetectedPeer(name: "TODO BLE peer name",
                      dist: Float(blePeer.distance),
                      loc: nil,
                      dir: nil,
@@ -57,9 +57,9 @@ class PeerServiceImpl: PeerService {
             .eraseToAnyPublisher()
 
         // TODO: Nearby distance unit unclear. 
-        let nearbyPeer: AnyPublisher<Peer, Never> = nearby.discovered
+        let nearbyPeer: AnyPublisher<DetectedPeer, Never> = nearby.discovered
             .map { nearbyObj in
-                Peer(name: nearbyObj.name,
+                DetectedPeer(name: nearbyObj.name,
                      dist: nearbyObj.dist,
                      loc: nearbyObj.loc,
                      dir: nearbyObj.dir.map { Direction(x: $0.x, y: $0.y) },
@@ -72,7 +72,8 @@ class PeerServiceImpl: PeerService {
             .share()
             .eraseToAnyPublisher()
 
-        let peerFilter: AnyPublisher<PeerSource, Never> = nearbyPeer.combineLatest(nearby.sessionState.removeDuplicates())
+        let peerFilter: AnyPublisher<DetectedPeerSource, Never> =
+            nearbyPeer.combineLatest(nearby.sessionState.removeDuplicates())
             .map { peer, sessionState in
                 // Note: if nearby doesn't provide distance intermittently while in range,
                 // the back and forth with ble (?? false) will not look good

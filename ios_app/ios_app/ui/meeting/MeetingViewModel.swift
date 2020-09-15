@@ -18,7 +18,7 @@ class MeetingViewModel: ObservableObject {
     private let settingsShower: SettingsShower
     private let bleEnabledService: BleEnabledService
 
-    init(peerService: PeerService, sessionService: CurrentSessionService,
+    init(peerService: DetectedPeerService, sessionService: CurrentSessionService,
          settingsShower: SettingsShower, bleEnabledService: BleEnabledService) {
         self.sessionService = sessionService
         self.settingsShower = settingsShower
@@ -33,7 +33,7 @@ class MeetingViewModel: ObservableObject {
         }
     }
 
-    private func handlePeer(peerMaybe: Peer?) {
+    private func handlePeer(peerMaybe: DetectedPeer?) {
         if let peer = peerMaybe {
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
             // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth

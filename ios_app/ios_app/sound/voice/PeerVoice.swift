@@ -6,7 +6,7 @@ protocol LocationVoice {}
 class LocationVoiceImpl: LocationVoice {
     private var peerCancellable: AnyCancellable?
 
-    init(peerService: PeerService, voice: Voice) {
+    init(peerService: DetectedPeerService, voice: Voice) {
         peerCancellable = peerService.peer
             // TODO RunLoop.main maybe wrong here? probably for UI updates?
             .throttle(for: 5, scheduler: RunLoop.main, latest: false)

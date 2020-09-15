@@ -3,12 +3,12 @@ import Combine
 import CombineExt
 
 struct PeerWithBlockedStatus {
-    let peer: Peer
+    let peer: DetectedPeer
     let blocked: Bool
 }
 
 struct PeerWithCloseStatus: Equatable {
-    let peer: Peer
+    let peer: DetectedPeer
     let close: Bool
 }
 
@@ -19,7 +19,7 @@ private let distanceThresholdMeters: Float = 10
 private let timeToShowNotificationAgain: TimeInterval = 30 * 60
 
 class PeerDistanceNotificationService {
-    private let peerService: PeerService
+    private let peerService: DetectedPeerService
     private let notificationService: NotificationService
 
     private let notificationsBlockedSubject = CurrentValueSubject<Bool, Never>(false)
@@ -30,7 +30,7 @@ class PeerDistanceNotificationService {
     // Prevents multiple notifications when the user is at the range's edges or walks in an out
     private var timeToShowNotificationAgainTimer: Timer?
 
-    init(peerService: PeerService, notificationService: NotificationService) {
+    init(peerService: DetectedPeerService, notificationService: NotificationService) {
         self.peerService = peerService
         self.notificationService = notificationService
 
@@ -63,7 +63,7 @@ class PeerDistanceNotificationService {
             }
     }
 
-    private func onPeerClose(_ peer: Peer) {
+    private func onPeerClose(_ peer: DetectedPeer) {
         log.i("Peer close! showing notification", .notifications)
         notificationsBlockedSubject.send(true)
         timeToShowNotificationAgainTimer = Timer.scheduledTimer(timeInterval: timeToShowNotificationAgain,
@@ -78,7 +78,7 @@ class PeerDistanceNotificationService {
         notificationsBlockedSubject.send(false)
     }
 
-    private func showIsCloseNotification(peer: Peer) {
+    private func showIsCloseNotification(peer: DetectedPeer) {
         guard let dist = peer.dist else {
             // We should be in this method only if peer has distance.
             log.e("Invalid state: peer: \(peer) doesn't have distance.", .notifications)
