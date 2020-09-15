@@ -56,18 +56,26 @@ class SessionServiceImpl: SessionService {
         sessionStore.clear()
     }
 
+
     func createSession() -> Result<SharedSessionData, ServicesError> {
 //        guard !hasActiveSession() else {
 //            return .failure(.general("Can't create session: there's already one."))
 //        }
         loadOrCreateSessionData(isCreate: false,
                                 sessionIdGenerator: { SessionId(value: UUID().uuidString) }).flatMap { session in
-            sessionApi
-                .createSession(sessionId: session.sessionId, publicKey: session.publicKey)
-                .map { _ in SharedSessionData(id: session.sessionId,
-                                              isReady: false,
-                                              createdByMe: session.createdByMe) }
-        }
+            switch sessionApi
+                .createSession(sessionId: session.sessionId, publicKey: session.publicKey) {
+            case .success:
+                return .success(SharedSessionData(id: session.sessionId, isReady: false,
+                                                  createdByMe: session.createdByMe))
+            case .failure(let e):
+                log.e("Error creating backend session. Deleting local session", .session)
+                if case .failure(e) = sessionStore.clear() {
+                    log.e("Error deleting local session: \(e)", .session)
+                }
+                return .failure(e)
+            }
+            }
     }
 
     func joinSession(id sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
