@@ -56,18 +56,22 @@ class SessionServiceImpl: SessionService {
         sessionStore.clear()
     }
 
-
     func createSession() -> Result<SharedSessionData, ServicesError> {
 //        guard !hasActiveSession() else {
 //            return .failure(.general("Can't create session: there's already one."))
 //        }
+        // TODO why load or create? I remember there was a reason for this but maybe not valid anymore
+        // it seems cleaner to just always create, probably deleting an existing session if present ("worst case", with error log),
+        // and ensure that normally there's not already an active session here, i.e. error handlers etc. delete when needed, UI
+        // doesn't allow to double tap etc.
         loadOrCreateSessionData(isCreate: false,
                                 sessionIdGenerator: { SessionId(value: UUID().uuidString) }).flatMap { session in
             switch sessionApi
                 .createSession(sessionId: session.sessionId, publicKey: session.publicKey) {
-            case .success:
-                return .success(SharedSessionData(id: session.sessionId, isReady: false,
-                                                  createdByMe: session.createdByMe))
+            case .success(let backendSession):
+                // when creating the session, there will be obviously no peer yet (so no ack etc.)
+                // we use the same handler as the rest for consistency, as it's the same response.
+                return handleSessionResult(backendSession: backendSession, session: session)
             case .failure(let e):
                 log.e("Error creating backend session. Deleting local session", .session)
                 if case .failure(e) = sessionStore.clear() {
@@ -75,7 +79,7 @@ class SessionServiceImpl: SessionService {
                 }
                 return .failure(e)
             }
-            }
+        }
     }
 
     func joinSession(id sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
@@ -128,9 +132,15 @@ class SessionServiceImpl: SessionService {
         }
     }
 
+    /**
+     * - Stores peer's public key, if already present in the session
+     * (we could request it before peer joined, in which case there's no peer)
+     * - Acks to backend that we stored the key
+     * - Marks session as deleted if ack returns that session is ready (both participants ack-ed)
+     */
     private func handleSessionResult(backendSession: Session,
                                      session: MySessionData) -> Result<SharedSessionData, ServicesError> {
-        storeParticipantsAndAck(backendSession: backendSession, session: session).flatMap { ready in
+        storePeerIfPresentAndAck(backendSession: backendSession, session: session).flatMap { ready in
             if ready {
                 switch markDeleted(sessionData: session) {
                 case .success: return .success(SharedSessionData(id: session.sessionId, isReady: ready,
@@ -197,8 +207,8 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func storeParticipantsAndAck(backendSession: Session,
-                                         session: MySessionData) -> Result<Bool, ServicesError> {
+    private func storePeerIfPresentAndAck(backendSession: Session,
+                                          session: MySessionData) -> Result<Bool, ServicesError> {
         if let peer = backendSession.determinePeer(session: session) {
             switch sessionStore.setPeer(peer) {
             case .success:
@@ -265,32 +275,6 @@ class SessionServiceImpl: SessionService {
     }
 }
 
-class NoopSessionService: SessionService {
-    func deleteSessionLocally() -> Result<(), ServicesError> {
-        .success(())
-    }
-
-    func createSession() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: true))
-    }
-
-    func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: id, isReady: false, createdByMe: false))
-    }
-
-    func refreshSession() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: false))
-    }
-
-    func currentSession() -> Result<SharedSessionData?, ServicesError> {
-        .success(nil)
-    }
-
-    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
-        .success(nil)
-    }
-}
-
 private extension Session {
     func determinePeer(session: MySessionData) -> Participant? {
         guard keys.count < 3 else {
@@ -316,5 +300,31 @@ private extension Session {
             // only: we just checked that this list is at most 1 element length.
             return publicKeysDifferentToMine.only.map { Participant(publicKey: $0) }
         }
+    }
+}
+
+class NoopSessionService: SessionService {
+    func deleteSessionLocally() -> Result<(), ServicesError> {
+        .success(())
+    }
+
+    func createSession() -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: true))
+    }
+
+    func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: id, isReady: false, createdByMe: false))
+    }
+
+    func refreshSession() -> Result<SharedSessionData, ServicesError> {
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: false))
+    }
+
+    func currentSession() -> Result<SharedSessionData?, ServicesError> {
+        .success(nil)
+    }
+
+    func currentSessionParticipants() -> Result<Participants?, ServicesError> {
+        .success(nil)
     }
 }
