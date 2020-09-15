@@ -1,7 +1,6 @@
 import Foundation
 
-// TODO rename in BackendSession or similar
-struct Session {
+struct BackendSession {
     let id: SessionId
     let keys: [PublicKey]
 }

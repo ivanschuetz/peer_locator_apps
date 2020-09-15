@@ -57,7 +57,7 @@
 		8459E097250643630058D692 /* KeyChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8487FA2F24EE77CE003FDB0C /* KeyChain.swift */; };
 		8459E098250643680058D692 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
 		8459E099250643700058D692 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
-		8459E09A250643740058D692 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* Session.swift */; };
+		8459E09A250643740058D692 /* BackendSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* BackendSession.swift */; };
 		8459E09B2506437E0058D692 /* SessionId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB424FBB03500AA7E6D /* SessionId.swift */; };
 		8459E09C250643870058D692 /* SharedSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */; };
 		8459E09D2506438C0058D692 /* Data+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E9ACA824C4C3D700DAEBA1 /* Data+hex.swift */; };
@@ -77,7 +77,7 @@
 		8487FA3324EE7B98003FDB0C /* Valet in Frameworks */ = {isa = PBXBuildFile; productRef = 8487FA3224EE7B98003FDB0C /* Valet */; };
 		8489BAE424EAD4A8006D1CD3 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
 		8489BAE724EAF439006D1CD3 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
-		8489BAE924EAF453006D1CD3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* Session.swift */; };
+		8489BAE924EAF453006D1CD3 /* BackendSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE824EAF453006D1CD3 /* BackendSession.swift */; };
 		8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAED24EB1761006D1CD3 /* matchApp.swift */; };
 		848AE8062507705900DB192A /* ColocatedSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848AE8052507705900DB192A /* ColocatedSessionService.swift */; };
 		848AE8082507772B00DB192A /* RemoteSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848AE8072507772B00DB192A /* RemoteSessionManager.swift */; };
@@ -309,7 +309,7 @@
 		8487FA2F24EE77CE003FDB0C /* KeyChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyChain.swift; sourceTree = "<group>"; };
 		8489BAE324EAD4A8006D1CD3 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
 		8489BAE624EAF439006D1CD3 /* ServicesError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesError.swift; sourceTree = "<group>"; };
-		8489BAE824EAF453006D1CD3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		8489BAE824EAF453006D1CD3 /* BackendSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendSession.swift; sourceTree = "<group>"; };
 		8489BAED24EB1761006D1CD3 /* matchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchApp.swift; sourceTree = "<group>"; };
 		848AE8052507705900DB192A /* ColocatedSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedSessionService.swift; sourceTree = "<group>"; };
 		848AE8072507772B00DB192A /* RemoteSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSessionManager.swift; sourceTree = "<group>"; };
@@ -541,7 +541,7 @@
 			isa = PBXGroup;
 			children = (
 				8489BAE624EAF439006D1CD3 /* ServicesError.swift */,
-				8489BAE824EAF453006D1CD3 /* Session.swift */,
+				8489BAE824EAF453006D1CD3 /* BackendSession.swift */,
 				84B6DCAC24FBAC5700AA7E6D /* Peer.swift */,
 				84B6DCB124FBB00E00AA7E6D /* SharedSessionData.swift */,
 				84B6DCB424FBB03500AA7E6D /* SessionId.swift */,
@@ -1159,7 +1159,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8459E093250643500058D692 /* BleIdService.swift in Sources */,
-				8459E09A250643740058D692 /* Session.swift in Sources */,
+				8459E09A250643740058D692 /* BackendSession.swift in Sources */,
 				8459E0912506433D0058D692 /* Nearby.swift in Sources */,
 				8459E08E250643260058D692 /* ConsoleLog.swift in Sources */,
 				8459E098250643680058D692 /* Core.swift in Sources */,
@@ -1271,7 +1271,7 @@
 				8431867C2510F29E00078EC0 /* ColocatedPeerMediator.swift in Sources */,
 				84723B7825025777007C7C6D /* BleEnabledService.swift in Sources */,
 				84B70D26250F965A0063D8DE /* SessionStore.swift in Sources */,
-				8489BAE924EAF453006D1CD3 /* Session.swift in Sources */,
+				8489BAE924EAF453006D1CD3 /* BackendSession.swift in Sources */,
 				84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */,
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */,

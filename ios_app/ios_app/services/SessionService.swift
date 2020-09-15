@@ -132,7 +132,7 @@ class SessionServiceImpl: SessionService {
      * - Acks to backend that we stored the key
      * - Marks session as deleted if ack returns that session is ready (both participants ack-ed)
      */
-    private func handleSessionResult(backendSession: Session,
+    private func handleSessionResult(backendSession: BackendSession,
                                      session: MySessionData) -> Result<SharedSessionData, ServicesError> {
         storePeerIfPresentAndAck(backendSession: backendSession, session: session).flatMap { ready in
             if ready {
@@ -185,13 +185,13 @@ class SessionServiceImpl: SessionService {
         )
     }
 
-    private func processBackendSession(_ backendSession: Session) -> Result<(), ServicesError> {
+    private func processBackendSession(_ backendSession: BackendSession) -> Result<(), ServicesError> {
         localSessionManager.withSession {
             processBackendSession(backendSession, sessionData: $0)
         }
     }
 
-    private func processBackendSession(_ backendSession: Session,
+    private func processBackendSession(_ backendSession: BackendSession,
                                        sessionData: MySessionData) -> Result<(), ServicesError> {
         if let peer = backendSession.determinePeer(session: sessionData) {
             return localSessionManager.savePeer(peer).map { _ in () }
@@ -201,7 +201,7 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-    private func storePeerIfPresentAndAck(backendSession: Session,
+    private func storePeerIfPresentAndAck(backendSession: BackendSession,
                                           session: MySessionData) -> Result<Bool, ServicesError> {
         if let peer = backendSession.determinePeer(session: session) {
             switch localSessionManager.savePeer(peer) {
@@ -233,7 +233,7 @@ class SessionServiceImpl: SessionService {
     }
 }
 
-private extension Session {
+private extension BackendSession {
     func determinePeer(session: MySessionData) -> Participant? {
         guard keys.count < 3 else {
             fatalError("Invalid state: there are more than 2 participants in the session: \(self)")

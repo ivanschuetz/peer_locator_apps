@@ -9,11 +9,11 @@ protocol SessionApi {
 
     // TODO: review api here: when creating, there can't be partipants yet, so it
     // doesn't make sense to return public keys
-    func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
+    func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError>
 
-    func joinSession(id: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
+    func joinSession(id: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError>
     func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<Bool, ServicesError>
-    func participants(sessionId: SessionId) -> Result<Session, ServicesError>
+    func participants(sessionId: SessionId) -> Result<BackendSession, ServicesError>
     func delete(peerId: ParticipantId) -> Result<(), ServicesError>
 }
 
@@ -33,7 +33,7 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError> {
+    func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError> {
         let res = ffi_create_session(sessionId.value, publicKey.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
@@ -41,7 +41,7 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    func joinSession(id: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError> {
+    func joinSession(id: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError> {
         log.d("Will join session with id: \(id)")
         let res = ffi_join_session(id.value, publicKey.value)
         switch res.status {
@@ -59,7 +59,7 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    func participants(sessionId: SessionId) -> Result<Session, ServicesError> {
+    func participants(sessionId: SessionId) -> Result<BackendSession, ServicesError> {
         let res = ffi_participants(sessionId.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
@@ -75,7 +75,7 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    private func decode(sessionJson: Unmanaged<CFString>) -> Result<Session, ServicesError> {
+    private func decode(sessionJson: Unmanaged<CFString>) -> Result<BackendSession, ServicesError> {
         let resultString = sessionJson.toString()
 
         log.d("Deserializing core result: \(resultString)")
@@ -87,7 +87,7 @@ class CoreImpl: SessionApi, Bootstrapper {
         do {
             let coreSession = try decoder.decode(FFISession.self, from: data)
             return .success(
-                Session(id: SessionId(value: coreSession.id),
+                BackendSession(id: SessionId(value: coreSession.id),
                         keys: coreSession.keys.map ({ PublicKey(value: $0) })))
         } catch let e {
             return .failure(.general("Core returned invalid session JSON: \(e)"))
