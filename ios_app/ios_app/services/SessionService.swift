@@ -2,14 +2,40 @@ import Foundation
 
 // TODO rename RemoteSessionService
 protocol SessionService {
+    /**
+     * Initializes a local and backend session.
+     */
     func createSession() -> Result<SharedSessionData, ServicesError>
+
+    /**
+     * Joins an existing backend session. This consists of the following steps:
+     * - Initializing a local session (creates key pair) if it doesn't exist already.
+     * TODO clarify why it would already exist? is this needed?
+     * - Calling join session backend service.
+     * - Storing the peer's public key returned by call.
+     * - Acking to the backend that the public key was stored.
+     */
     func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError>
 
-    // Fetches participants, acks having stored the participants and returns whether the session is ready
-    // (all participants have stored all other participants)
-    // Note: UI should allow refresh only while there's an active session,
-    // thus if there's no active session, returns an error
-    func refreshSessionData() -> Result<SharedSessionData, ServicesError>
+    /**
+     * Retrieves the backend's session data (i.e. peer's public key) and acks to the backend
+     * when the peer's public key is stored. It also marks the backend session for deletion if the
+     * session is ready.
+     *
+     * This is used by:
+     * - Session creator: The creator doesn't know when the joiner joins (uploads their public key),
+     *   so it must ask for it (e.g. when the app comes to fg or by pressing a button).
+     * - Session joiner: The joiner doesn't know when the creator acks receiving the joiner's key, s
+     *   it also must ask for it.
+     *
+     * Note that the creator doesn't care specifically about the joiner's ack, as sending the ack is
+     * part of joining. But if there's an error and the joiner joins without ack-ing, the next call
+     * of refreshSessionData() (if successful) will ack. So creator and joiner can refresh repeatedly
+     * to retry after errors, either retrieving/storing the peer's public key or ack-ing.
+     *
+     * @returns whether session is ready, i.e. both peers have ack-ed having stored the peer's public key
+     */
+    func refreshSession() -> Result<SharedSessionData, ServicesError>
 
     func currentSession() -> Result<SharedSessionData?, ServicesError>
 
@@ -172,7 +198,6 @@ class SessionServiceImpl: SessionService {
         }
     }
 
-
     private func storeParticipantsAndAck(session backendSession: Session) -> Result<Bool, ServicesError> {
         withLocalSession {
             storeParticipantsAndAck(session: backendSession, session: $0)
@@ -307,7 +332,7 @@ class NoopSessionService: SessionService {
         .success(SharedSessionData(id: id, isReady: false, createdByMe: false))
     }
 
-    func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
+    func refreshSession() -> Result<SharedSessionData, ServicesError> {
         .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: false))
     }
 

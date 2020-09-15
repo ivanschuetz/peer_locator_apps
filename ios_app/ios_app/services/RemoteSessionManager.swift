@@ -24,6 +24,6 @@ class RemoteSessionManagerImpl: RemoteSessionManager {
     }
 
     func refresh() {
-        currentSessionService.setSessionResult(sessionService.refreshSessionData().map { $0 })
+        currentSessionService.setSessionResult(sessionService.refreshSession().map { $0 })
     }
 }
