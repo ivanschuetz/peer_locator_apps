@@ -53,9 +53,10 @@ private func toViewState(sessionRes: Result<SharedSessionData?, ServicesError>) 
     switch sessionRes {
     case .success(let session):
         if let session = session {
-            switch session.isReady {
-            case .yes: return .meetingActive
-            case .no: return .noMeeting
+            if session.isReady {
+                return .meetingActive
+            } else {
+                return .noMeeting
             }
         } else {
             return .noMeeting

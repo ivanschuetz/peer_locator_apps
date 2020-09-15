@@ -55,6 +55,10 @@ struct MySessionData: Encodable, Decodable {
             participant: participant
         )
     }
+
+    func isReady() -> Bool {
+        participant != nil
+    }
 }
 
 struct Participant: Codable {

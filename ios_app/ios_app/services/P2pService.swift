@@ -16,7 +16,7 @@ class P2pServiceImpl: P2pService {
                 switch sharedSessionRes {
                 case .success(let session):
                     if let session = session {
-                        return session.isReady == .yes
+                        return session.isReady
                     } else {
                         return false
                     }

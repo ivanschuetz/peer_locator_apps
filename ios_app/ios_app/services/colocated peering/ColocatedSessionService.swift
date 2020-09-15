@@ -103,7 +103,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             let mySessionData: Result<MySessionData?, ServicesError> = sessionStore.getSession()
             let sharedSessionData: Result<SharedSessionData?, ServicesError> = mySessionData.map({ mySessionData in
                 mySessionData.map {
-                    SharedSessionData(id: $0.sessionId, isReady: .yes, createdByMe: $0.createdByMe)
+                    SharedSessionData(id: $0.sessionId, isReady: true, createdByMe: $0.createdByMe)
                 }
             })
             sessionService.setSessionResult(sharedSessionData)

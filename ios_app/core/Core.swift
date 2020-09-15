@@ -12,7 +12,7 @@ protocol SessionApi {
     func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
 
     func joinSession(id: SessionId, publicKey: PublicKey) -> Result<Session, ServicesError>
-    func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<SessionReady, ServicesError>
+    func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<Bool, ServicesError>
     func participants(sessionId: SessionId) -> Result<Session, ServicesError>
     func delete(peerId: ParticipantId) -> Result<(), ServicesError>
 }
@@ -50,11 +50,11 @@ class CoreImpl: SessionApi, Bootstrapper {
         }
     }
 
-    func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<SessionReady, ServicesError> {
+    func ackAndRequestSessionReady(participantId: ParticipantId, storedParticipants: Int) -> Result<Bool, ServicesError> {
         log.d("Will ack and request session ready, participantId: \(participantId), participants: \(storedParticipants)")
         let res = ffi_ack(participantId.value, Int32(storedParticipants))
         switch res.status {
-        case 1: return .success(res.is_ready ? .yes : .no)
+        case 1: return .success(res.is_ready)
         default: return .failure(.general("Ack error: \(res)"))
         }
     }

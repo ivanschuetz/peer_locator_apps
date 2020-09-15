@@ -39,14 +39,14 @@ class SessionServiceImpl: SessionService {
             sessionApi
                 .createSession(sessionId: session.sessionId, publicKey: session.publicKey)
                 .map { _ in SharedSessionData(id: session.sessionId,
-                                              isReady: .no,
+                                              isReady: false,
                                               createdByMe: session.createdByMe) }
         }
     }
 
     func joinSession(id sessionId: SessionId) -> Result<SharedSessionData, ServicesError> {
         loadOrCreateSessionData(isCreate: false, sessionIdGenerator: { sessionId }).flatMap {
-            self.joinSession(id: sessionId, sessionData: $0)
+            joinSession(id: sessionId, sessionData: $0)
         }
     }
 
@@ -60,9 +60,9 @@ class SessionServiceImpl: SessionService {
         sessionStore.getSession().map { session in
             if let session = session {
                 return SharedSessionData(id: session.sessionId,
-                                         isReady: session.participant != nil ? .yes : .no,
+                                         isReady: session.isReady(),
                                          createdByMe: session.createdByMe)
-            } else { // No session
+            } else {
                 return nil
             }
         }
@@ -85,14 +85,13 @@ class SessionServiceImpl: SessionService {
             .joinSession(id: sessionId, publicKey: sessionData.publicKey)
             .flatMap { backendSession in
                 storeParticipantsAndAck(session: backendSession).flatMap { ready in
-                    switch ready {
-                    case .yes:
+                    if ready {
                         switch markDeleted(sessionData: sessionData) {
                         case .success: return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
                                                                          createdByMe: sessionData.createdByMe))
                         case .failure(let e): return .failure(e)
                         }
-                    case .no:
+                    } else {
                         return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
                                                           createdByMe: sessionData.createdByMe))
                     }
@@ -102,29 +101,21 @@ class SessionServiceImpl: SessionService {
 
     private func refreshSessionData(sessionData: MySessionData) -> Result<SharedSessionData, ServicesError> {
         // Retrieve participants from server and store locally
-        let fetchAndStoreRes = fetchAndStoreParticipants(sessionId: sessionData.sessionId)
-        switch fetchAndStoreRes {
-        // Ack the participants and see whether session is ready (everyone acked all the participants)
-        case .success:
-            let readyRes = ackAndRequestSessionReady()
-            switch readyRes {
-            case .success(let ready):
-                switch ready {
-                case .yes:
+        fetchAndStoreParticipants(sessionId: sessionData.sessionId).flatMap { _ in
+            // Ack the participants and see whether session is ready (everyone acked all the participants)
+            ackAndRequestSessionReady().flatMap { ready in
+                if ready {
                     let markDeletedRes = markDeleted(sessionData: sessionData)
                     switch markDeletedRes {
                     case .success: return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
                                                                      createdByMe: sessionData.createdByMe))
                     case .failure(let e): return .failure(e)
                     }
-                case .no:
+                } else {
                     return .success(SharedSessionData(id: sessionData.sessionId, isReady: ready,
                                                       createdByMe: sessionData.createdByMe))
                 }
-            case .failure(let e):
-                return .failure(e)
             }
-        case .failure(let e): return .failure(.general("Couldn't fetch or store participants: \(e)"))
         }
     }
 
@@ -152,13 +143,13 @@ class SessionServiceImpl: SessionService {
         return res
     }
 
-    private func ackAndRequestSessionReady() -> Result<SessionReady, ServicesError> {
+    private func ackAndRequestSessionReady() -> Result<Bool, ServicesError> {
         withLocalSession {
             ackAndRequestSessionReady(sessionData: $0)
         }
     }
 
-    private func ackAndRequestSessionReady(sessionData: MySessionData) -> Result<SessionReady, ServicesError> {
+    private func ackAndRequestSessionReady(sessionData: MySessionData) -> Result<Bool, ServicesError> {
         sessionApi.ackAndRequestSessionReady(
             participantId: sessionData.participantId,
             storedParticipants: sessionData.participant == nil ? 1 : 2
@@ -182,14 +173,14 @@ class SessionServiceImpl: SessionService {
     }
 
 
-    private func storeParticipantsAndAck(session backendSession: Session) -> Result<SessionReady, ServicesError> {
+    private func storeParticipantsAndAck(session backendSession: Session) -> Result<Bool, ServicesError> {
         withLocalSession {
             storeParticipantsAndAck(session: backendSession, session: $0)
         }
     }
 
     private func storeParticipantsAndAck(session backendSession: Session,
-                                         session: MySessionData) -> Result<SessionReady, ServicesError> {
+                                         session: MySessionData) -> Result<Bool, ServicesError> {
         if let peer = backendSession.determinePeer(session: session) {
             switch sessionStore.setPeer(peer) {
             case .success:
@@ -202,7 +193,7 @@ class SessionServiceImpl: SessionService {
         } else {
             log.v("The backend session: \(backendSession) doesn't have a peer yet. Session isn't ready.",
                   .session)
-            return .success(.no)
+            return .success(false)
         }
     }
 
@@ -309,15 +300,15 @@ class NoopSessionService: SessionService {
     }
 
     func createSession() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: true))
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: true))
     }
 
     func joinSession(id: SessionId) -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: id, isReady: .no, createdByMe: false))
+        .success(SharedSessionData(id: id, isReady: false, createdByMe: false))
     }
 
     func refreshSessionData() -> Result<SharedSessionData, ServicesError> {
-        .success(SharedSessionData(id: SessionId(value: "123"), isReady: .no, createdByMe: false))
+        .success(SharedSessionData(id: SessionId(value: "123"), isReady: false, createdByMe: false))
     }
 
     func currentSession() -> Result<SharedSessionData?, ServicesError> {
