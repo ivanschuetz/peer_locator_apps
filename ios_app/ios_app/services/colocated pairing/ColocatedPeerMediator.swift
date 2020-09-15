@@ -6,6 +6,11 @@ protocol ColocatedPeerMediator {
 }
 
 class ColocatedPeerMediatorImpl: ColocatedPeerMediator {
+    private let crypto: Crypto
+
+    init(crypto: Crypto) {
+        self.crypto = crypto
+    }
 
     func prepare(session: Session, password: ColocatedPeeringPassword) -> EncryptedPublicKey {
         EncryptedPublicKey(value: crypto.encrypt(str: session.publicKey.value, key: password.value))
@@ -18,12 +23,4 @@ class ColocatedPeerMediatorImpl: ColocatedPeerMediator {
         }
         return Peer(publicKey: PublicKey(value: publicKeyValue))
     }
-
-    private let crypto: Crypto
-
-    init(crypto: Crypto) {
-        self.crypto = crypto
-    }
-
-
 }

@@ -7,24 +7,23 @@ protocol BleIdService {
 }
 
 class BleIdServiceImpl: BleIdService {
-    private let crypto: Crypto
-    private let json: Json
-    private let sessionStore: SessionStore
-    private let keyChain: KeyChain
+    private let localSessionManager: LocalSessionManager
+    private let validationDataMediator: BleValidationDataMediator
+    private let peerValidator: BlePeerDataValidator
 
-    init(crypto: Crypto, json: Json, sessionStore: SessionStore, keyChain: KeyChain) {
-        self.crypto = crypto
-        self.json = json
-        self.sessionStore = sessionStore
-        self.keyChain = keyChain
+    init(localSessionManager: LocalSessionManager,
+         validationDataMediator: BleValidationDataMediator,
+         peerValidator: BlePeerDataValidator) {
+        self.localSessionManager = localSessionManager
+        self.validationDataMediator = validationDataMediator
+        self.peerValidator = peerValidator
     }
 
     func id() -> BleId? {
-        let sessionRes: Result<Session?, ServicesError> = keyChain.getDecodable(key: .mySessionData)
-        switch sessionRes {
+        switch localSessionManager.getSession() {
         case .success(let session):
             if let session = session {
-                return id(session: session)
+                return validationDataMediator.prepare(privateKey: session.privateKey)
             } else {
                 // This state is valid as devices can be close and with ble services (central/peripheral) on
                 // without session data: we are in this state during colocated pairing
@@ -40,26 +39,6 @@ class BleIdServiceImpl: BleIdService {
         }
     }
 
-    private func id(session: Session) -> BleId? {
-        // Some data to be signed
-        // We don't need this data directly: we're just interested in verifying the user, i.e. the signature
-        // TODO actual random string. For now hardcoded for easier debugging.
-        // this is anyway a temporary solution. We want to send encrypted (with peer's public key) json (with an index)
-        let randomString = "randomString"
-
-        let payloadToSignStr = json.toJson(encodable: SessionPayloadToSign(id: randomString))
-
-        // Create our signature
-        let signature = crypto.sign(privateKey: session.privateKey, payload: payloadToSignStr)
-        let signatureStr = signature.toHex()
-
-        // The total data sent to peers: "data"(useless) with the corresponding signature
-        let payload = SignedPeerPayload(data: payloadToSignStr, sig: signatureStr)
-        let payloadStr = json.toJson(encodable: payload)
-        // TODO is unwrap here safe
-        return BleId(data: payloadStr.data(using: .utf8)!)
-    }
-
     func validate(bleId: BleId) -> Bool {
         // TODO consider commenting this when going to production
         // it's very unlikely that there will be iphones with x86, but it's a serious security risk.
@@ -70,7 +49,7 @@ class BleIdServiceImpl: BleIdService {
         #endif
 
         log.d("Will validate: \(bleId)", .val)
-        switch sessionStore.getSession() {
+        switch localSessionManager.getSession() {
         case .success(let session):
             if let session = session {
                 if let peer = session.peer {
@@ -92,17 +71,8 @@ class BleIdServiceImpl: BleIdService {
     }
 
     private func validate(bleId: BleId, peer: Peer) -> Bool {
-        let dataStr = bleId.str()
-
-        let signedPeerPayload: SignedPeerPayload = json.fromJson(json: dataStr)
-        let payloadToSign = signedPeerPayload.data
-
-        log.v("Will validate peer payload: \(signedPeerPayload) with peer: \(peer)")
-
-        // TODO unwrap safe here?
-        let signData = Data(fromHexEncodedString: signedPeerPayload.sig)!
-
-        return crypto.validate(payload: payloadToSign, signature: signData, publicKey: peer.publicKey)
+        let signedPeerPayload: SignedPeerPayload = validationDataMediator.process(bleId: bleId)
+        return peerValidator.validate(payload: signedPeerPayload, peer: peer)
     }
 }
 

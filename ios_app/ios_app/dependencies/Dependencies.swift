@@ -63,10 +63,9 @@ class Dependencies {
     private func registerBle(container: DependencyContainer) {
 
         container.register(.singleton) { BleIdServiceImpl(
-            crypto: try container.resolve(),
-            json: try container.resolve(),
-            sessionStore: try container.resolve(),
-            keyChain: try container.resolve()
+            localSessionManager: try container.resolve(),
+            validationDataMediator: try container.resolve(),
+            peerValidator: try container.resolve()
         ) as BleIdService }
 
         #if arch(x86_64)
@@ -195,6 +194,14 @@ class Dependencies {
             bleManager: try container.resolve(),
             localSessionManager: try container.resolve()
         ) as ColocatedSessionService }
+
+        container.register(.eagerSingleton) {
+            BleValidationDataMediatorImpl(crypto: try container.resolve(),
+                                          json: try container.resolve()) as BleValidationDataMediator
+        }
+        container.register(.eagerSingleton) {
+            BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
+        }
     }
 
     private func registerViewModels(container: DependencyContainer) {

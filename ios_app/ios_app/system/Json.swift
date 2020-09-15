@@ -20,10 +20,12 @@ class JsonImpl: Json {
 
     func toJson<T: Encodable>(encodable: T) -> String {
         let data = toJsonData(encodable: encodable)
+        // TODO check unwrape safe
         return String(data: data, encoding: .utf8)!
     }
 
     func fromJson<T: Decodable>(json: String) -> T {
+        // TODO check that unwrap is safe: we're using this directly to process read ble data
         let data = json.data(using: .utf8)!
         return fromJsonData(json: data)
     }
