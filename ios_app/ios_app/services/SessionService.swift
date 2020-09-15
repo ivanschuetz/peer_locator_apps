@@ -282,7 +282,7 @@ class NoopSessionService: SessionService {
         .success(nil)
     }
 
-    func currentSessionPeers() -> Result<Peers?, ServicesError> {
+    func currentSessionPeers() -> Result<[Peer]?, ServicesError> {
         .success(nil)
     }
 }

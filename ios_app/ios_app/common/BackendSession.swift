@@ -68,11 +68,6 @@ struct PeerId: Codable {
     let value: String
 }
 
-// TODO why not [Peer]?
-struct Peers: Codable {
-    let peers: [PublicKey]
-}
-
 struct SessionLink {
     let url: URL
 
