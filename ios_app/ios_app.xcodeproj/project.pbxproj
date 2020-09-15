@@ -58,7 +58,7 @@
 		8459E093250643500058D692 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
 		8459E094250643580058D692 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1324F00E9F004CE510 /* Crypto.swift */; };
 		8459E0952506435C0058D692 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE8E1124EFDAAD004CE510 /* Json.swift */; };
-		8459E096250643610058D692 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* SessionService.swift */; };
+		8459E096250643610058D692 /* RemoteSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* RemoteSessionService.swift */; };
 		8459E097250643630058D692 /* KeyChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8487FA2F24EE77CE003FDB0C /* KeyChain.swift */; };
 		8459E098250643680058D692 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE324EAD4A8006D1CD3 /* Core.swift */; };
 		8459E099250643700058D692 /* ServicesError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489BAE624EAF439006D1CD3 /* ServicesError.swift */; };
@@ -89,7 +89,7 @@
 		8490C24C24F7FD53002FAFE9 /* NumberFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */; };
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
-		849B612924EDB99400D321D1 /* SessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* SessionService.swift */; };
+		849B612924EDB99400D321D1 /* RemoteSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* RemoteSessionService.swift */; };
 		84A211E42501590A008B370E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E32501590A008B370E /* SettingsView.swift */; };
 		84A211E72501596D008B370E /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E62501596D008B370E /* SettingsViewModel.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
@@ -315,7 +315,7 @@
 		8490C24B24F7FD53002FAFE9 /* NumberFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatters.swift; sourceTree = "<group>"; };
 		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
-		849B612824EDB99400D321D1 /* SessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionService.swift; sourceTree = "<group>"; };
+		849B612824EDB99400D321D1 /* RemoteSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSessionService.swift; sourceTree = "<group>"; };
 		84A211E32501590A008B370E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		84A211E62501596D008B370E /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -616,7 +616,7 @@
 				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
 				84E3DC8724C723AC00E2F175 /* DetectedPeerService.swift */,
 				848D5F5024CCA8E800F2D80B /* PeerDistanceNotificationService.swift */,
-				849B612824EDB99400D321D1 /* SessionService.swift */,
+				849B612824EDB99400D321D1 /* RemoteSessionService.swift */,
 				843F7EF024F10477002AA5F8 /* BleId.swift */,
 				843F7EF224F10582002AA5F8 /* P2pService.swift */,
 				841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */,
@@ -1155,7 +1155,7 @@
 				8431867F2511291E00078EC0 /* structs.swift in Sources */,
 				8459E08F250643260058D692 /* CachingLog.swift in Sources */,
 				840A8CB72509099F00E73815 /* Globals.swift in Sources */,
-				8459E096250643610058D692 /* SessionService.swift in Sources */,
+				8459E096250643610058D692 /* RemoteSessionService.swift in Sources */,
 				8431867A2510EEAE00078EC0 /* LocalSessionManager.swift in Sources */,
 				8459E090250643320058D692 /* BleUuids.swift in Sources */,
 				84F10B54250FA49E00F28C9D /* Array+Convenience.swift in Sources */,
@@ -1273,7 +1273,7 @@
 				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* MultipeerTokenServiceImpl.swift in Sources */,
 				84B70D24250F68920063D8DE /* DeviceValidatorService.swift in Sources */,
-				849B612924EDB99400D321D1 /* SessionService.swift in Sources */,
+				849B612924EDB99400D321D1 /* RemoteSessionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
