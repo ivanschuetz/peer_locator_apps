@@ -119,15 +119,14 @@ class Dependencies {
         ) as PeerForWidgetRecorder }
 
         container.register(.eagerSingleton) { NearbySessionCoordinatorImpl(
-            bleIdService: try container.resolve(),
             nearby: try container.resolve(),
             nearbyPairing: try container.resolve(),
-            keychain: try container.resolve(),
             uiNotifier: try container.resolve(),
             sessionStore: try container.resolve(),
             tokenProcessor: try container.resolve(),
             validDeviceService: try container.resolve(),
-            appEvents: try container.resolve()
+            appEvents: try container.resolve(),
+            tokenSender: try container.resolve()
         ) as NearbySessionCoordinator }
 
         container.register(.singleton) { BleDeviceValidatorServiceImpl(
@@ -209,9 +208,14 @@ class Dependencies {
         container.register(.eagerSingleton) {
             BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
         }
-        container.register(.eagerSingleton) {
-            AppEventsImpl() as AppEvents
-        }
+        container.register(.eagerSingleton) { AppEventsImpl() as AppEvents }
+        container.register(.eagerSingleton) { NearbyTokenSenderImpl(
+            nearbyPairing: try container.resolve(),
+            tokenProcessor: try container.resolve(),
+            localSessionManager: try container.resolve(),
+            uiNotifier: try container.resolve(),
+            nearby: try container.resolve()
+        ) as NearbyTokenSender }
     }
 
     private func registerViewModels(container: DependencyContainer) {

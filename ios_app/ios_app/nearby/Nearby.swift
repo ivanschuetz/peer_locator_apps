@@ -3,7 +3,7 @@ import NearbyInteraction
 import MultipeerConnectivity
 import Combine
 
-struct NearbyToken {
+struct NearbyToken: Equatable {
     let data: Data
 }
 
@@ -106,14 +106,20 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
      * Called when we get the discovery token from peer (peer writes it via ble when we're in range)
      * We expect a nearby session to be initialized here and not have a peer yet.
      */
-    func setPeer(token: NearbyToken) {
+    func setPeer(token peerToken: NearbyToken) {
         switch session {
         case .active(let niSession, let myToken, let currentPeerToken):
             if currentPeerToken != nil {
                 log.w("Invalid state? setting peer while there's already a peer set: \(sessionState).",
                       .nearby)
             }
-            session = .active(session: niSession, myToken: myToken, peerToken: token)
+            if peerToken != currentPeerToken {
+                log.d("Running nearby session with new peer token", .nearby)
+                session = .active(session: niSession, myToken: myToken, peerToken: peerToken)
+                runSession(session: niSession, peerToken: peerToken)
+            } else {
+                log.w("Got an already active peer token. Doing nothing.", .nearby)
+            }
         case .invalidated:
             // This may happen when device is sent to background during a session, ble writes nearby token
             // just after the background timeout invalidates the nearby session.
@@ -122,7 +128,6 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
         case .inactive:
             log.e("Invalid state: trying to set peer while session is not active", .nearby)
         }
-        _ = runSessionWithCachedPeerToken()
     }
 
     private func createSessionWithToken() -> (NISession, NearbyToken)? {
@@ -143,12 +148,19 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
         }
     }
 
-    private func runSessionWithCachedPeerToken() -> Bool {
+    private func runSession(session: NISession, peerToken: NearbyToken) {
+        session.run(peerToken)
+        sessionStateSubject.send(.started) // TODO does nearby have a callback for this?
+    }
+
+    /**
+     * Runs the session if the peer token is set.
+     */
+    private func tryRunSession() -> Bool {
         switch session {
-        case .active(let session, _, let token):
-            if let token = token {
-                session.run(token)
-                sessionStateSubject.send(.started) // TODO does nearby have a callback for this?
+        case .active(let session, _, let peerToken):
+            if let peerToken = peerToken {
+                runSession(session: session, peerToken: peerToken)
                 return true
             } else {
                 log.e("Invalid state: trying to run session without cached token", .nearby)
@@ -207,7 +219,7 @@ private extension NIDiscoveryToken {
 extension NearbyImpl: NISessionDelegate {
 
     func session(_ session: NISession, didUpdate nearbyObjects: [NINearbyObject]) {
-        log.d("Session did update, objects: \(nearbyObjects)", .nearby)
+        log.v("Session did update, objects: \(nearbyObjects)", .nearby)
 
         guard let obj = nearbyObjects.first else { return }
 
@@ -263,7 +275,7 @@ extension NearbyImpl: NISessionDelegate {
     // Called when app comes back to fg before session timeout. The session/token is still valid, we just have to re-run.
     func sessionSuspensionEnded(_ session: NISession) {
         log.d("sessionSuspensionEnded", .nearby)
-        _ = runSessionWithCachedPeerToken()
+        _ = tryRunSession()
     }
 
     // Called when session times out (app stays in bg too long, errors). Clear peer token.

@@ -4,16 +4,12 @@ import Combine
 protocol NearbySessionCoordinator {}
 
 class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
-    private let bleIdService: BleIdService
-
     private var sendNearbyTokenCancellable: Cancellable?
     private var receivedNearbyTokenCancellable: Cancellable?
 
-    init(bleIdService: BleIdService, nearby: Nearby, nearbyPairing: NearbyPairing,
-         keychain: KeyChain, uiNotifier: UINotifier, sessionStore: SessionStore,
+    init(nearby: Nearby, nearbyPairing: NearbyPairing, uiNotifier: UINotifier, sessionStore: SessionStore,
          tokenProcessor: NearbyTokenProcessor, validDeviceService: DetectedBleDeviceFilterService,
-         appEvents: AppEvents) {
-        self.bleIdService = bleIdService
+         appEvents: AppEvents, tokenSender: NearbyTokenSender) {
 
         // Idea is to send the nearby token (i.e. initiate the session) when
         // 1) the devices come in ble range (to be tested whether this doesn't trigger nearby timeout/invalidation)
@@ -39,8 +35,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 
         sendNearbyTokenCancellable = validatedBlePeer.combineLatest(appCameToFg)
             .sink { _, _ in
-                sendNearbyTokenToPeer(nearby: nearby, nearbyPairing: nearbyPairing, keychain: keychain,
-                                      uiNotifier: uiNotifier, tokenProcessor: tokenProcessor)
+                tokenSender.startSending()
             }
 
         receivedNearbyTokenCancellable = nearbyPairing.token.sink { serializedToken in
@@ -54,43 +49,6 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
                 uiNotifier.show(.error("Nearby peer couldn't be validated. Can't start nearby session"))
             }
         }
-    }
-}
-
-// TODO retry(with timer?, additionally to bt write error retry)
-// "comes in range" may not work at the distance or be intermittent, so we'll likely get errors
-private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing, keychain: KeyChain,
-                                   uiNotifier: UINotifier, tokenProcessor: NearbyTokenProcessor) {
-    guard let token = nearby.createOrUseSession() else {
-        log.e("Critical: nearby token returned nil. Can't send token to peer.", .nearby)
-        return
-    }
-
-    // TODO consider making prefs/keychain reactive and fetching reactively. Not sure if benefitial here.
-    let mySessionDataRes: Result<Session?, ServicesError> =
-        keychain.getDecodable(key: .mySessionData)
-    switch mySessionDataRes {
-    case .success(let mySessionData):
-        if let mySessionData = mySessionData {
-            log.i("Sending nearby discovery token to peer: \(token)", .nearby)
-            nearbyPairing.sendDiscoveryToken(
-                token: tokenProcessor.prepareToSend(token: token, privateKey: mySessionData.privateKey)
-            )
-        } else {
-            // We're observing a validated peer, and validating is not possible without
-            // having our own private key stored, so it _should_ be invalid. but:
-            // This currently can happen when triggered by (nearby) session stopped observable
-            // after the (peer) session were deleted --> TODO fix
-            // also, consider observing the current session too (and ensuring that the keychain data
-            // is in sync, so if current session is nil, keychain data is also reliably deleted
-            log.e("Invalid state: no session data (see comment for details)", .nearby, .session)
-        }
-
-    case .failure(let e):
-        log.e("Failure fetching session data. Can't start nearby session. \(e)", .nearby)
-        // TODO we really should prevent this (see comments above): it would be terrible ux
-        // also, allow the user to report errors from the notification
-        uiNotifier.show(.error("Couldn't start nearby session"))
     }
 }
 
@@ -113,7 +71,7 @@ private func validate(token: SerializedSignedNearbyToken, sessionStore: SessionS
             return .invalid
         }
     case .failure(let e):
-        log.e("Critical: Couldn't retrieve peers from keychain: \(e). Can't validate nearby token", .nearby)
+        log.e("Critical: Couldn't session/peer: \(e). Can't validate nearby token", .nearby)
         return .invalid
     }
 }
