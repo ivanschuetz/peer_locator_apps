@@ -126,7 +126,8 @@ class Dependencies {
             uiNotifier: try container.resolve(),
             sessionStore: try container.resolve(),
             tokenProcessor: try container.resolve(),
-            validDeviceService: try container.resolve()
+            validDeviceService: try container.resolve(),
+            appEvents: try container.resolve()
         ) as NearbySessionCoordinator }
 
         container.register(.singleton) { BleDeviceValidatorServiceImpl(
@@ -207,6 +208,9 @@ class Dependencies {
         }
         container.register(.eagerSingleton) {
             BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
+        }
+        container.register(.eagerSingleton) {
+            AppEventsImpl() as AppEvents
         }
     }
 

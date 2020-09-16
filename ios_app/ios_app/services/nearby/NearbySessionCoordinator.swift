@@ -11,7 +11,8 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 
     init(bleIdService: BleIdService, nearby: Nearby, nearbyPairing: NearbyPairing,
          keychain: KeyChain, uiNotifier: UINotifier, sessionStore: SessionStore,
-         tokenProcessor: NearbyTokenProcessor, validDeviceService: DetectedBleDeviceFilterService) {
+         tokenProcessor: NearbyTokenProcessor, validDeviceService: DetectedBleDeviceFilterService,
+         appEvents: AppEvents) {
         self.bleIdService = bleIdService
 
         // Idea is to send the nearby token (i.e. initiate the session) when
@@ -25,17 +26,18 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
         let validatedBlePeer = validDeviceService.device
             .map { $0.id } // discard distance
             // TODO review. For now we process only the first discovered valid device (should be fine?)
+            // note also that if we didn't do this, i.e. sent an event on each validation it would be problematic
+            // when we implement periodic validation. We're interested here specifically in "came in range",
+            // not "determined that the device is valid".
             .removeDuplicates()
             .handleEvents(receiveOutput: { log.d("Discovered valid device, will send nearby discovery token: \($0)", .nearby) })
             .map { _ in () }
-            
-        let sessionStopped = nearby.sessionState
-            .handleEvents(receiveOutput: { log.d("Session state: \($0)", .nearby) })
-            .removeDuplicates()
-            .filter { $0 == .removed }
+
+        let appCameToFg = appEvents.events
+            .filter { $0 == .toFg }
             .map { _ in () }
 
-        sendNearbyTokenCancellable = validatedBlePeer.merge(with: sessionStopped)
+        sendNearbyTokenCancellable = validatedBlePeer.merge(with: appCameToFg)
             .sink { _ in
                 sendNearbyTokenToPeer(nearby: nearby, nearbyPairing: nearbyPairing, keychain: keychain,
                                       uiNotifier: uiNotifier, tokenProcessor: tokenProcessor)
@@ -46,7 +48,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
             switch validate(token: serializedToken, sessionStore: sessionStore, tokenProcessor: tokenProcessor) {
             case .valid(let token):
                 log.i("Nearby token validation succeeded. Starting nearby session", .nearby)
-                nearby.start(peerToken: token)
+                nearby.setPeer(token: token)
             case .invalid:
                 log.e("Nearby token validation failed. Can't start nearby session", .nearby)
                 uiNotifier.show(.error("Nearby peer couldn't be validated. Can't start nearby session"))
@@ -55,9 +57,11 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
     }
 }
 
+// TODO retry(with timer?, additionally to bt write error retry)
+// "comes in range" may not work at the distance or be intermittent, so we'll likely get errors
 private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing, keychain: KeyChain,
                                    uiNotifier: UINotifier, tokenProcessor: NearbyTokenProcessor) {
-    if let token = nearby.token() {
+    if let token = nearby.createOrUseSession() {
 
         // TODO consider making prefs/keychain reactive and fetching reactively. Not sure if benefitial here.
         let mySessionDataRes: Result<Session?, ServicesError> =
