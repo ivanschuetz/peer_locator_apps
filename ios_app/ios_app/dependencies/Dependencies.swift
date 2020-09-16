@@ -122,7 +122,7 @@ class Dependencies {
             nearby: try container.resolve(),
             nearbyPairing: try container.resolve(),
             uiNotifier: try container.resolve(),
-            sessionStore: try container.resolve(),
+            localSessionManager: try container.resolve(),
             tokenProcessor: try container.resolve(),
             validDeviceService: try container.resolve(),
             appEvents: try container.resolve(),

@@ -7,7 +7,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
     private var sendNearbyTokenCancellable: Cancellable?
     private var receivedNearbyTokenCancellable: Cancellable?
 
-    init(nearby: Nearby, nearbyPairing: NearbyPairing, uiNotifier: UINotifier, sessionStore: SessionStore,
+    init(nearby: Nearby, nearbyPairing: NearbyPairing, uiNotifier: UINotifier, localSessionManager: LocalSessionManager,
          tokenProcessor: NearbyTokenProcessor, validDeviceService: DetectedBleDeviceFilterService,
          appEvents: AppEvents, tokenSender: NearbyTokenSender) {
 
@@ -40,7 +40,8 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 
         receivedNearbyTokenCancellable = nearbyPairing.token.sink { serializedToken in
             log.i("Received nearby token from peer, starting session", .nearby)
-            switch validate(token: serializedToken, sessionStore: sessionStore, tokenProcessor: tokenProcessor) {
+            switch validate(token: serializedToken, localSessionManager: localSessionManager,
+                            tokenProcessor: tokenProcessor) {
             case .valid(let token):
                 log.i("Nearby token validation succeeded. Starting nearby session", .nearby)
                 nearby.setPeer(token: token)
@@ -56,22 +57,25 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 // to validate (retrieve peer's public keys) we access session service. Ideally one single service to
 // retrieve session data, or maybe even perform sign/validation with current session data?
 // (keep in mind multiple session suspport in the future)
-private func validate(token: SerializedSignedNearbyToken, sessionStore: SessionStore,
+private func validate(token: SerializedSignedNearbyToken, localSessionManager: LocalSessionManager,
                       tokenProcessor: NearbyTokenProcessor) -> NearbyTokenValidationResult {
-    let res: Result<Peer?, ServicesError> = sessionStore.getSession().map { $0?.peer }
-    switch res {
-    case .success(let peer):
-        if let peer = peer {
-            return tokenProcessor.validate(token: token, publicKey: peer.publicKey)
+    let valiationRes: Result<NearbyTokenValidationResult, ServicesError> = localSessionManager.withSession { session in
+        if let peer = session.peer {
+            return .success(tokenProcessor.validate(token: token, publicKey: peer.publicKey))
         } else {
             // If we get peer's token to be validated it means we should be in an active session
             // Currently can happen, though, as we don't stop the token observable when
             // the session is deleted --> TODO fix
-            log.e("Invalid state: No peers stored (see comment). Can't validate nearby token", .nearby, .session)
-            return .invalid
+            log.e("Invalid state: No peer stored (see comment). Can't validate nearby token", .nearby, .session)
+            return .success(.invalid)
         }
+    }
+
+    switch valiationRes {
+    case .success(let res):
+        return res
     case .failure(let e):
-        log.e("Critical: Couldn't session/peer: \(e). Can't validate nearby token", .nearby)
+        log.e("Critical: Couldn't get current session: \(e). Can't validate nearby token", .nearby)
         return .invalid
     }
 }
