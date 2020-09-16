@@ -58,6 +58,10 @@ protocol Nearby {
     func start(peerToken: NearbyToken)
 }
 
+func isNearbySupported() -> Bool {
+    NISession.isSupported
+}
+
 class NearbyImpl: NSObject, Nearby, ObservableObject {
 
     private let session: NISession
@@ -75,11 +79,6 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
         session.delegate = self
     }
 
-    // TODO use
-    static func isSupported() -> Bool {
-        NISession.isSupported
-//      log.w("This device doesn't support nearby", .nearby)
-    }
 
     // TODO when does discoveryToken return nil? when session not supported at least?
     func token() -> NearbyToken? {
@@ -186,11 +185,11 @@ extension NearbyImpl: NISessionDelegate {
     }
 }
 
+// Note used also in production, by devices that don't support Nearby.
 class NearbyNoop: Nearby {
     var sessionState = Just(SessionState.notInit).eraseToAnyPublisher()
-    var discovered: AnyPublisher<NearbyObj, Never> =
-        Just(NearbyObj(name: "foo", dist: 1.2, dir: simd_float3(1, 1, 0))).eraseToAnyPublisher()
-
+    var discovered: AnyPublisher<NearbyObj, Never> = Empty()
+        .eraseToAnyPublisher()
     func token() -> NearbyToken? { nil }
     func start(peerToken token: NearbyToken) {}
 }

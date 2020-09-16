@@ -105,7 +105,13 @@ class Dependencies {
     private func registerServices(container: DependencyContainer) {
         container.register(.singleton) { MultipeerTokenServiceImpl() }
 
-        container.register(.eagerSingleton) { NearbyImpl() as Nearby }
+        if isNearbySupported() {
+            container.register(.eagerSingleton) { NearbyImpl() as Nearby }
+        } else {
+            log.i("Device doesn't support nearby. Using a Noop nearby dependency", .nearby)
+            container.register(.singleton) { NearbyNoop() as Nearby }
+        }
+        
         container.register(.eagerSingleton) { PeerForWidgetRecorderImpl(
             peerService: try container.resolve(),
             preferences: try container.resolve(),
