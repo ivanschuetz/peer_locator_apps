@@ -37,8 +37,8 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
             .filter { $0 == .toFg }
             .map { _ in () }
 
-        sendNearbyTokenCancellable = validatedBlePeer.merge(with: appCameToFg)
-            .sink { _ in
+        sendNearbyTokenCancellable = validatedBlePeer.combineLatest(appCameToFg)
+            .sink { _, _ in
                 sendNearbyTokenToPeer(nearby: nearby, nearbyPairing: nearbyPairing, keychain: keychain,
                                       uiNotifier: uiNotifier, tokenProcessor: tokenProcessor)
             }
