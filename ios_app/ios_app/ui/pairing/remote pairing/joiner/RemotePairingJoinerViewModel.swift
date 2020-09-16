@@ -33,7 +33,6 @@ class RemotePairingJoinerViewModel: ObservableObject {
             case .failure(let e):
                 let msg = "Couldn't retrieve session: \(e)"
                 log.e(msg, .ui)
-                uiNotifier.show(.error(msg))
             }
         }
     }

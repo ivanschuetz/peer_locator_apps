@@ -1,5 +1,11 @@
 import Combine
 
+/**
+ * Manages current configured session.
+ * If there's no session configured yet, the observable's session is nil.
+ * Note that this class shows UI notifications for session's failure result,
+ * so observers must not show UI notifications again for this.
+ */
 protocol CurrentSessionService {
     var session: AnyPublisher<Result<Session?, ServicesError>, Never> { get }
 
@@ -24,9 +30,12 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 
         sessionSubject = CurrentValueSubject(localSessionManager.getSession())
         session = sessionSubject
-//            .handleEvents(receiveOutput: { session in
+            .handleEvents(receiveOutput: { session in
 //                log.d("Current session was updated to: \(session)", .session)
-//            })
+                if case .failure(let e) = session {
+                    uiNotifier.show(.error("Session error: \(e)"))
+                }
+            })
             .eraseToAnyPublisher()
     }
 

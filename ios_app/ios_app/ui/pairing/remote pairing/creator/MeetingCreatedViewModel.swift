@@ -39,7 +39,6 @@ class MeetingCreatedViewModel: ObservableObject {
             // TODO ensure that only one message of a type shows at a time
             let msg = "Couldn't retrieve session: \(e). NOTE: shouldn't happen in this screen."
             log.e(msg, .ui)
-            uiNotifier.show(.error(msg))
         }
     }
 
