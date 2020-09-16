@@ -61,36 +61,36 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 // "comes in range" may not work at the distance or be intermittent, so we'll likely get errors
 private func sendNearbyTokenToPeer(nearby: Nearby, nearbyPairing: NearbyPairing, keychain: KeyChain,
                                    uiNotifier: UINotifier, tokenProcessor: NearbyTokenProcessor) {
-    if let token = nearby.createOrUseSession() {
-
-        // TODO consider making prefs/keychain reactive and fetching reactively. Not sure if benefitial here.
-        let mySessionDataRes: Result<Session?, ServicesError> =
-            keychain.getDecodable(key: .mySessionData)
-        switch mySessionDataRes {
-        case .success(let mySessionData):
-            if let mySessionData = mySessionData {
-                log.i("Sending nearby discovery token to peer: \(token)", .nearby)
-                nearbyPairing.sendDiscoveryToken(
-                    token: tokenProcessor.prepareToSend(token: token, privateKey: mySessionData.privateKey)
-                )
-            } else {
-                // We're observing a validated peer, and validating is not possible without
-                // having our own private key stored, so it _should_ be invalid. but:
-                // This currently can happen when triggered by (nearby) session stopped observable
-                // after the (peer) session were deleted --> TODO fix
-                // also, consider observing the current session too (and ensuring that the keychain data
-                // is in sync, so if current session is nil, keychain data is also reliably deleted
-                log.e("Invalid state: no session data (see comment for details)", .nearby, .session)
-            }
-
-        case .failure(let e):
-            log.e("Failure fetching session data. Can't start nearby session. \(e)", .nearby)
-            // TODO we really should prevent this (see comments above): it would be terrible ux
-            // also, allow the user to report errors from the notification
-            uiNotifier.show(.error("Couldn't start nearby session"))
-        }
-    } else {
+    guard let token = nearby.createOrUseSession() else {
         log.e("Critical: nearby token returned nil. Can't send token to peer.", .nearby)
+        return
+    }
+
+    // TODO consider making prefs/keychain reactive and fetching reactively. Not sure if benefitial here.
+    let mySessionDataRes: Result<Session?, ServicesError> =
+        keychain.getDecodable(key: .mySessionData)
+    switch mySessionDataRes {
+    case .success(let mySessionData):
+        if let mySessionData = mySessionData {
+            log.i("Sending nearby discovery token to peer: \(token)", .nearby)
+            nearbyPairing.sendDiscoveryToken(
+                token: tokenProcessor.prepareToSend(token: token, privateKey: mySessionData.privateKey)
+            )
+        } else {
+            // We're observing a validated peer, and validating is not possible without
+            // having our own private key stored, so it _should_ be invalid. but:
+            // This currently can happen when triggered by (nearby) session stopped observable
+            // after the (peer) session were deleted --> TODO fix
+            // also, consider observing the current session too (and ensuring that the keychain data
+            // is in sync, so if current session is nil, keychain data is also reliably deleted
+            log.e("Invalid state: no session data (see comment for details)", .nearby, .session)
+        }
+
+    case .failure(let e):
+        log.e("Failure fetching session data. Can't start nearby session. \(e)", .nearby)
+        // TODO we really should prevent this (see comments above): it would be terrible ux
+        // also, allow the user to report errors from the notification
+        uiNotifier.show(.error("Couldn't start nearby session"))
     }
 }
 
