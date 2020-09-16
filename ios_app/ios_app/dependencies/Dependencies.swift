@@ -119,14 +119,14 @@ class Dependencies {
         ) as PeerForWidgetRecorder }
 
         container.register(.eagerSingleton) { NearbySessionCoordinatorImpl(
-            bleManager: try container.resolve(),
             bleIdService: try container.resolve(),
             nearby: try container.resolve(),
             nearbyPairing: try container.resolve(),
             keychain: try container.resolve(),
             uiNotifier: try container.resolve(),
             sessionStore: try container.resolve(),
-            tokenProcessor: try container.resolve()
+            tokenProcessor: try container.resolve(),
+            validDeviceService: try container.resolve()
         ) as NearbySessionCoordinator }
 
         container.register(.singleton) { BleDeviceValidatorServiceImpl(

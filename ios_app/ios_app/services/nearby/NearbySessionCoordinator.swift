@@ -4,16 +4,14 @@ import Combine
 protocol NearbySessionCoordinator {}
 
 class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
-    private let bleManager: BleManager
     private let bleIdService: BleIdService
 
     private var sendNearbyTokenCancellable: Cancellable?
     private var receivedNearbyTokenCancellable: Cancellable?
 
-    init(bleManager: BleManager, bleIdService: BleIdService, nearby: Nearby, nearbyPairing: NearbyPairing,
+    init(bleIdService: BleIdService, nearby: Nearby, nearbyPairing: NearbyPairing,
          keychain: KeyChain, uiNotifier: UINotifier, sessionStore: SessionStore,
-         tokenProcessor: NearbyTokenProcessor) {
-        self.bleManager = bleManager
+         tokenProcessor: NearbyTokenProcessor, validDeviceService: DetectedBleDeviceFilterService) {
         self.bleIdService = bleIdService
 
         // Idea is to send the nearby token (i.e. initiate the session) when
@@ -24,20 +22,11 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
         // TODO review and test in general: this is more of a quick placeholder implementation.
 
         // "Device came in max range (which is ble range)" = "meeting started"
-        let validatedBlePeer = bleManager.discovered
+        let validatedBlePeer = validDeviceService.device
             .map { $0.id } // discard distance
-            // TODO review. For now we process only the first discovered id (should be fine?)
+            // TODO review. For now we process only the first discovered valid device (should be fine?)
             .removeDuplicates()
-            .handleEvents(receiveOutput: { log.d("Discovered device, will validate: \($0)", .nearby) })
-            // NOTE: this validation isn't related with nearby token validation. This is just to
-            // identify the event "peer detected (i.e. is in max possible range)"
-            // which of course has to be a validated peer (correct general signature)
-            // TODO this is obviously very inefficient, as we get a new id per distance measurement!
-            // currently we validate only once. Note: Added removeDuplicates() above. If that's ok this todo can be removed.
-            .map { bleIdService.validate(bleId: $0) }
-//            .handleEvents(receiveOutput: { log.d("Validated device: \($0)", .nearby) })
-            .removeDuplicates()
-            .filter { $0 }
+            .handleEvents(receiveOutput: { log.d("Discovered valid device, will send nearby discovery token: \($0)", .nearby) })
             .map { _ in () }
             
         let sessionStopped = nearby.sessionState
