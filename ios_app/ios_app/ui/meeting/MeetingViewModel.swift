@@ -65,6 +65,7 @@ struct BleIdRow: Identifiable {
     let bleId: BleId
 }
 
+// TODO use the toAngle() extension on Direction and adjust result for iOS coords
 private func toAngle(dir: Direction) -> Double {
     // "normal" formula to get angle from x, y (only for positive quadrant): atan(dir.y / dir.x)
     // additions:

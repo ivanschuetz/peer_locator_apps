@@ -137,3 +137,19 @@ struct Direction: Equatable {
     let x: Float
     let y: Float
 }
+
+extension Direction {
+    func toAngle() -> Double {
+        // "normal" formula to get angle from x, y (only for positive quadrant): atan(dir.y / dir.x)
+        // additions:
+        // atan needs adjustment for negative quadrants (x or y < 0)
+        let res = Double(atan(y / x))
+        if x < 0 {
+            return res + Double.pi
+        } else if y < 0 {
+            return res + (Double.pi * 2)
+        } else {
+            return res
+        }
+    }
+}
