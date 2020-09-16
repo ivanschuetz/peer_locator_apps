@@ -1,6 +1,12 @@
 import CoreBluetooth
 import Combine
 
+/*
+ * Writes the Nearby discovery token to peer.
+ * If both devices support Nearby, a session will be created, by each writing its discovery token to the peer.
+ * If a device doesn't support Nearby, it just does nothing (don't write the token)
+ * This way a session isn't established, so there's no nearby measurements and we stay with ble.
+ */
 protocol NearbyPairing {
     var token: AnyPublisher<SerializedSignedNearbyToken, Never> { get }
     
