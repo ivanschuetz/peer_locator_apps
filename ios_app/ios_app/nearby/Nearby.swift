@@ -80,9 +80,19 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
     }
 
 
-    // TODO when does discoveryToken return nil? when session not supported at least?
     func token() -> NearbyToken? {
-        session.discoveryToken?.toNearbyToken()
+        if let token = session.discoveryToken {
+            return token.toNearbyToken()
+        } else {
+            if isNearbySupported() {
+                // TODO can this happen? Docs currently don't say when it's nil:
+                // https://developer.apple.com/documentation/nearbyinteraction/nisession/3564775-discoverytoken
+                log.e("Unexpected: device is supported but nearby session returned no discovery token", .nearby)
+                return nil
+            } else {
+                fatalError("Illegal state: if device doesn't support Nearby, NearbyImpl shouldn't be instantiated")
+            }
+        }
     }
 
     func start(peerToken: NearbyToken) {
