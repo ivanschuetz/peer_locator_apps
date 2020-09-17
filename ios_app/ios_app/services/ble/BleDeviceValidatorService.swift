@@ -10,38 +10,45 @@ protocol BleDeviceValidatorService {
 }
 
 class BleDeviceValidatorServiceImpl: BleDeviceValidatorService {
+    private let validationResults: AnyPublisher<[UUID: DetectedDeviceValidationResult], Never>
     let validDevices: AnyPublisher<[UUID: BleId], Never>
 
     init(validationDataReader: BleValidationDataReader, idService: BleIdService) {
-        validDevices = validationDataReader.read
-            .scan([UUID: BleId](), { dict, peer in
-                updateValidPeers(validPeers: dict, blePeer: peer, idService: idService)
+        validationResults = validationDataReader.read
+            .scan([UUID: DetectedDeviceValidationResult](), { dict, peer in
+                updateValidPeers(validationResults: dict, blePeer: peer, idService: idService)
             })
             .eraseToAnyPublisher()
+
+        validDevices = validationResults.map { dict in
+            dict
+                .filter({ _, value in value.isValid })
+                .mapValues { $0.bleId }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
+private struct DetectedDeviceValidationResult {
+    let bleId: BleId
+    let isValid: Bool
+}
+
 /**
- * Adds ble peer to dictionary of valid peers if valid.
+ * Adds ble peer's validation result to dictionary.
  */
-private func updateValidPeers(validPeers: [UUID: BleId], blePeer: BlePeer, idService: BleIdService) -> [UUID: BleId] {
+private func updateValidPeers(validationResults: [UUID: DetectedDeviceValidationResult], blePeer: BlePeer,
+                              idService: BleIdService) -> [UUID: DetectedDeviceValidationResult] {
     // if it was already validated, don't validate again (validation is expensive).
     // when we implement periodic validation probably we have to pass a flag to force validation.
     // clearing the dictionary would probably not be good, as it would interrupt the distance measurements.
-    if validPeers.keys.contains(blePeer.deviceUuid) {
-        return validPeers
+    if validationResults.keys.contains(blePeer.deviceUuid) {
+        return validationResults
     }
 
-    var mutDict = validPeers
-    if idService.validate(bleId: blePeer.id) {
-        log.i("Validated device: \(blePeer.id)", .peer, .ble)
-        mutDict[blePeer.deviceUuid] = blePeer.id
-    } else {
-        // Invalid device means only that the peer is unknown.
-        // (i.e. we don't have the public key to validate their signature)
-        // usually this will be because it's not our peer (but someone else using the app/service uuid)
-        // of course it's also possible that it's our peer and there's a programming error.
-        log.v("Device didn't pass validation: \(blePeer.id)", .peer, .ble)
-    }
+    var mutDict = validationResults
+    let isValid = idService.validate(bleId: blePeer.id)
+    log.i("Validated device: \(blePeer.id), valid?: \(isValid)", .peer, .ble)
+    mutDict[blePeer.deviceUuid] = DetectedDeviceValidationResult(bleId: blePeer.id, isValid: isValid)
     return mutDict
 }
