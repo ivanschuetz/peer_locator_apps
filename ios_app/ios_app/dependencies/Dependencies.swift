@@ -67,15 +67,17 @@ class Dependencies {
             validationDataMediator: try container.resolve(),
             peerValidator: try container.resolve()
         ) as BleIdService }
+        container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
+        container.register(.singleton) { BleValidationDataReader(idService: try container.resolve()) }
 
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
         let multipeerTokenService = container.register(.eagerSingleton) {
             MultipeerTokenServiceImpl()
         }
-        container.register(multipeerTokenService, type: NearbyTokenReceiver.self)
+        container.register(multipeerTokenService, type: NearbyPairing.self)
         container.register(multipeerTokenService, type: NearbyTokenSender.self)
-        container.register(.singleton) { SimulatorBleEnabledServiceImpl() as BleEnabledService }
+        container.register(.singleton) { SimulatorBleEnablerImpl() as BleEnabler }
         #else
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
 
@@ -97,8 +99,6 @@ class Dependencies {
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
         container.register(.singleton) { BleNearbyPairing() as NearbyPairing }
         container.register(.singleton) { BleColocatedPairing() }
-        container.register(.singleton) { BleValidationDataReader(idService: try container.resolve()) }
-
         #endif
     }
 
@@ -216,6 +216,10 @@ class Dependencies {
             uiNotifier: try container.resolve(),
             nearby: try container.resolve()
         ) as NearbyTokenSender }
+
+        container.register(.singleton) {
+            SessionStoreImpl(keyChain: try container.resolve()) as SessionStore
+        }
     }
 
     private func registerViewModels(container: DependencyContainer) {

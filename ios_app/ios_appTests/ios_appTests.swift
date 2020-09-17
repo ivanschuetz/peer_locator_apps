@@ -104,6 +104,56 @@ class ios_appTests: XCTestCase {
                                       publicKey: PublicKey(value: publicKeyStr)))
     }
 
+    func testPasswordEncryption() {
+        let crypto = CryptoImpl()
+
+        let publicKeyStr = """
+        -----BEGIN PUBLIC KEY-----
+        MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQADkzsXRFOCjdxl/IYjQbY+NLnTCTI
+        vXVH5cpZeI9XgloedbdTA4pdJtWvIu7JVCMYAlQF6xKeJ/HrDTm9FRZ8ph8APh06
+        vJc++hmzD90cBZoDSPRD7gOGyCKZa77HcjRLFBIv+LDdq3APnGbdl6v3PDKziAdA
+        ZjWacIcu7XmNkuBKzcA=
+        -----END PUBLIC KEY-----
+        """
+
+        let password = "test123"
+
+        let encryptRes: Result<String, ServicesError> = crypto.encrypt(str: publicKeyStr, password: password)
+        XCTAssertFalse(encryptRes.isFailure())
+
+        let encryptedStr: String = try! encryptRes.get()
+
+        let decryptRes: Result<String, ServicesError> = crypto.decrypt(str: encryptedStr, password: password)
+        XCTAssertFalse(decryptRes.isFailure())
+
+        let decryptedStr: String = try! decryptRes.get()
+        XCTAssertEqual(decryptedStr, publicKeyStr)
+    }
+
+    func testColocatedPeerMediator() {
+        let crypto = CryptoImpl()
+        let mediator = ColocatedPeerMediatorImpl(crypto: crypto)
+
+        let publicKeyStr = """
+        -----BEGIN PUBLIC KEY-----
+        MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQADkzsXRFOCjdxl/IYjQbY+NLnTCTI
+        vXVH5cpZeI9XgloedbdTA4pdJtWvIu7JVCMYAlQF6xKeJ/HrDTm9FRZ8ph8APh06
+        vJc++hmzD90cBZoDSPRD7gOGyCKZa77HcjRLFBIv+LDdq3APnGbdl6v3PDKziAdA
+        ZjWacIcu7XmNkuBKzcA=
+        -----END PUBLIC KEY-----
+        """
+
+        let publicKey = PublicKey(value: publicKeyStr)
+        let password = ColocatedPeeringPassword(value: "test123")
+
+        let encryptedPublicKey = mediator.prepare(myPublicKey: publicKey, password: password)
+
+        let decryptedPublicKeyPeer = mediator.processPeer(key: encryptedPublicKey, password: password)
+
+        XCTAssertNotNil(decryptedPublicKeyPeer)
+        XCTAssertEqual(decryptedPublicKeyPeer!.publicKey, publicKey)
+    }
+
     func testGreet() {
         let res = greet("Ivan")!.takeRetainedValue() as String
         XCTAssertEqual("Hello 👋 Ivan!", res)

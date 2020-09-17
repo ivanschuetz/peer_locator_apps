@@ -16,8 +16,8 @@ protocol Crypto {
     // also, TODO: review password safety: write down what exactly we want to achive:
     // encryption, signing, verification? are we vulnerable to e.g. replay attack?
     // if we do want encryption, should we add a nonce?
-    func encrypt(str: String, key: String) -> String
-    func decrypt(str: String, key: String) -> String?
+    func encrypt(str: String, password: String) -> Result<String, ServicesError>
+    func decrypt(str: String, password: String) -> Result<String, ServicesError>
 }
 
 class CryptoImpl: Crypto {
@@ -66,22 +66,76 @@ class CryptoImpl: Crypto {
     //        let sharedSecret: SharedSecret = try! p5121PrivateKey.sharedSecretFromKeyAgreement(with: othersp5121PublicKey)
     //    }
 
-    func encrypt(str: String, key: String) -> String {
-        // TODO placeholder implementation
-        str + "+++\(key)"
+    func keyFromPassword(_ password: String) -> SymmetricKey {
+        // TODO check if unwrap safe
+        let hash = SHA256.hash(data: password.data(using: .utf8)!)
+        // Convert the SHA256 to a string. This will be a 64 byte string
+        let hashString = hash.map { String(format: "%02hhx", $0) }.joined()
+        // Convert to 32 bytes
+        let subString = String(hashString.prefix(32))
+        // Convert the substring to data
+        let keyData = subString.data(using: .utf8)!
+
+        // Create the key use keyData as the seed
+        return SymmetricKey(data: keyData)
     }
 
-    func decrypt(str: String, key: String) -> String? {
-        // TODO placeholder implementation
-        if str.contains("+++\(key)") {
-            if let first = str.components(separatedBy: "+++").first {
-                return first
-            } else {
-                return nil
-            }
-        } else {
-            return nil
+    func encrypt(str: String, password: String) -> Result<String, ServicesError> {
+        return encrypt(str: str, key: keyFromPassword(password))
+    }
+
+    private func encrypt(str: String, key: SymmetricKey) -> Result<String, ServicesError> {
+        // Convert to JSON in a Data record
+//        let encoder = JSONEncoder()
+
+        do {
+//            let userData = try encoder.encode(str)
+
+            let d = Data(str.utf8)
+
+            // Encrypt the userData
+            let encryptedData = try ChaChaPoly.seal(d, using: key)
+
+//            let encryptedData = try ChaChaPoly.seal(userData, using: key)
+
+            // Convert the encryptedData to a base64 string which is the
+            // format that it can be transported in
+            return .success(encryptedData.combined.base64EncodedString())
+
+        } catch (let e) {
+            return .failure(.general("Error encrypting string: \(e)"))
         }
+    }
+
+    func decrypt(str: String, password: String) -> Result<String, ServicesError> {
+        return decrypt(str: str, key: keyFromPassword(password))
+    }
+
+
+    private func decrypt(str: String, key: SymmetricKey) -> Result<String, ServicesError> {
+        // Convert the base64 string into a Data object
+        let data = Data(base64Encoded: str)!
+
+        do {
+            // Put the data in a sealed box
+            let box = try ChaChaPoly.SealedBox(combined: data)
+            // Extract the data from the sealedbox using the decryption key
+            let decryptedData = try ChaChaPoly.open(box, using: key)
+            // The decrypted block needed to be json decoded
+//            let decoder = JSONDecoder()
+//            let object = try decoder.decode(type, from: decryptedData)
+
+            if let decryptedString = String(data: decryptedData, encoding: .utf8) {
+                return .success(decryptedString)
+            } else {
+                return .failure(.general("Decypted string was nil. data: \(decryptedData)"))
+            }
+
+        } catch (let e) {
+            return .failure(.general("Error decrypting string: \(e)"))
+        }
+
+
     }
 }
 

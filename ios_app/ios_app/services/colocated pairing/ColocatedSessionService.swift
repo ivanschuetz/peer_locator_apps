@@ -135,7 +135,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         let result = localSessionManager.initLocalSession(iCreatedIt: false,
                                                        sessionIdGenerator: { SessionId(value: UUID().uuidString) })
             .map { session in
-                peerMediator.prepare(session: session, password: password)
+                peerMediator.prepare(myPublicKey: session.publicKey, password: password)
             }
 
         // TODO better error handling: if something with session creation or encrypting fails, it means the app is unusable?

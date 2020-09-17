@@ -1,7 +1,14 @@
 import Foundation
 
 protocol ColocatedPeerMediator {
-    func prepare(session: Session, password: ColocatedPeeringPassword) -> EncryptedPublicKey
+    /**
+     * Prepare my public key to be sent by protocol
+     */
+    func prepare(myPublicKey: PublicKey, password: ColocatedPeeringPassword) -> EncryptedPublicKey
+
+    /**
+     * Process peer's public key received by protocol
+     */
     func processPeer(key: EncryptedPublicKey, password: ColocatedPeeringPassword) -> Peer?
 }
 
@@ -12,15 +19,26 @@ class ColocatedPeerMediatorImpl: ColocatedPeerMediator {
         self.crypto = crypto
     }
 
-    func prepare(session: Session, password: ColocatedPeeringPassword) -> EncryptedPublicKey {
-        EncryptedPublicKey(value: crypto.encrypt(str: session.publicKey.value, key: password.value))
+    func prepare(myPublicKey: PublicKey, password: ColocatedPeeringPassword) -> EncryptedPublicKey {
+        switch crypto.encrypt(str: myPublicKey.value, password: password.value) {
+        case .success(let encryptedString):
+            return EncryptedPublicKey(value: encryptedString)
+
+        case .failure(let e):
+            // TODO verify:
+            // Assumption: encrypt can only fail because password has a not supported payload.
+            // ColocatedPeeringPassword should make sure that the password is valid / the encryption always works.
+            fatalError("Unexpected: \(e). Password encryption should always succeed. Password: \(password)")
+        }
     }
 
     func processPeer(key: EncryptedPublicKey, password: ColocatedPeeringPassword) -> Peer? {
-        guard let publicKeyValue = crypto.decrypt(str: key.value, key: password.value) else {
-            log.e("Received an invalid peer public key: \(key). Exit.", .cp)
+        switch crypto.decrypt(str: key.value, password: password.value) {
+        case .success(let decryptedString):
+            return Peer(publicKey: PublicKey(value: decryptedString))
+        case .failure(let e):
+            log.e("Error decrypting public key: \(e). Invalid?: \(key).", .cp)
             return nil
         }
-        return Peer(publicKey: PublicKey(value: publicKeyValue))
     }
 }
