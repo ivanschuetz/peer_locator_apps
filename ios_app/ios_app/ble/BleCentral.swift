@@ -18,7 +18,7 @@ protocol BleCentral {
 
 class BleCentralImpl: NSObject, BleCentral {
 
-    let statusSubject = PassthroughSubject<BleState, Never>()
+    let statusSubject = CurrentValueSubject<BleState, Never>(.poweredOff)
     lazy var status = statusSubject.eraseToAnyPublisher()
 
     let discoveredSubject = PassthroughSubject<BlePeer, Never>()
@@ -29,13 +29,13 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private let idService: BleIdService
 
-    private var centralManager: CBCentralManager!
+    private var centralManager: CBCentralManager?
 
     private var validationCharacteristic: CBCharacteristic?
     private var nearbyTokenCharacteristic: CBCharacteristic?
     private var colocatedPairingCharacteristic: CBCharacteristic?
 
-    private let startTrigger = PassthroughSubject<(), Never>()
+//    private let startTrigger = PassthroughSubject<(), Never>()
     private var startCancellable: AnyCancellable?
 
     private var discoveredByUuid: [UUID: BleId] = [:]
@@ -44,44 +44,70 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private var delegates: [BleCentralDelegate] = []
 
+    private let createCentralSubject = PassthroughSubject<(), Never>()
+    private var createCentralCancellable: AnyCancellable?
+
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
-        centralManager = CBCentralManager(delegate: self, queue: nil, options: [
-            CBCentralManagerOptionRestoreIdentifierKey: appDomain,
-            CBCentralManagerOptionShowPowerAlertKey: NSNumber(booleanLiteral: true)
-        ])
 
-        startCancellable = startTrigger
-            .combineLatest(status)
-            .map { _, status in status }
-            .removeDuplicates()
-            .sink(receiveValue: {[weak self] status in
-                if status == .poweredOn {
-                    self?.start()
-                } else {
-                    log.d("Requested central start while not powered on: \(status)", .ble)
-                }
-            })
+        startCancellable = status.sink { [weak self] state in
+            if state == .poweredOn {
+                self?.startScanning()
+            }
+        }
+
+        createCentralCancellable = createCentralSubject
+            .withLatestFrom(status)
+            .sink { [weak self] state in
+            if state != .poweredOn {
+                self?.centralManager = CBCentralManager(delegate: self, queue: nil, options: [
+                    CBCentralManagerOptionRestoreIdentifierKey: appDomain,
+                    CBCentralManagerOptionShowPowerAlertKey: NSNumber(booleanLiteral: true)
+                ])
+            }
+        }
     }
 
     func requestStart() {
-        startTrigger.send(())
+        log.v("Central requestStart()", .ble)
+        // On start we create the central, since this is what triggers enable ble dialog if it's disabled.
+        // we also could create a temporary CBPeripheralManager to trigger this and create ours during init
+        // but then IIRC we don't get poweredOn delegate call TODO revisit/confirm
+        // Actually TODO: using the same mechanism for central and peripheral may be what opens shortly 2 permission dialogs?
+        // was this different when initializing them at start? if not, there doesn't seem to be anything we can do
+        // as both have to be initialized (simulataneouly). Maybe check stack overflow.
+        createCentralSubject.send(())
     }
 
     func stop() {
-        if centralManager?.isScanning ?? false {
-            log.d("Stopping central (was scanning)", .ble)
-            centralManager?.stopScan()
+        guard let centralManager = centralManager else {
+            log.w("Stop central: there's no central set. Exit.", .ble)
+            return
         }
+
+        if centralManager.isScanning {
+            log.d("Stopping central (was scanning)", .ble)
+            centralManager.stopScan()
+        }
+
         discoveredByUuid = [:]
     }
 
-    private func start() {
-        log.i("Will start central", .ble)
-        centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
-            CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(booleanLiteral: true)
-        ])
+    private func startScanning() {
+        guard let centralManager = centralManager else {
+            log.e("Start scanning: there's no central set. Exit.", .ble)
+            return
+        }
+
+        if !centralManager.isScanning {
+            log.i("Starting central to scan for peripherals", .ble)
+            centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
+                CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(booleanLiteral: true)
+            ])
+        } else {
+            log.i("Starting central: central is already scanning. Doing nothing", .ble)
+        }
     }
 
     private func flush(_ peripheral: CBPeripheral) {}
@@ -109,6 +135,13 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
 //        log.v("Discovered peripheral: \(peripheral)", .ble)
+
+        guard let centralManager = centralManager else {
+            // This probably should be a fatal error, but leaving it in case it happens e.g. when exiting the app.
+            // Keep an eye on this on cloud logs.
+            log.e("Critical (race condition?): discovered a peripheral but central isn't set. Exit.", .ble)
+            return
+        }
 
         peripheral.delegate = self
         delegates.forEach { $0.onDiscoverPeripheral(peripheral, advertisementData: advertisementData, rssi: rssi) }

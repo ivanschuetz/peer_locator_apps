@@ -3,27 +3,28 @@ import Combine
 import CoreBluetooth
 
 protocol BleEnabler {
-    var bleEnabled: AnyPublisher<Bool, Never> { get }
     // TODO review: are we calling this at the correct times?
-    func enable()
+    func showEnableDialogIfDisabled()
 }
 
 class BleEnablerImpl: BleEnabler {
-    let bleEnabled: AnyPublisher<Bool, Never>
+    private let activateBleWhenAppComesToFg: ActivateBleWhenAppComesToFg
 
-    init(bleCentral: BleCentral) {
-        bleEnabled = bleCentral.status
-            .map { $0 == .poweredOn }
-            .eraseToAnyPublisher()
+    init(activateBleWhenAppComesToFg: ActivateBleWhenAppComesToFg) {
+        self.activateBleWhenAppComesToFg = activateBleWhenAppComesToFg
     }
 
-    func enable() {
-        _ = CBCentralManager(delegate: nil, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey:true])
+    func showEnableDialogIfDisabled() {
+        activateBleWhenAppComesToFg.request()
+        // This is to trigger the enable (and permission, if starting the first time) dialog if ble is not enabled
+        // for now disabled as I decided to create the CBCentralManager / CBPeripheralManager on demand when starting
+        // this seems cleaner, as starting triggers the delegate, where we get the updated status (.poweredOn etc.)
+//        _ = CBCentralManager(delegate: nil, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
     }
 }
 
 class SimulatorBleEnablerImpl: BleEnabler {
     let bleEnabled: AnyPublisher<Bool, Never> = Just(true)
         .eraseToAnyPublisher()
-    func enable() {}
+    func showEnableDialogIfDisabled() {}
 }

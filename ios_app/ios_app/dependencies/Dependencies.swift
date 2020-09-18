@@ -90,15 +90,17 @@ class Dependencies {
         ) as BleManager }
 
         container.register(.singleton) {
-            BleEnablerImpl(bleCentral: try container.resolve()) as BleEnabler
+            BleEnablerImpl(activateBleWhenAppComesToFg: try container.resolve()) as BleEnabler
         }
-        container.register(.eagerSingleton) {
-            BleRestarterWhenAppComesToFgImpl(bleCentral: try container.resolve()) as BleRestarterWhenAppComesToFg
-        }
-
+        container.register(.singleton) { BleActivatorImpl(bleEnabler: try container.resolve(),
+                                                          bleManager: try container.resolve()) as BleActivator }
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
         container.register(.singleton) { BleNearbyPairing() as NearbyPairing }
         container.register(.singleton) { BleColocatedPairing() }
+        container.register(.eagerSingleton) { ActivateBleWhenAppComesToFgImpl(
+            appEvents: try container.resolve(),
+            bleManager: try container.resolve()
+        ) as ActivateBleWhenAppComesToFg }
         #endif
     }
 
@@ -160,8 +162,7 @@ class Dependencies {
             sessionApi: try container.resolve(),
             localSessionManager: try container.resolve()
         ) as RemoteSessionService }
-        container.register(.eagerSingleton) { BleActivatorImpl(bleManager: try container.resolve(),
-                                                             sessionService: try container.resolve()) as BleActivator }
+
         container.register(.singleton) {
             CurrentSessionServiceImpl(localSessionManager: try container.resolve(),
                                       uiNotifier: try container.resolve()) as CurrentSessionService
@@ -220,13 +221,19 @@ class Dependencies {
         container.register(.singleton) {
             SessionStoreImpl(keyChain: try container.resolve()) as SessionStore
         }
+        container.register(.eagerSingleton) {
+            BleStateObservableImpl(bleCentral: try container.resolve(),
+                                   blePeripheral: try container.resolve()) as BleStateObservable
+        }
     }
 
     private func registerViewModels(container: DependencyContainer) {
         container.register { MeetingViewModel(peerService: try container.resolve(),
                                               sessionService: try container.resolve(),
                                               settingsShower: try container.resolve(),
-                                              bleEnabler: try container.resolve()) }
+                                              bleEnabler: try container.resolve(),
+                                              bleState: try container.resolve(),
+                                              bleManager: try container.resolve()) }
         container.register { PairingTypeViewModel(settingsShower: try container.resolve()) }
         container.register { RootViewModel(sessionService: try container.resolve(),
                                            uiNotifier: try container.resolve(),
@@ -242,7 +249,11 @@ class Dependencies {
                                                     uiNotifier: try container.resolve(),
                                                     settingsShower: try container.resolve()) }
         container.register { SettingsViewModel() }
-        container.register { ColocatedPairingRoleSelectionViewModel(sessionService: try container.resolve()) }
+        container.register { ColocatedPairingRoleSelectionViewModel(sessionService: try container.resolve(),
+                                                                    bleState: try container.resolve(),
+                                                                    bleActivator: try container.resolve(),
+                                                                    uiNotifier: try container.resolve()) }
+
         container.register { ColocatedPairingPasswordViewModel(sessionService: try container.resolve()) }
         container.register { ColocatedPairingJoinerViewModel(passwordService: try container.resolve(),
                                                              uiNotifier: try container.resolve()) }

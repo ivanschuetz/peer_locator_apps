@@ -54,8 +54,7 @@ class NoopSettingsShower: SettingsShower {
 }
 
 class NoopBleEnabler: BleEnabler {
-    var bleEnabled: AnyPublisher<Bool, Never> = Just(true).eraseToAnyPublisher()
-    func enable() {}
+    func showEnableDialogIfDisabled() {}
 }
 
 class NoopRemoteSessionManager: RemoteSessionManager {

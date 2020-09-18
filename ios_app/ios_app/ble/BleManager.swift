@@ -2,38 +2,30 @@ import Foundation
 import Combine
 
 protocol BleManager {
-    var discovered: AnyPublisher<BlePeer, Never> { get }
-
     func start()
     func stop()
 }
 
 class BleManagerImpl: BleManager {
-
-    // TODO remove?
-    let discovered: AnyPublisher<BlePeer, Never>
-
     private let peripheral: BlePeripheral
     private let central: BleCentral
 
     init(peripheral: BlePeripheral, central: BleCentral) {
         self.peripheral = peripheral
         self.central = central
-
-        discovered = central.discovered.eraseToAnyPublisher()
     }
 
     func start() {
-        log.d("Starting ble central and peripheral", .ble)
         peripheral.requestStart()
         central.requestStart()
     }
 
+    // TODO should we call stop (in the central/peripheral probably) when .poweredOff? or is it the other way,
+    // that when we stop we get .poweredOff event?
     func stop() {
-        log.d("TODO stop ble central and peripheral", .ble)
-        // TODO
+        peripheral.stop()
+        central.stop()
     }
-
 }
 
 // TODO probably this has to be abstracted to just "(discovered)Peer"

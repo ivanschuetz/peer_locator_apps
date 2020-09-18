@@ -17,18 +17,21 @@ class MeetingViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
     private let settingsShower: SettingsShower
     private let bleEnabler: BleEnabler
+    private let bleManager: BleManager
 
-    init(peerService: DetectedPeerService, sessionService: CurrentSessionService,
-         settingsShower: SettingsShower, bleEnabler: BleEnabler) {
+    init(peerService: DetectedPeerService, sessionService: CurrentSessionService, settingsShower: SettingsShower,
+         bleEnabler: BleEnabler, bleState: BleStateObservable, bleManager: BleManager) {
         self.sessionService = sessionService
         self.settingsShower = settingsShower
         self.bleEnabler = bleEnabler
+        self.bleManager = bleManager
 
         peerCancellable = peerService.peer.sink { [weak self] peer in
             self?.handlePeer(peerMaybe: peer)
         }
 
-        bleEnabledCancellable = bleEnabler.bleEnabled.sink { [weak self] enabled in
+        // TODO test that state updates corrently when ble disabled, enabled, open again...
+        bleEnabledCancellable = bleState.bleEnabled.sink { [weak self] enabled in
             self?.mainViewContent = enabled ? .connected : .enableBle
         }
     }
@@ -56,7 +59,11 @@ class MeetingViewModel: ObservableObject {
     }
 
     func requestEnableBle() {
-        bleEnabler.enable()
+        bleEnabler.showEnableDialogIfDisabled()
+        // Try to start immediately. If ble is not enabled, showEnableDialogIfDisabled will show the enable dialog,
+        // and when app comes to fg again, ActivateBleWhenAppComesToFg will try to start again.
+        bleManager.start()
+
     }
 }
 

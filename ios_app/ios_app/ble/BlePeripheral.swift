@@ -3,9 +3,13 @@ import CoreBluetooth
 import Combine
 
 protocol BlePeripheral {
-    func requestStart()
+    var status: AnyPublisher<BleState, Never> { get }
+
     // Note: has to be called before requestStart()
     func register(delegates: [BlePeripheralDelegate])
+    
+    func requestStart()
+    func stop()
 }
 
 class BlePeripheralImpl: NSObject, BlePeripheral {
@@ -14,32 +18,38 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     // Updated when read (note that it's generated on demand / first read)
     private let idService: BleIdService
 
-    private let status = PassthroughSubject<(CBManagerState, CBPeripheralManager), Never>()
-    private let startTrigger = PassthroughSubject<(), Never>()
+    private let statusSubject = CurrentValueSubject<(BleState, CBPeripheralManager?), Never>((.poweredOff, nil))
+    private var stateCancellable: AnyCancellable?
     private var startCancellable: AnyCancellable?
 
     private var delegates: [BlePeripheralDelegate] = []
 
+    private let createPeripheralSubject = PassthroughSubject<(), Never>()
+    private var createPeripheralCancellable: AnyCancellable?
+
+    lazy var status: AnyPublisher<BleState, Never> = statusSubject
+        .map { state, _ in state }
+        .eraseToAnyPublisher()
+
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
-        peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
-            CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
-        ])
 
-        startCancellable = startTrigger
-            .combineLatest(status)
-            .map { _, status in status }
-            .removeDuplicates(by: { tuple1, tuple2 in
-                tuple1.0 == tuple2.0 // status change
-            })
-            .sink(receiveValue: {[weak self] (status, peripheralManager) in
-                if status == .poweredOn {
-                    self?.start(peripheralManager: peripheralManager)
-                } else {
-                    log.d("Requested peripheral start while not powered on: \(status.toBleState())", .ble)
-                }
-            })
+        stateCancellable = statusSubject.sink { [weak self] state, pm in
+            if let pm = pm, state == .poweredOn {
+                self?.addServiceIfNotAdded(peripheralManager: pm)
+            }
+        }
+
+        createPeripheralCancellable = createPeripheralSubject
+            .withLatestFrom(status)
+            .sink { [weak self] state in
+            if state != .poweredOn {
+                self?.peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
+                   CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
+               ])
+            }
+        }
     }
 
     // Note: has to be called before requestStart()
@@ -49,13 +59,25 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
 
     func requestStart() {
         log.v("Peripheral requestStart()", .ble)
-        startTrigger.send(())
+        // On start we create the peripheral, since this is what triggers enable ble dialog if it's disabled.
+        // we also could create a temporary CBPeripheralManager to trigger this and create ours during init
+        // but then IIRC we don't get poweredOn delegate call TODO revisit/confirm
+        createPeripheralSubject.send(())
     }
 
-    private func start(peripheralManager: CBPeripheralManager) {
-        log.i("Will start peripheral", .ble)
+    func stop() {
+        log.i("Stopping peripheral", .ble)
+        peripheralManager?.stopAdvertising()
+        peripheralManager = nil
+    }
+
+    private func addServiceIfNotAdded(peripheralManager: CBPeripheralManager) {
         if !peripheralManager.isAdvertising {
+            log.i("Starting peripheral: adding service", .ble)
+            // Advertising is started in the didAdd service callback
             peripheralManager.add(createService())
+        } else {
+            log.i("Starting peripheral: peripheral is already advertising. Doing nothing.", .ble)
         }
     }
 
@@ -63,16 +85,14 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
         peripheralManager.stopAdvertising()
     }
 
-    private func restart(peripheralManager: CBPeripheralManager) {
-        stop(peripheralManager: peripheralManager)
-        // TODO confirm that peripheralManager.isAdvertising (used in start) is false (i.e. that stop is immediate)
-        // otherwise there could be situations where the peripheral doesn't start.
-        start(peripheralManager: peripheralManager)
-    }
-
     private func startAdvertising() {
         log.d("Will start peripheral", .ble)
-        peripheralManager?.startAdvertising([
+        guard let peripheralManager = peripheralManager else {
+            log.e("Start advertising: no peripheral manager set. Exit.", .ble)
+            return
+        }
+        
+        peripheralManager.startAdvertising([
             CBAdvertisementDataServiceUUIDsKey: [CBUUID.serviceCBUUID]
         ])
     }
@@ -90,9 +110,9 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
 
 extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        let state = peripheral.state
-        log.d("Peripheral ble state: \(state.toBleState())", .ble)
-        status.send((state, peripheral))
+        let state = peripheral.state.toBleState()
+        log.d("Peripheral ble state: \(state)", .ble)
+        statusSubject.send((state, peripheral))
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
@@ -141,7 +161,9 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
 }
 
 class BlePeripheralNoop: NSObject, BlePeripheral {
+    let status: AnyPublisher<BleState, Never> = Just(.poweredOn).eraseToAnyPublisher()
     var receivedPeerNearbyToken = PassthroughSubject<Data, Never>()
     func requestStart() {}
+    func stop() {}
     func register(delegates: [BlePeripheralDelegate]) {}
 }

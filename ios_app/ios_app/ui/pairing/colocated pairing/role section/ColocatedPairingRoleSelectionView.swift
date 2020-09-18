@@ -12,17 +12,24 @@ struct ColocatedPairingRoleSelectionView: View {
 
     var body: some View {
         VStack {
-            NavigationLink(destination: Lazy(ColocatedPairingPasswordView(viewModelProvider: viewModelProvider))) {
-                Text("Create session")
-            }.simultaneousGesture(TapGesture().onEnded({
-                viewModel.onNavigateToCreateSession()
-            }))
-            .padding(.bottom, 30)
-            NavigationLink(destination: Lazy(ColocatedPairingJoinerView(viewModelProvider: viewModelProvider))) {
-                Text("Join session")
-            }.simultaneousGesture(TapGesture().onEnded({
-                viewModel.onNavigateToJoinSession()
-            }))
+            Button("Create session") {
+                viewModel.onCreateSessionTap()
+            }
+            Button("Join session") {
+                viewModel.onJoinSessionTap()
+            }
+            NavigationLink(destination: Lazy(destinationView(destination: viewModel.destination)),
+                           isActive: $viewModel.navigationActive) {
+               Spacer().fixedSize()
+            }
+        }
+    }
+
+    private func destinationView(destination: ColocatedPairingRoleDestination) -> some View {
+        switch destination {
+        case .create: return AnyView(ColocatedPairingPasswordView(viewModelProvider: viewModelProvider))
+        case .join: return AnyView(MeetingCreatedView(viewModelProvider: viewModelProvider))
+        case .none: return AnyView(Spacer().fixedSize()) // not used
         }
     }
 }
