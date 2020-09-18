@@ -1,6 +1,26 @@
 import CoreBluetooth
 import Combine
 
+// TODO write only to a validated peripheral! (uuid)
+// it seems we need a new component, that uses BleDeviceValidatorService to check if peripheral
+// is valid (and ready). Or we can do this directly here.
+//
+// TODO actually, we have to use validated peripheral everywhere, as we of course can detect more than one peripheral
+// (everyone using the app)
+// --> ensure that we're reading and writing to our peer's peripheral
+// TODO confirm too that we can detect only one validated peripheral at a time.
+// Note that during normal operation, we will be reading from _all_ nearby users of the app, until a validation
+// succeeds (we find our peer) -> TODO ensure this doesn't cause problems (validation is expensive: how many devices
+// max can we support? we should expose the session id in clear text and validate only if session id matches.
+// note that this allows observers to detect who belongs together. TODO clarify about using variable characteristic and service uuid
+// if this is possible we can use this instead of session id,
+// it would be a bit more difficult to track for others as they can't use the service uuid to identify our app.
+// so a given pair would have the same service/char uuid but this could be _any_ service, so it _should_ (?) be more
+// difficult to track.
+// keep in mind nonce also: if we don't encrypt, where would it be? if we encrypt, what's there to encrypt if
+// the session id has to be plain text? should we add a (clear text) random number nonce to the clear text (session id)?
+
+
 /*
  * Writes the Nearby discovery token to peer.
  * If both devices support Nearby, a session will be created, by each writing its discovery token to the peer.
