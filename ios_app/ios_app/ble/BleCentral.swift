@@ -159,7 +159,10 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        log.v("Did fail to connect to peripheral", .ble)
+        // Note: this can be _any_ peripheral (gadgets etc.) not sure a retry here is meaningful
+        // if it happens to be our peer, it is, but there's no way to know here.
+        // TODO research: when is this called? does ble maybe do some sort of retry? should we do it?
+        log.w("Did fail to connect to peripheral: \(String(describing: error))", .ble)
     }
 
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
@@ -218,8 +221,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        log.d("didWriteValueFor: \(characteristic), error?: \(String(describing: error))")
-        // TODO is this the write ack? error handling? retry?
+        delegates.forEach { _ = $0.onWriteCharacteristicAck(characteristic, peripheral: peripheral, error: error) }
     }
 }
 

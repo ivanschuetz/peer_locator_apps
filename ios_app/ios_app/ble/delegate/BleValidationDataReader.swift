@@ -93,16 +93,27 @@ extension BleValidationDataReader: BleCentralDelegate {
     func onReadCharacteristic(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) -> Bool {
         switch characteristic.uuid {
         case characteristicUuid:
-            if let value = characteristic.value {
-                // Unwrap: We send BleId, so we always expect BleId
-                let id = BleId(data: value)!
-                readSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id,
-                                               distance: -1)) // TODO distance: handle this?
+            if let error = error {
+                log.e("Error reading validation characteristic: \(error)", .ble)
+                // TODO investigate: what errors can we get? what is handled by ble? does it make sense to retry?
             } else {
-                log.w("Verification characteristic had no value", .ble)
+                if let value = characteristic.value {
+                    // Unwrap: We send BleId, so we always expect BleId
+                    let id = BleId(data: value)!
+                    readSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id,
+                                                   distance: -1)) // TODO distance: handle this?
+                } else {
+                    log.e("Verification characteristic had no value", .ble)
+                }
             }
             return true
         default: return false
+        }
+    }
+
+    func onWriteCharacteristicAck(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) {
+        if characteristic.uuid == characteristicUuid {
+            fatalError("We don't write validation characteristic")
         }
     }
 }

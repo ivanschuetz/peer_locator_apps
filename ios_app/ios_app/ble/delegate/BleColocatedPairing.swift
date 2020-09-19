@@ -76,4 +76,15 @@ extension BleColocatedPairing: BleCentralDelegate {
         }
         return false
     }
+
+    func onWriteCharacteristicAck(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) {
+        guard characteristic.uuid == characteristicUuid else { return }
+
+        if let error = error {
+            log.e("Error: \(error) writing characteristic: \(characteristic)", .ble)
+            // TODO investigate: do we need to implement retry
+        } else {
+            log.d("Successfully wrote characteristic: \(characteristic)", .ble)
+        }
+    }
 }

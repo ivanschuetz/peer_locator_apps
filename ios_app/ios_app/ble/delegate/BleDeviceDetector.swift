@@ -25,4 +25,6 @@ extension BleDeviceDetectorImpl: BleCentralDelegate {
     func onReadCharacteristic(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) -> Bool {
         return false
     }
+
+    func onWriteCharacteristicAck(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) {}
 }
