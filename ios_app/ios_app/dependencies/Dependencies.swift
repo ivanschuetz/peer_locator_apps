@@ -95,7 +95,7 @@ class Dependencies {
         container.register(.singleton) { BleActivatorImpl(bleEnabler: try container.resolve(),
                                                           bleManager: try container.resolve()) as BleActivator }
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
-        container.register(.singleton) { BleNearbyPairing() as NearbyPairing }
+        container.register(.singleton) { BleNearbyPairing(bleValidator: try container.resolve()) as NearbyPairing }
         container.register(.singleton) { BleColocatedPairing() }
         container.register(.eagerSingleton) { ActivateBleWhenAppComesToFgImpl(
             appEvents: try container.resolve(),

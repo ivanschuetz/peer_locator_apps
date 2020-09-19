@@ -25,13 +25,10 @@ class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
     let device: AnyPublisher<BlePeer, Never>
 
     init(deviceDetector: BleDeviceDetector, deviceValidator: BleDeviceValidatorService) {
-        device = deviceDetector.discovered.combineLatest(deviceValidator.validDevices).compactMap { detected, valid in
-            // Forward only if detected device was validated
-            valid[detected.uuid].map {
-                detected.toPeer(bleId: $0)
-            }
-        }
-        .eraseToAnyPublisher()
+        device = deviceValidator
+            .filterIsValid(device: deviceDetector.discovered)
+            .map { detected, bleId in detected.toPeer(bleId: bleId) }
+            .eraseToAnyPublisher()
     }
 }
 

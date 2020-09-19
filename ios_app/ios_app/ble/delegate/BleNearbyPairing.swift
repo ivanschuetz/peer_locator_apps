@@ -1,11 +1,7 @@
 import CoreBluetooth
 import Combine
 
-// TODO write only to a validated peripheral! (uuid)
-// it seems we need a new component, that uses BleDeviceValidatorService to check if peripheral
-// is valid (and ready). Or we can do this directly here.
-//
-// TODO actually, we have to use validated peripheral everywhere, as we of course can detect more than one peripheral
+// TODO we have to use validated peripheral everywhere, as we of course can detect more than one peripheral
 // (everyone using the app)
 // --> ensure that we're reading and writing to our peer's peripheral
 // TODO confirm too that we can detect only one validated peripheral at a time.
@@ -39,16 +35,41 @@ class BleNearbyPairing: NearbyPairing {
 
     private let characteristicUuid = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376513")
 
-    private var peripheral: CBPeripheral?
+    private let validatedPeripheral: AnyPublisher<CBPeripheral?, Never>
 
-    private var discoveredCharacteristic: CBCharacteristic?
+    private var discoveredCharacteristic = CurrentValueSubject<CBCharacteristic?, Never>(nil)
+
+    private let peripheral = PassthroughSubject<CBPeripheral, Never>()
+    private let writeToken = PassthroughSubject<SerializedSignedNearbyToken, Never>()
+
+    private var writeTokenCancellable: AnyCancellable?
+
+    init(bleValidator: BleDeviceValidatorService) {
+        validatedPeripheral = bleValidator
+            .filterIsValid(peripheral: peripheral.eraseToAnyPublisher())
+            .map { $0 }
+            .eraseToAnyPublisher()
+
+        writeTokenCancellable = writeToken
+            .withLatestFrom(validatedPeripheral) { token, peripheral in (token, peripheral) }
+            .withLatestFrom(discoveredCharacteristic) { tuple, characteristic in
+                (tuple.0, tuple.1, characteristic) }
+            .sink { [weak self] token, peripheral, characteristic in
+                self?.doSendDiscoveryToken(token: token, peripheral: peripheral, characteristic: characteristic)
+            }
+    }
 
     func sendDiscoveryToken(token: SerializedSignedNearbyToken) {
+        writeToken.send(token)
+    }
+
+    func doSendDiscoveryToken(token: SerializedSignedNearbyToken, peripheral: CBPeripheral?,
+                              characteristic: CBCharacteristic?) {
         guard let peripheral = peripheral else {
             log.e("Attempted to write, but peripheral is not set.", .ble)
             return
         }
-        guard let characteristic = discoveredCharacteristic else {
+        guard let characteristic = characteristic else {
             log.e("Attempted to write, but nearby characteristic is not set.", .ble)
             return
         }
@@ -76,7 +97,7 @@ extension BleNearbyPairing: BlePeripheralDelegateWriteOnly {
 extension BleNearbyPairing: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        self.peripheral = peripheral
+        self.peripheral.send(peripheral)
     }
 
     func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral,
@@ -85,7 +106,7 @@ extension BleNearbyPairing: BleCentralDelegate {
             $0.uuid == characteristicUuid
         }) {
             log.d("Setting the nearby characteristic", .ble)
-            self.discoveredCharacteristic = discoveredCharacteristic
+            self.discoveredCharacteristic.send(discoveredCharacteristic)
             return true
 
         } else {
