@@ -1,9 +1,19 @@
 import CoreBluetooth
 import Combine
 
-class BleValidationDataReader {
+protocol BleValidationDataReader {
+    var read: AnyPublisher<BlePeer, Never> { get }
+    var errorReadingValidation: AnyPublisher<Error, Never> { get }
+
+    func validatePeer() -> Bool
+}
+
+class BleValidationDataReaderImpl: BleValidationDataReader {
     let readSubject = PassthroughSubject<BlePeer, Never>()
     lazy var read = readSubject.eraseToAnyPublisher()
+
+    private let errorReadingValidationSubject = PassthroughSubject<Error, Never>()
+    lazy var errorReadingValidation = errorReadingValidationSubject.compactMap{ $0 }.eraseToAnyPublisher()
 
     private let characteristicUuid = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376512")
 
@@ -42,7 +52,7 @@ class BleValidationDataReader {
     }
 }
 
-extension BleValidationDataReader: BlePeripheralDelegateReadOnly {
+extension BleValidationDataReaderImpl: BlePeripheralDelegateReadOnly {
     var characteristic: CBMutableCharacteristic {
         CBMutableCharacteristic(
             type: characteristicUuid,
@@ -68,7 +78,7 @@ extension BleValidationDataReader: BlePeripheralDelegateReadOnly {
     }
 }
 
-extension BleValidationDataReader: BleCentralDelegate {
+extension BleValidationDataReaderImpl: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
         self.peripheral = peripheral
@@ -96,6 +106,7 @@ extension BleValidationDataReader: BleCentralDelegate {
             if let error = error {
                 log.e("Error reading validation characteristic: \(error)", .ble)
                 // TODO investigate: what errors can we get? what is handled by ble? does it make sense to retry?
+                errorReadingValidationSubject.send(error)
             } else {
                 if let value = characteristic.value {
                     // Unwrap: We send BleId, so we always expect BleId

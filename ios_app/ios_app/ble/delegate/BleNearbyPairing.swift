@@ -25,6 +25,12 @@ import Combine
  */
 protocol NearbyPairing {
     var token: AnyPublisher<SerializedSignedNearbyToken, Never> { get }
+
+    // For now not used, as we've a timer to send the nearby token each x secs until it succeeds.
+    // and sending the discovery token is triggered by coming in range, not user interaction
+    // so it probably doesn't make sense to show an error or retry dialog.
+    // Worst case: keeps retrying "forever", connection uses only ble. Errors are sent to cloud logging.
+    var errorSendingToken: AnyPublisher<Error, Never> { get }
     
     func sendDiscoveryToken(token: SerializedSignedNearbyToken)
 }
@@ -32,6 +38,9 @@ protocol NearbyPairing {
 class BleNearbyPairing: NearbyPairing {
     private let tokenSubject = CurrentValueSubject<SerializedSignedNearbyToken?, Never>(nil)
     lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
+
+    private let errorSendingTokenSubject = PassthroughSubject<Error, Never>()
+    lazy var errorSendingToken = errorSendingTokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
 
     private let characteristicUuid = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376513")
 
@@ -128,6 +137,7 @@ extension BleNearbyPairing: BleCentralDelegate {
         if let error = error {
             log.e("Error: \(error) writing characteristic: \(characteristic)", .ble)
             // TODO investigate: do we need to implement retry
+            errorSendingTokenSubject.send(error)
         } else {
             log.d("Successfully wrote characteristic: \(characteristic)", .ble)
         }

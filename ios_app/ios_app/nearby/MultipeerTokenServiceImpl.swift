@@ -10,6 +10,10 @@ class MultipeerTokenServiceImpl: NSObject, NearbyPairing {
     private let tokenSubject = CurrentValueSubject<SerializedSignedNearbyToken?, Never>(nil)
     lazy var token = tokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
 
+    // Note: not used. We use multipeer only to test on the simulator for now (since it doesn't have ble)
+    private let errorSendingTokenSubject = PassthroughSubject<Error, Never>()
+    lazy var errorSendingToken = errorSendingTokenSubject.compactMap{ $0 }.eraseToAnyPublisher()
+
     private let myPeerId = MCPeerID(displayName: UIDevice.current.name)
 
     private let serviceAdvertiser: MCNearbyServiceAdvertiser

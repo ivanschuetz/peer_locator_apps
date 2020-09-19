@@ -1,14 +1,24 @@
 import CoreBluetooth
 import Combine
 
-class BleColocatedPairing {
+protocol BleColocatedPairing {
+    var publicKey: AnyPublisher<SerializedEncryptedPublicKey, Never> { get }
+    var errorSendingKey: AnyPublisher<Error, Never> { get }
+
+    func write(publicKey: SerializedEncryptedPublicKey) -> Bool
+}
+
+class BleColocatedPairingImpl: BleColocatedPairing {
     private let characteristicUuid = CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376514")
-    lazy var publicKey = publicKeySubject.compactMap{ $0 }.eraseToAnyPublisher()
 
     let discoveredSubject = PassthroughSubject<BlePeer, Never>()
     lazy var discovered = discoveredSubject.eraseToAnyPublisher()
 
+    private let errorSendingKeySubject = PassthroughSubject<Error, Never>()
+    lazy var errorSendingKey = errorSendingKeySubject.compactMap{ $0 }.eraseToAnyPublisher()
+
     private let publicKeySubject = CurrentValueSubject<SerializedEncryptedPublicKey?, Never>(nil)
+    lazy var publicKey = publicKeySubject.compactMap{ $0 }.eraseToAnyPublisher()
 
     private var peripheral: CBPeripheral?
 
@@ -31,7 +41,7 @@ class BleColocatedPairing {
     }
 }
 
-extension BleColocatedPairing: BlePeripheralDelegateWriteOnly {
+extension BleColocatedPairingImpl: BlePeripheralDelegateWriteOnly {
 
     var characteristic: CBMutableCharacteristic {
         CBMutableCharacteristic(
@@ -48,7 +58,7 @@ extension BleColocatedPairing: BlePeripheralDelegateWriteOnly {
     }
 }
 
-extension BleColocatedPairing: BleCentralDelegate {
+extension BleColocatedPairingImpl: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
         self.peripheral = peripheral
@@ -83,6 +93,7 @@ extension BleColocatedPairing: BleCentralDelegate {
         if let error = error {
             log.e("Error: \(error) writing characteristic: \(characteristic)", .ble)
             // TODO investigate: do we need to implement retry
+            errorSendingKeySubject.send(error)
         } else {
             log.d("Successfully wrote characteristic: \(characteristic)", .ble)
         }

@@ -68,7 +68,11 @@ class Dependencies {
             peerValidator: try container.resolve()
         ) as BleIdService }
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
-        container.register(.singleton) { BleValidationDataReader(idService: try container.resolve()) }
+        container.register(.singleton) {
+            BleValidationDataReaderImpl(idService: try container.resolve()) as BleValidationDataReader
+        }
+        container.register(.eagerSingleton) { BleValidationUIErrorDisplayer(uiNotifier: try container.resolve(),
+                                                                            bleValidation: try container.resolve()) }
 
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
@@ -96,7 +100,7 @@ class Dependencies {
                                                           bleManager: try container.resolve()) as BleActivator }
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
         container.register(.singleton) { BleNearbyPairing(bleValidator: try container.resolve()) as NearbyPairing }
-        container.register(.singleton) { BleColocatedPairing() }
+        container.register(.singleton) { BleColocatedPairingImpl() as BleColocatedPairing }
         container.register(.eagerSingleton) { ActivateBleWhenAppComesToFgImpl(
             appEvents: try container.resolve(),
             bleManager: try container.resolve()

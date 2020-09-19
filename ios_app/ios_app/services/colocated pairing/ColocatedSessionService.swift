@@ -18,6 +18,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
     private var receivedPasswordCancellable: Cancellable?
     private var receivedPeerKeyCancellable: Cancellable?
+    private var errorWritingPublicKeyCancellable: AnyCancellable?
 
     private let shouldReplyWithMyKey = CurrentValueSubject<Bool, Never>(true)
 
@@ -36,7 +37,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
         // TODO error handling during close pairing:
         // - received corrupted data
-        // - timeout reading
+        // - timeout writing
         // -> investigate if ble handles this for us somehow
         // -> possible: retry 3 times, if fails, offer user to retry or re-start the pairing (with a different pw)
         // generally, review this whole file. It's just a happy path poc.
@@ -51,6 +52,12 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             .sink { [weak self] in
                 self?.handleReceivedPassword($0)
             }
+
+        errorWritingPublicKeyCancellable = colocatedPairing.errorSendingKey.sink { error in
+            // TODO dialog offering to retry? and/or exit->create/join session again? or toggle the device's ble, restart the app?
+            // note that this will be triggered after the automatic low level retry (when implemented)
+            uiNotifier.show(.error("Error seding public key to peer: \(error)"))
+        }
     }
 
     func startPairingSession() {

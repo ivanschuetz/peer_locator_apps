@@ -4,9 +4,9 @@ import Combine
 class BleDelegatesRegisterer {
 
     init(blePeripheral: BlePeripheral, idService: BleIdService) {
-        let validation = BleValidationDataReader(idService: idService)
+        let validation = BleValidationDataReaderImpl(idService: idService)
         let nearbyPairing = BleNearbyPairing(bleValidator: NoopBleValidatorService())
-        let colocatedPairing = BleColocatedPairing()
+        let colocatedPairing = BleColocatedPairingImpl()
 
         blePeripheral.register(delegates: [validation, nearbyPairing, colocatedPairing])
     }

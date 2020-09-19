@@ -63,6 +63,7 @@
 		843F7EF324F10582002AA5F8 /* ActivateBleWhenSessionReady.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7EF224F10582002AA5F8 /* ActivateBleWhenSessionReady.swift */; };
 		844CFD042506A79400F76832 /* PeerForWidgetRecorderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */; };
 		844CFD052506A9DF00F76832 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
+		8455BC4B25165CBD007FAFFD /* BleTrafficUIErrorDisplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8455BC4A25165CBD007FAFFD /* BleTrafficUIErrorDisplayer.swift */; };
 		8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */; };
 		8459E07B250642860058D692 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8459E07A250642860058D692 /* WidgetKit.framework */; };
 		8459E07D250642860058D692 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8459E07C250642860058D692 /* SwiftUI.framework */; };
@@ -331,6 +332,7 @@
 		843F7EF224F10582002AA5F8 /* ActivateBleWhenSessionReady.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivateBleWhenSessionReady.swift; sourceTree = "<group>"; };
 		844CFD032506A79400F76832 /* PeerForWidgetRecorderImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerForWidgetRecorderImpl.swift; sourceTree = "<group>"; };
 		844CFD062506AE7900F76832 /* ploc.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ploc.entitlements; sourceTree = "<group>"; };
+		8455BC4A25165CBD007FAFFD /* BleTrafficUIErrorDisplayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleTrafficUIErrorDisplayer.swift; sourceTree = "<group>"; };
 		8459D6BD250016D2007C9516 /* NearbyTokenProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyTokenProcessor.swift; sourceTree = "<group>"; };
 		8459E079250642860058D692 /* ploc_widgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ploc_widgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8459E07A250642860058D692 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -974,6 +976,7 @@
 				847E0EE5250E495F0092E3B2 /* BlePeripheralDelegate.swift */,
 				847E0EE7250E7C590092E3B2 /* BleCentralDelegate.swift */,
 				84E02D702513A58A00E2A8B3 /* BleStateObservable.swift */,
+				8455BC4A25165CBD007FAFFD /* BleTrafficUIErrorDisplayer.swift */,
 			);
 			path = ble;
 			sourceTree = "<group>";
@@ -1335,6 +1338,7 @@
 				84B6DCBC24FBC28400AA7E6D /* Triangle.swift in Sources */,
 				84752DA92515106000740E16 /* BleActivator.swift in Sources */,
 				848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */,
+				8455BC4B25165CBD007FAFFD /* BleTrafficUIErrorDisplayer.swift in Sources */,
 				84BE8E1424F00E9F004CE510 /* Crypto.swift in Sources */,
 				848D5F4F24CCA7AF00F2D80B /* NotificationsDelegate.swift in Sources */,
 				84E3DC8024C6F64300E2F175 /* ConsoleLog.swift in Sources */,
