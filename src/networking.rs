@@ -1,4 +1,5 @@
 use crate::globals::ClientSessionKey;
+use backoff::{ExponentialBackoff, Operation};
 use log::*;
 use ploc_common::{
     errors::{NetworkingError, UNKNOWN_HTTP_STATUS},
@@ -87,11 +88,26 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         let params_str = serde_json::to_string(&params).unwrap();
 
         let client = Self::create_client()?;
-        let response = client
-            .post(url)
-            .header("Content-Type", "application/json")
-            .body(params_str)
-            .send()?;
+
+        let mut op = || -> Result<Response, backoff::Error<NetworkingError>> {
+            let response = client
+                .post(url)
+                .header("Content-Type", "application/json")
+                .body(params_str.clone())
+                .send()
+                .map_err(NetworkingError::from)?;
+
+            Ok(response)
+        };
+
+        // To override backoff parameters:
+        // use std::time::Duration;
+        // let backoff = ExponentialBackoff {
+        //     max_elapsed_time: Some(Duration::new(123, 0)),
+        //     ..ExponentialBackoff::default()
+        // };
+        let mut backoff = ExponentialBackoff::default();
+        let response = op.retry(&mut backoff).map_err(|e| e.error())?;
 
         RemoteSessionApiImpl::deserialize(response).map(|r: JoinSessionResult| Session {
             id: session_key.session_id,
@@ -114,11 +130,19 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         let params_str = serde_json::to_string(&params).unwrap();
 
         let client = Self::create_client()?;
-        let response = client
-            .post(url)
-            .header("Content-Type", "application/json")
-            .body(params_str)
-            .send()?;
+
+        let mut op = || -> Result<Response, backoff::Error<NetworkingError>> {
+            let response = client
+                .post(url)
+                .header("Content-Type", "application/json")
+                .body(params_str.clone())
+                .send()
+                .map_err(NetworkingError::from)?;
+
+            Ok(response)
+        };
+        let mut backoff = ExponentialBackoff::default();
+        let response = op.retry(&mut backoff).map_err(|e| e.error())?;
 
         // TODO improve response handling: generic status: i32, err: string?, success: T?:  (?)
         // currently if JSON response isn't success, parsing to success type fails and does early exit
@@ -144,11 +168,19 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         let params_str = serde_json::to_string(&params).unwrap();
 
         let client = Self::create_client()?;
-        let response = client
-            .post(url)
-            .header("Content-Type", "application/json")
-            .body(params_str)
-            .send()?;
+
+        let mut op = || -> Result<Response, backoff::Error<NetworkingError>> {
+            let response = client
+                .post(url)
+                .header("Content-Type", "application/json")
+                .body(params_str.clone())
+                .send()
+                .map_err(NetworkingError::from)?;
+
+            Ok(response)
+        };
+        let mut backoff = ExponentialBackoff::default();
+        let response = op.retry(&mut backoff).map_err(|e| e.error())?;
 
         RemoteSessionApiImpl::deserialize(response).map(|r: ParticipantsResult| Session {
             id: session_id,
@@ -167,11 +199,19 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
         let params_str = serde_json::to_string(&params).unwrap();
 
         let client = Self::create_client()?;
-        client
-            .post(url)
-            .header("Content-Type", "application/json")
-            .body(params_str)
-            .send()?;
+
+        let mut op = || -> Result<Response, backoff::Error<NetworkingError>> {
+            let response = client
+                .post(url)
+                .header("Content-Type", "application/json")
+                .body(params_str.clone())
+                .send()
+                .map_err(NetworkingError::from)?;
+
+            Ok(response)
+        };
+        let mut backoff = ExponentialBackoff::default();
+        op.retry(&mut backoff).map_err(|e| e.error())?;
 
         Ok(())
     }
@@ -283,5 +323,17 @@ mod tests {
         let api = RemoteSessionApiImpl {};
         let res1 = api.participants("123".to_owned());
         assert!(res1.is_ok());
+    }
+}
+
+trait WithWrappedError<E> {
+    fn error(self) -> E;
+}
+
+impl<E> WithWrappedError<E> for backoff::Error<E> {
+    fn error(self) -> E {
+        match self {
+            backoff::Error::Permanent(err) | backoff::Error::Transient(err) => err,
+        }
     }
 }
