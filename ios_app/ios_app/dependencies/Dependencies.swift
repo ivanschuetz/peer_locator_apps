@@ -82,6 +82,7 @@ class Dependencies {
         container.register(multipeerTokenService, type: NearbyPairing.self)
         container.register(multipeerTokenService, type: NearbyTokenSender.self)
         container.register(.singleton) { SimulatorBleEnablerImpl() as BleEnabler }
+        container.register(.singleton) { NoopBleStateObservable() as BleStateObservable }
         #else
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
 
@@ -105,6 +106,10 @@ class Dependencies {
             appEvents: try container.resolve(),
             bleManager: try container.resolve()
         ) as ActivateBleWhenAppComesToFg }
+        container.register(.eagerSingleton) {
+            BleStateObservableImpl(bleCentral: try container.resolve(),
+                                   blePeripheral: try container.resolve()) as BleStateObservable
+        }
         #endif
     }
 
@@ -162,7 +167,8 @@ class Dependencies {
             peerService: try container.resolve(),
             notificationService: try container.resolve()
         )}
-        container.register(.singleton) { RemoteSessionServiceImpl(
+        // .eagerSingleton to delete stored session on launch while developing
+        container.register(.eagerSingleton) { RemoteSessionServiceImpl(
             sessionApi: try container.resolve(),
             localSessionManager: try container.resolve()
         ) as RemoteSessionService }
@@ -224,10 +230,6 @@ class Dependencies {
 
         container.register(.singleton) {
             SessionStoreImpl(keyChain: try container.resolve()) as SessionStore
-        }
-        container.register(.eagerSingleton) {
-            BleStateObservableImpl(bleCentral: try container.resolve(),
-                                   blePeripheral: try container.resolve()) as BleStateObservable
         }
     }
 
