@@ -24,6 +24,11 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
                         if session.createdByMe {
                             log.d("Session created, navigating to create view", .ui)
                             self?.navigateToCreateView = true
+                        } else {
+                            // TODO happens in join session view after pasting the link and tapping on join!
+                            // we need something to prevent cross-events between view models?
+                            // we don't want to receive any navigation events here.
+                            log.w("Received session update, session wasn't created by me so not navigating (see TODO).")
                         }
                     }
                 case .failure(let e):
