@@ -89,10 +89,14 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
      * and returns our discovery token.
      */
     func createOrUseSession() -> NearbyToken? {
+        log.v("Called createOrUseSession, state: \(session)", .nearby)
+
         switch session {
         case .active(_, let myToken, _):
+            log.d("There's already an active session, returning dicovery token.", .nearby)
             return myToken
         case .invalidated, .inactive:
+            log.d("The session is invalidated or inactive. Creating a new session.", .nearby)
             if let sessionWithToken = createSessionWithToken() {
                 self.session = .active(session: sessionWithToken.0, myToken: sessionWithToken.1, peerToken: nil)
                 return sessionWithToken.1

@@ -1,6 +1,9 @@
 import CoreBluetooth
 import Combine
 
+/**
+ * Broadcasts all detected peripherals, with their advertisement data and RSSI.
+ */
 protocol BleDeviceDetector {
     var discovered: AnyPublisher<BleDetectedDevice, Never> { get }
 }
