@@ -132,21 +132,6 @@ class RemoteSessionServiceImpl: RemoteSessionService {
         // TODO keep retrying if fails. It's important that the session is deleted.
         let peerId = session.peerId
 
-        // TODO why calls 2x logged in server? see:
-//        📗 17:49:01 Called participants with session_id: A6C0884C-9365-4623-AEA4-2BB902455C4B
-//        📗 17:49:01 Called ack with uuid: c9a0d5fb68efbdf65c934b5521c2150b230a03c08d8e1fcf277e2f8cfd954be2, accepted: 2
-//        📗 17:49:01 Updated: 1 rows
-//        📗 17:49:01 Called mark_delete with peer_id: c9a0d5fb68efbdf65c934b5521c2150b230a03c08d8e1fcf277e2f8cfd954be2
-//        📗 17:49:01 Called mark_delete with peer_id: c9a0d5fb68efbdf65c934b5521c2150b230a03c08d8e1fcf277e2f8cfd954be2
-//        📗 17:49:01 Mark deleted: updated: 1 rows
-//        📗 17:49:01 Mark deleted: the session has currently 2 participants
-//        📗 17:49:01 Mark deleted: Not all the participants have marked as deleted yet.
-//        📗 17:49:03 Called participants with session_id: A6C0884C-9365-4623-AEA4-2BB902455C4B
-//        📗 17:49:03 Called ack with uuid: 53f2e202c337243f5aae52f24644fd0a0676370ce0a2f9158d54c0fc829cf72e, accepted: 2
-//        📗 17:49:03 Updated: 1 rows
-//        📗 17:49:03 Called mark_delete with peer_id: 53f2e202c337243f5aae52f24644fd0a0676370ce0a2f9158d54c0fc829cf72e
-//        📗 17:49:03 Called mark_delete with peer_id: 53f2e202c337243f5aae52f24644fd0a0676370ce0a2f9158d54c0fc829cf72e
-
         let res = sessionApi.delete(peerId: peerId)
         log.d("Mark deleted result: \(res) for peer id: \(peerId)")
         return res
