@@ -73,7 +73,21 @@ class Dependencies {
         }
         container.register(.eagerSingleton) { BleValidationUIErrorDisplayer(uiNotifier: try container.resolve(),
                                                                             bleValidation: try container.resolve()) }
-
+        container.register(.singleton) { BleDeviceValidatorServiceImpl(
+            validationDataReader: try container.resolve(),
+            idService: try container.resolve()
+        ) as BleDeviceValidatorService }
+        container.register(.singleton) { DetectedBleDeviceFilterServiceImpl(
+            deviceDetector: try container.resolve(),
+            deviceValidator: try container.resolve()
+        ) as DetectedBleDeviceFilterService }
+        container.register(.eagerSingleton) {
+            BleValidationDataMediatorImpl(crypto: try container.resolve(),
+                                          json: try container.resolve()) as BleValidationDataMediator
+        }
+        container.register(.eagerSingleton) {
+            BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
+        }
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
         let multipeerTokenService = container.register(.eagerSingleton) {
@@ -140,15 +154,6 @@ class Dependencies {
             tokenSender: try container.resolve()
         ) as NearbySessionCoordinator }
 
-        container.register(.singleton) { BleDeviceValidatorServiceImpl(
-            validationDataReader: try container.resolve(),
-            idService: try container.resolve()
-        ) as BleDeviceValidatorService }
-        container.register(.singleton) { DetectedBleDeviceFilterServiceImpl(
-            deviceDetector: try container.resolve(),
-            deviceValidator: try container.resolve()
-        ) as DetectedBleDeviceFilterService }
-
         container.register(.eagerSingleton) { DetectedPeerServiceImpl(
             nearby: try container.resolve(),
             bleManager: try container.resolve(),
@@ -212,13 +217,7 @@ class Dependencies {
             localSessionManager: try container.resolve()
         ) as ColocatedSessionService }
 
-        container.register(.eagerSingleton) {
-            BleValidationDataMediatorImpl(crypto: try container.resolve(),
-                                          json: try container.resolve()) as BleValidationDataMediator
-        }
-        container.register(.eagerSingleton) {
-            BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
-        }
+
         container.register(.eagerSingleton) { AppEventsImpl() as AppEvents }
         container.register(.eagerSingleton) { NearbyTokenSenderImpl(
             nearbyPairing: try container.resolve(),
