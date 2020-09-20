@@ -57,7 +57,7 @@ class RemoteSessionServiceImpl: RemoteSessionService {
         // it seems cleaner to just always create, probably deleting an existing session if present ("worst case", with error log),
         // and ensure that normally there's not already an active session here, i.e. error handlers etc. delete when needed, UI
         // doesn't allow to double tap etc.
-        loadOrCreateSession(isCreate: false,
+        loadOrCreateSession(isCreate: true,
                             sessionIdGenerator: { SessionId(value: UUID().uuidString) }).flatMap { session in
             switch sessionApi
                 .createSession(sessionId: session.id, publicKey: session.publicKey) {
