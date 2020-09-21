@@ -55,14 +55,14 @@ private extension Direction {
         case 76...105: return .h3
         case 106...135: return .h4
         case 136...165: return .h5
-        case 176...195: return .h6
+        case 166...195: return .h6
         case 206...225: return .h7
         case 236...255: return .h8
         case 276...285: return .h9
         case 306...315: return .h10
         case 336...345: return .h11
         case 346...360: return .h0
-        default: fatalError("Illegal angle: \(angleDegrees)")
+        default: fatalError("Illegal angle: \(angleDegrees), rounded: \(Int(round(angleDegrees)))")
         }
     }
 }
