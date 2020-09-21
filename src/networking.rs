@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::globals::ClientSessionKey;
 use backoff::{ExponentialBackoff, Operation};
 use log::*;
@@ -16,7 +18,7 @@ use reqwest::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 
-static BASE_URL: &str = "http://192.168.0.3:8000/";
+static BASE_URL: &str = "http://192.168.0.2:8000/";
 // static BASE_URL: &str = "http://127.0.0.1:8000/";
 // static BASE_URL: &str = "http://localhost.charlesproxy.com:8000/";
 
@@ -73,6 +75,13 @@ impl RemoteSessionApiImpl {
             })
         }
     }
+
+    fn backoff() -> ExponentialBackoff {
+        ExponentialBackoff {
+            max_elapsed_time: Some(Duration::new(5, 0)),
+            ..ExponentialBackoff::default()
+        }
+    }
 }
 
 impl RemoteSessionApi for RemoteSessionApiImpl {
@@ -100,14 +109,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
             Ok(response)
         };
 
-        // To override backoff parameters:
-        // use std::time::Duration;
-        // let backoff = ExponentialBackoff {
-        //     max_elapsed_time: Some(Duration::new(123, 0)),
-        //     ..ExponentialBackoff::default()
-        // };
-        let mut backoff = ExponentialBackoff::default();
-        let response = op.retry(&mut backoff).map_err(|e| e.error())?;
+        let response = op.retry(&mut Self::backoff()).map_err(|e| e.error())?;
 
         RemoteSessionApiImpl::deserialize(response).map(|r: JoinSessionResult| Session {
             id: session_key.session_id,
@@ -141,8 +143,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
 
             Ok(response)
         };
-        let mut backoff = ExponentialBackoff::default();
-        let response = op.retry(&mut backoff).map_err(|e| e.error())?;
+        let response = op.retry(&mut Self::backoff()).map_err(|e| e.error())?;
 
         // TODO improve response handling: generic status: i32, err: string?, success: T?:  (?)
         // currently if JSON response isn't success, parsing to success type fails and does early exit
@@ -179,8 +180,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
 
             Ok(response)
         };
-        let mut backoff = ExponentialBackoff::default();
-        let response = op.retry(&mut backoff).map_err(|e| e.error())?;
+        let response = op.retry(&mut Self::backoff()).map_err(|e| e.error())?;
 
         RemoteSessionApiImpl::deserialize(response).map(|r: ParticipantsResult| Session {
             id: session_id,
@@ -210,8 +210,7 @@ impl RemoteSessionApi for RemoteSessionApiImpl {
 
             Ok(response)
         };
-        let mut backoff = ExponentialBackoff::default();
-        op.retry(&mut backoff).map_err(|e| e.error())?;
+        op.retry(&mut Self::backoff()).map_err(|e| e.error())?;
 
         Ok(())
     }
