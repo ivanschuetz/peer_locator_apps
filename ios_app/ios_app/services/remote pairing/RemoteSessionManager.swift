@@ -4,6 +4,7 @@ protocol RemoteSessionManager {
     func create()
     func join(sessionId: SessionId)
     func refresh()
+    func delete() -> Result<(), ServicesError>
 }
 
 class RemoteSessionManagerImpl: RemoteSessionManager {
@@ -28,5 +29,10 @@ class RemoteSessionManagerImpl: RemoteSessionManager {
     func refresh() {
         log.d("Refreshing session", .session)
         currentSessionService.setSessionResult(sessionService.refreshSession().map { $0 })
+    }
+
+    func delete() -> Result<(), ServicesError> {
+        log.d("Deleting session", .session)
+        return currentSessionService.deleteSessionLocally()
     }
 }

@@ -5,6 +5,8 @@ struct MeetingCreatedView: View {
 
     @State private var showShareSheet = false
 
+    @Environment(\.presentationMode) var presentation
+
     init(viewModelProvider: ViewModelProvider) {
         self.viewModel = viewModelProvider.meetingCreated()
     }
@@ -35,13 +37,24 @@ struct MeetingCreatedView: View {
                 // TODO no optional (viewModel.link)
                 ShareSheet(activityItems: [viewModel.linkUrl])
             }
+            .padding(.bottom, 10)
             ActionButton("Update status") {
-                viewModel.updateSession()
+                viewModel.onUpdateStatusTap()
+            }
+            .padding(.bottom, 10)
+            ActionDeleteButton("Delete session") {
+                // Doesn't work when environment is in view model.
+                // this could be implemented reactively but this seems ok for now.
+                if viewModel.onDeleteSessionTap() {
+                    log.d("Navigating back from created view", .ui)
+                    presentation.wrappedValue.dismiss()
+                }
             }
         }
         .defaultOuterHPadding()
 
         .navigationBarTitle(Text("Session created!"), displayMode: .inline)
+        .navigationBarBackButtonHidden(true)
         .navigationBarItems(trailing: Button(action: {
             viewModel.onSettingsButtonTap()
         }) { SettingsImage() })

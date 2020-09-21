@@ -13,7 +13,7 @@ protocol CurrentSessionService {
 
     // Locally opposed to the automatic deletion in the backend after peers have exchanged data
     // Here the user isn't interested in the session anymore: the session data / keys / peers data are removed
-    func deleteSessionLocally()
+    func deleteSessionLocally() -> Result<(), ServicesError>
 }
 
 class CurrentSessionServiceImpl: CurrentSessionService {
@@ -43,8 +43,9 @@ class CurrentSessionServiceImpl: CurrentSessionService {
         sessionSubject.send(result)
     }
 
-    func deleteSessionLocally() {
-        switch localSessionManager.clear() {
+    func deleteSessionLocally() -> Result<(), ServicesError> {
+        let res = localSessionManager.clear()
+        switch res {
         case .success:
             sessionSubject.send(.success(nil))
             uiNotifier.show(.success("Session deleted"))
@@ -52,6 +53,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
             log.e("Couldn't delete session locally: \(e)")
             uiNotifier.show(.error("Error deleting sesion: \(e)"))
         }
+        return res
     }
 }
 
@@ -60,5 +62,5 @@ class NoopCurrentSessionService: CurrentSessionService {
         .eraseToAnyPublisher()
 
     func setSessionResult(_ result: Result<Session?, ServicesError>) {}
-    func deleteSessionLocally() {}
+    func deleteSessionLocally() -> Result<(), ServicesError> { return .success(()) }
 }

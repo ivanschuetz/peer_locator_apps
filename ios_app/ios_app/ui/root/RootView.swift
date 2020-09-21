@@ -61,4 +61,5 @@ class NoopRemoteSessionManager: RemoteSessionManager {
     func create() {}
     func join(sessionId: SessionId) {}
     func refresh() {}
+    func delete() -> Result<(), ServicesError> { return .success(()) }
 }

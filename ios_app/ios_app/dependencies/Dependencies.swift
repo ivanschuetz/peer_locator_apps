@@ -236,7 +236,7 @@ class Dependencies {
 
     private func registerViewModels(container: DependencyContainer) {
         container.register { MeetingViewModel(peerService: try container.resolve(),
-                                              sessionService: try container.resolve(),
+                                              sessionManager: try container.resolve(),
                                               settingsShower: try container.resolve(),
                                               bleEnabler: try container.resolve(),
                                               bleState: try container.resolve(),

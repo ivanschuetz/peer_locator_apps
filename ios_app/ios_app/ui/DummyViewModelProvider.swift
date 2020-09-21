@@ -7,7 +7,7 @@ class DummyViewModelProvider: ViewModelProvider {
         let peerService = DetectedPeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager,
                                           bleIdService: BleIdServiceNoop(),
                                           validDeviceService: NoopDetectedDeviceFilterService())
-        return MeetingViewModel(peerService: peerService, sessionService: NoopCurrentSessionService(),
+        return MeetingViewModel(peerService: peerService, sessionManager: NoopRemoteSessionManager(),
                                 settingsShower: NoopSettingsShower(), bleEnabler: NoopBleEnabler(),
                                 bleState: NoopBleStateObservable(), bleManager: BleManagerNoop())
     }

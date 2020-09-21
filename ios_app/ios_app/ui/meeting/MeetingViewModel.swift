@@ -14,14 +14,14 @@ class MeetingViewModel: ObservableObject {
     private var peerCancellable: AnyCancellable?
     private var bleEnabledCancellable: AnyCancellable?
 
-    private let sessionService: CurrentSessionService
+    private let sessionManager: RemoteSessionManager
     private let settingsShower: SettingsShower
     private let bleEnabler: BleEnabler
     private let bleManager: BleManager
 
-    init(peerService: DetectedPeerService, sessionService: CurrentSessionService, settingsShower: SettingsShower,
+    init(peerService: DetectedPeerService, sessionManager: RemoteSessionManager, settingsShower: SettingsShower,
          bleEnabler: BleEnabler, bleState: BleStateObservable, bleManager: BleManager) {
-        self.sessionService = sessionService
+        self.sessionManager = sessionManager
         self.settingsShower = settingsShower
         self.bleEnabler = bleEnabler
         self.bleManager = bleManager
@@ -51,7 +51,7 @@ class MeetingViewModel: ObservableObject {
     }
 
     func deleteSession() {
-        sessionService.deleteSessionLocally()
+        sessionManager.delete()
     }
 
     func onSettingsButtonTap() {
