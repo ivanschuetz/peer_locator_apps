@@ -42,8 +42,8 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
 
     func startSending() {
         cancelTimer()
-//        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(onTimerTick),
-//                                     userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(onTimerTick),
+                                     userInfo: nil, repeats: true)
 //        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
 //                                     userInfo: nil, repeats: true)
         sendNearbyTokenToPeer()
