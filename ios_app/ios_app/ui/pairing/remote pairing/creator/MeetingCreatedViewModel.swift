@@ -31,6 +31,7 @@ class MeetingCreatedViewModel: ObservableObject {
         case .success(let session):
             if let session = session {
                 let link = session.id.createLink()
+                log.d("Created session link: \(link)", .ui)
                 linkUrl = link.url
                 linkText = link.url.absoluteString
             }
