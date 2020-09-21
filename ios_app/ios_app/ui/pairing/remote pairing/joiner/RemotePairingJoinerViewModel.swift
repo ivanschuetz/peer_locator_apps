@@ -10,6 +10,8 @@ class RemotePairingJoinerViewModel: ObservableObject {
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
     private let settingsShower: SettingsShower
+    
+    private let observeSession = CurrentValueSubject<Bool, Never>(false)
 
     private var sessionCancellable: Cancellable?
 
@@ -20,21 +22,28 @@ class RemotePairingJoinerViewModel: ObservableObject {
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
 
-        sessionCancellable = sessionService.session.sink { [weak self] sessionRes in
-            switch sessionRes {
-            case .success(let session):
-                if let session = session {
-                    if session.createdByMe {
-                        // TODO revise this. Ideally we shouldn't throw fatal errors.
-                        fatalError("Invalid state: If I'm in joiner view, I can't have created the session.")
-                    }
-                    self?.navigateToJoinedView = true
-                }
-            case .failure(let e):
-                let msg = "Couldn't retrieve session: \(e)"
-                log.e(msg, .ui)
+        sessionCancellable = sessionService.session
+            .withLatestFrom(observeSession, resultSelector: { ($0, $1) })
+            .compactMap{ sessionRes, switchValue -> Result<Session?, ServicesError>? in
+                if switchValue { return sessionRes } else { return nil }
             }
-        }
+            .sink { [weak self] sessionRes in
+                self?.observeSession.send(false)
+
+                switch sessionRes {
+                case .success(let session):
+                    if let session = session {
+                        if session.createdByMe {
+                            // TODO revise this. Ideally we shouldn't throw fatal errors.
+                            fatalError("Invalid state: If I'm in joiner view, I can't have created the session.")
+                        }
+                        self?.navigateToJoinedView = true
+                    }
+                case .failure(let e):
+                    let msg = "Couldn't retrieve session: \(e)"
+                    log.e(msg, .ui)
+                }
+            }
     }
 
     func joinSession() {
@@ -54,6 +63,7 @@ class RemotePairingJoinerViewModel: ObservableObject {
             uiNotifier.show(.error("Invalid session url: \(url). Nothing to join"))
             return
         }
+        observeSession.send(true)
         sessionManager.join(sessionId: sessionLink.sessionId)
     }
     

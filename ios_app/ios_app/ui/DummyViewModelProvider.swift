@@ -20,7 +20,8 @@ class DummyViewModelProvider: ViewModelProvider {
         RootViewModel(
             sessionService: NoopCurrentSessionService(),
             uiNotifier: NoopUINotifier(),
-            settingsShower: NoopSettingsShower())
+            settingsShower: NoopSettingsShower(),
+            appEvents: NoopAppEvents())
     }
 
     func meetingCreated() -> MeetingCreatedViewModel {

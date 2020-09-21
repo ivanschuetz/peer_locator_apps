@@ -14,6 +14,8 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
     private let sessionService: CurrentSessionService
     private let settingsShower: SettingsShower
 
+    private let observeSession = CurrentValueSubject<Bool, Never>(false)
+
     private var sessionCancellable: AnyCancellable?
 
     init(remoteSessionManager: RemoteSessionManager, sessionService: CurrentSessionService, uiNotifier: UINotifier,
@@ -23,7 +25,13 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
         self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session
+            .withLatestFrom(observeSession, resultSelector: { ($0, $1) })
+            .compactMap{ sessionRes, switchValue -> Result<Session?, ServicesError>? in
+                if switchValue { return sessionRes } else { return nil }
+            }
             .sink { [weak self] sessionRes in
+                self?.observeSession.send(false)
+
                 switch sessionRes {
                 case .success(let session):
                     if let session = session {
@@ -50,6 +58,7 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
     }
 
     func onCreateSessionTap() {
+        observeSession.send(true)
         remoteSessionManager.create()
     }
 
@@ -67,3 +76,37 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
         navigationActive = true
     }
 }
+
+// TODO operator for:
+//.withLatestFrom(observeSession, resultSelector: { sessionRes, switchValue in
+//    (sessionRes, switchValue)
+//})
+//.compactMap{ sessionRes, switchValue -> Result<Session?, ServicesError>? in
+//    if switchValue {
+//        return sessionRes
+//    } else {
+//        return nil
+//    }
+//}
+// can't get the generics right!
+
+//extension Publisher {
+//
+//    func withToggle<T>(_ toggle: T) -> Publishers.CompactMap<Self, Output> where T: Publisher, Self.Failure == T.Failure, T.Output == Bool {
+//        withLatestFrom(toggle, resultSelector: { this, toggle in
+//            (this, toggle)
+//        })
+////        .map { this, toggle in
+////            return this
+////        }
+//
+//        .compactMap{ this, toggle -> Self.Output? in
+//            return nil
+////            if toggle {
+////                return this
+////            } else {
+////                return nil
+////            }
+//        }
+//    }
+//}

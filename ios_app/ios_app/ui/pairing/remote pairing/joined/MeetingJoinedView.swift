@@ -11,7 +11,7 @@ struct MeetingJoinedView: View {
         VStack {
             Text("Joined! Waiting for peer to acknowledge.")
                 .padding(.bottom, 30)
-            ActionButton("Check session status") {
+            ActionButton("Update status") {
                 viewModel.updateSession()
             }
             .navigationBarTitle(Text("Session joined!"), displayMode: .inline)

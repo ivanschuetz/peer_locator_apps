@@ -3,7 +3,7 @@ import UIKit
 import Combine
 
 enum AppEvent {
-    case toFg
+    case toFg, didLaunch
 }
 
 protocol AppEvents {
@@ -15,11 +15,17 @@ class AppEventsImpl: AppEvents {
     lazy var events: AnyPublisher<AppEvent, Never> = eventsSubject.eraseToAnyPublisher()
 
     private var willEnterFgCancellable: AnyCancellable?
+    private var didLaunchCancellable: AnyCancellable?
 
     init() {
         willEnterFgCancellable = NotificationCenter.default.publisher(
             for: UIApplication.willEnterForegroundNotification).sink { [weak self] _ in
             self?.eventsSubject.send(.toFg)
+        }
+
+        didLaunchCancellable = NotificationCenter.default.publisher(
+            for: UIApplication.didFinishLaunchingNotification).sink { [weak self] _ in
+            self?.eventsSubject.send(.didLaunch)
         }
     }
 
@@ -32,5 +38,14 @@ class AppEventsImpl: AppEvents {
             name: UIApplication.willEnterForegroundNotification,
             object: nil
         )
+        notificationCenter.removeObserver(
+            self,
+            name: UIApplication.didFinishLaunchingNotification,
+            object: nil
+        )
     }
+}
+
+class NoopAppEvents: AppEvents {
+    let events: AnyPublisher<AppEvent, Never> = Empty().eraseToAnyPublisher()
 }

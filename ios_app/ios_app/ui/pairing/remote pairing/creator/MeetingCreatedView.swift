@@ -35,7 +35,7 @@ struct MeetingCreatedView: View {
                 // TODO no optional (viewModel.link)
                 ShareSheet(activityItems: [viewModel.linkUrl])
             }
-            ActionButton("Check session status") {
+            ActionButton("Update status") {
                 viewModel.updateSession()
             }
         }
