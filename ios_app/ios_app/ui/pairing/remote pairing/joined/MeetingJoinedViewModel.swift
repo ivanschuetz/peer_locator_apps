@@ -29,5 +29,9 @@ class MeetingJoinedViewModel: ObservableObject {
     func onSettingsButtonTap() {
         settingsShower.show()
     }
+
+    func onDeleteSessionTap() -> Bool {
+        !sessionManager.delete().isFailure()
+    }
 }
 
