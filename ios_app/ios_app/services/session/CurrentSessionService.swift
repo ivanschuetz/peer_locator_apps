@@ -33,7 +33,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
             .handleEvents(receiveOutput: { session in
 //                log.d("Current session was updated to: \(session)", .session)
                 if case .failure(let e) = session {
-                    uiNotifier.show(.error("Session error: \(e)"))
+                    log.e("Current session error: \(e)", .session)
                 }
             })
             .eraseToAnyPublisher()
