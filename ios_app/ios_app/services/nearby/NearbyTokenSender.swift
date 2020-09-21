@@ -88,7 +88,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
                 )
             } else {
                 // We're observing a validated peer, and validating is not possible without
-                // having our own private key stored, so it _should_ be invalid. but:
+                // having our own private key stored, so it _should_ be invalid state. but:
                 // This currently can happen when triggered by (nearby) session stopped observable
                 // after the (peer) session were deleted --> TODO fix
                 // also, consider observing the current session too (and ensuring that the keychain data
