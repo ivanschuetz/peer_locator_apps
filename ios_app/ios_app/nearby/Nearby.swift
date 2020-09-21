@@ -54,7 +54,7 @@ protocol Nearby {
     var discovered: AnyPublisher<NearbyObj, Never> { get }
     var sessionState: AnyPublisher<SessionState, Never> { get }
 
-    func createOrUseSession() -> NearbyToken?
+    func createOrUseSession(callback: @escaping (NearbyToken?) -> Void)
     func setPeer(token: NearbyToken)
 }
 
@@ -88,20 +88,22 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
      * Creates a new session if there's none yet or it was invalidated, otherwise uses existing one,
      * and returns our discovery token.
      */
-    func createOrUseSession() -> NearbyToken? {
+    func createOrUseSession(callback: @escaping (NearbyToken?) -> Void) {
         log.v("Called createOrUseSession, state: \(session)", .nearby)
 
         switch session {
         case .active(_, let myToken, _):
             log.d("There's already an active session, returning dicovery token.", .nearby)
-            return myToken
+            callback(myToken)
         case .invalidated, .inactive:
             log.d("The session is invalidated or inactive. Creating a new session.", .nearby)
-            if let sessionWithToken = createSessionWithToken() {
-                self.session = .active(session: sessionWithToken.0, myToken: sessionWithToken.1, peerToken: nil)
-                return sessionWithToken.1
-            } else {
-                return nil
+            createSessionWithToken { [weak self] sessionWithToken in
+                if let sessionWithToken = sessionWithToken {
+                    self?.session = .active(session: sessionWithToken.0, myToken: sessionWithToken.1, peerToken: nil)
+                    callback(sessionWithToken.1)
+                } else {
+                    callback(nil)
+                }
             }
         }
     }
@@ -134,20 +136,26 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
         }
     }
 
-    private func createSessionWithToken() -> (NISession, NearbyToken)? {
+    private func createSessionWithToken(callback: @escaping ((NISession, NearbyToken)?) -> Void) {
         let session = NISession()
         session.delegate = self
-        if let token = session.discoveryToken {
-            return (session, token.toNearbyToken())
-        } else {
-            if isNearbySupported() {
-                // TODO can this happen? Docs currently don't say when it's nil:
-                // https://developer.apple.com/documentation/nearbyinteraction/nisession/3564775-discoverytoken
-                log.e("Unexpected: device is supported but nearby session returned no discovery token", .nearby)
-                // If we can't create our token there doesn't seem to be a point in having a session, so nil.
-                return nil
+
+        // Token is not available immediately (nil) and there don't appear to be delegate functions currently
+        // for this (nothing is called between when it's nil and non nil in timer), so we need a timer.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            log.v("Discovery token after delay: \(String(describing: session.discoveryToken))", .nearby)
+            if let token = session.discoveryToken {
+                callback((session, token.toNearbyToken()))
             } else {
-                fatalError("Illegal state: if device doesn't support Nearby, NearbyImpl shouldn't be instantiated")
+                if isNearbySupported() {
+                    // TODO can this happen? Docs currently don't say when it's nil:
+                    // https://developer.apple.com/documentation/nearbyinteraction/nisession/3564775-discoverytoken
+                    log.e("Unexpected: device is supported but nearby session returned no discovery token", .nearby)
+                    // If we can't create our token there doesn't seem to be a point in having a session, so nil.
+                    callback(nil)
+                } else {
+                    fatalError("Illegal state: if device doesn't support Nearby, NearbyImpl shouldn't be instantiated")
+                }
             }
         }
     }
@@ -300,9 +308,10 @@ extension NearbyImpl: NISessionDelegate {
 
 // Note used also in production, by devices that don't support Nearby.
 class NearbyNoop: Nearby {
+
     var sessionState = Just(SessionState.notInit).eraseToAnyPublisher()
     var discovered: AnyPublisher<NearbyObj, Never> = Empty()
         .eraseToAnyPublisher()
-    func createOrUseSession() -> NearbyToken? { nil }
+    func createOrUseSession(callback: (NearbyToken?) -> Void) {}
     func setPeer(token: NearbyToken) {}
 }

@@ -15,14 +15,21 @@ struct ColocatedPairingRoleSelectionView: View {
             Button("Create session") {
                 viewModel.onCreateSessionTap()
             }
+            .styleAction()
+            .padding(.bottom, buttonsVerticalSpacing)
             Button("Join session") {
                 viewModel.onJoinSessionTap()
             }
+            .styleAction()
             NavigationLink(destination: Lazy(destinationView(destination: viewModel.destination)),
                            isActive: $viewModel.navigationActive) {
                Spacer().fixedSize()
             }
         }
+        .navigationBarTitle(Text("Select role"), displayMode: .inline)
+        .navigationBarItems(trailing: Button(action: {
+            viewModel.onSettingsButtonTap()
+        }) { SettingsImage() })
     }
 
     private func destinationView(destination: ColocatedPairingRoleDestination) -> some View {

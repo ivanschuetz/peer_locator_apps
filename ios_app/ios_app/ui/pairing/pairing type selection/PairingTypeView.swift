@@ -23,19 +23,31 @@ struct PairingTypeView: View {
             Text("Are you and your peer in the same location now?")
                 .padding(.bottom, 30)
             // TODO question mark with expl: "same location: <100m appart"
-            NavigationLink(destination: Lazy(ColocatedPairingRoleSelectionView(viewModelProvider: viewModelProvider))) {
-                Text("Yes")
+            ActionButton("Yes") {
+                viewModel.onColocatedTap()
             }
-            .padding(.bottom, 30)
-            NavigationLink(destination: Lazy(RemotePairingRoleSelectionView(viewModelProvider: viewModelProvider))) {
-                Text("No")
+            .padding(.bottom, buttonsVerticalSpacing)
+            ActionButton("No") {
+                viewModel.onRemoteTap()
+            }
+            NavigationLink(destination: Lazy(destinationView(destination: viewModel.destination)),
+                           isActive: $viewModel.navigationActive) {
+               Spacer().fixedSize()
             }
         }
         .navigationBarTitle(Text("Session"), displayMode: .inline)
-        .navigationBarBackButtonHidden(true)
         .navigationBarItems(trailing: Button(action: {
             viewModel.onSettingsButtonTap()
         }) { SettingsImage() })
+    }
+
+
+    private func destinationView(destination: PairingTypeDestination) -> some View {
+        switch destination {
+        case .colocated: return AnyView(ColocatedPairingRoleSelectionView(viewModelProvider: viewModelProvider))
+        case .remote: return AnyView(RemotePairingRoleSelectionView(viewModelProvider: viewModelProvider))
+        case .none: return AnyView(Spacer().fixedSize()) // not used
+        }
     }
 }
 

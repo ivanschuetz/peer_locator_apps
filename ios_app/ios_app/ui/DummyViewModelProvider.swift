@@ -52,13 +52,15 @@ class DummyViewModelProvider: ViewModelProvider {
         ColocatedPairingRoleSelectionViewModel(sessionService: NoopColocatedSessionService(),
                                                bleState: NoopBleStateObservable(),
                                                bleActivator: NoopBleActivator(),
-                                               uiNotifier: NoopUINotifier())
+                                               uiNotifier: NoopUINotifier(),
+                                               settingsShower: NoopSettingsShower())
     }
 
     func remotePairingRole() -> RemotePairingRoleSelectionViewModel {
         RemotePairingRoleSelectionViewModel(remoteSessionManager: NoopRemoteSessionManager(),
                                             sessionService: NoopCurrentSessionService(),
-                                            uiNotifier: NoopUINotifier())
+                                            uiNotifier: NoopUINotifier(),
+                                            settingsShower: NoopSettingsShower())
     }
 
     func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel {

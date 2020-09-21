@@ -13,27 +13,31 @@ struct RemotePairingJoinerView: View {
 
     var body: some View {
         VStack {
+            Text("Open the link sent by your peer, or insert it below and click \"Join session\"")
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 30)
             HStack {
                 TextField("", text: $viewModel.sessionLinkInput)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 20)
-                    .padding(.bottom, 20)
-                    .background(Color.green)
-                Button("Paste", action: {
+                    .styleDefault()
+                    .padding(.trailing, 10)
+
+                Button(action: {
                     viewModel.onPasteLinkTap()
-                })
+//                }) { Image(systemName: "doc.on.clipboard")
+                }) { Image(systemName: "arrow.down.doc").styleIconDefault() }
             }
             .padding(.bottom, 30)
-            Button("Join session", action: {
+
+            Button(action: {
                 viewModel.joinSession()
-            })
+            }) { Text("Join session").styleButton() }
             NavigationLink(destination: Lazy(MeetingJoinedView(viewModelProvider: viewModelProvider)),
                            isActive: $viewModel.navigateToJoinedView) {
                Spacer().fixedSize()
             }
         }
+        .defaultOuterHPadding()
         .navigationBarTitle(Text("Join session"), displayMode: .inline)
-        .navigationBarBackButtonHidden(true)
         .navigationBarItems(trailing: Button(action: {
             viewModel.onSettingsButtonTap()
         }) { SettingsImage() })

@@ -47,6 +47,7 @@ struct MeetingView: View {
             Button("Delete session") {
                 viewModel.deleteSession()
             }
+            .styleDelete()
         }
     }
 

@@ -13,7 +13,7 @@ struct ColocatedPairingJoinerView: View {
         log.w("[investigating camera bug] view. showscanner: \($viewModel.showScanner)")
 
         return VStack {
-            Button("Open camera") {
+            ActionButton("Open camera") {
                 viewModel.onStartCameraTap()
             }
             Text("Open the camera to read your peer's QR code")

@@ -42,8 +42,10 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
 
     func startSending() {
         cancelTimer()
-        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
-                                     userInfo: nil, repeats: true)
+//        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(onTimerTick),
+//                                     userInfo: nil, repeats: true)
+//        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
+//                                     userInfo: nil, repeats: true)
         sendNearbyTokenToPeer()
     }
 
@@ -64,11 +66,14 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
 
     // TODO aside of this "retry" implement also low level ble retry
     private func sendNearbyTokenToPeer() {
-        guard let token = nearby.createOrUseSession() else {
-            log.e("Critical: nearby token returned nil. Can't send token to peer.", .nearby)
-            return
+        nearby.createOrUseSession { [weak self] token in
+            if let token = token {
+                self?.sendToken(token: token)
+            } else {
+                log.e("Critical: nearby token returned nil. Can't send token to peer.", .nearby)
+                return
+            }
         }
-        sendToken(token: token)
     }
 
     private func sendToken(token: NearbyToken) {
@@ -88,6 +93,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
                 // after the (peer) session were deleted --> TODO fix
                 // also, consider observing the current session too (and ensuring that the keychain data
                 // is in sync, so if current session is nil, keychain data is also reliably deleted
+                // NOTE: currently valid on the simulator, as peer validation is always true
                 log.e("Invalid state: no session data (see comment for details)", .nearby, .session)
             }
 

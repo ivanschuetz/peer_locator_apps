@@ -11,11 +11,10 @@ struct MeetingJoinedView: View {
         VStack {
             Text("Joined! Waiting for peer to acknowledge.")
                 .padding(.bottom, 30)
-            Button("Check session status", action: {
+            ActionButton("Check session status") {
                 viewModel.updateSession()
-            })
+            }
             .navigationBarTitle(Text("Session joined!"), displayMode: .inline)
-            .navigationBarBackButtonHidden(true)
             .navigationBarItems(trailing: Button(action: {
                 viewModel.onSettingsButtonTap()
             }) { SettingsImage() })

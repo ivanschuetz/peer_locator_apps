@@ -10,35 +10,38 @@ struct MeetingCreatedView: View {
     }
 
     var body: some View {
-        Text("Meeting link")
+        VStack {
+            Text("Send this link to your peer:")
+                .padding(.bottom, 30)
+
+            Text(viewModel.linkText)
+                .foregroundColor(Color.blue)
+                .padding(.bottom, 20)
+
+            HStack {
+                Button(action: {
+                    viewModel.onCopyLinkTap()
+                }) { Image(systemName: "arrow.up.doc").styleIconDefault() }
+                .padding(.trailing, 30)
+
+                Button(action: {
+                    showShareSheet = true
+                }) { Image(systemName: "square.and.arrow.up").styleIconDefault() }
+            }
+
             .padding(.bottom, 30)
-        Text(viewModel.linkText)
-            .padding(.bottom, 30)
-        TextField(viewModel.linkText, text: $viewModel.sessionLinkInput)
-            .multilineTextAlignment(.center)
-            .padding(.top, 20)
-            .padding(.bottom, 20)
-            .background(Color.yellow)
-        Text("Send this link to your peer:")
-            .padding(.bottom, 30)
-        Button("Copy", action: {
-            viewModel.onCopyLinkTap()
-        })
-        .padding(.bottom, 30)
-        Button("Share", action: {
-            showShareSheet = true
-        })
-        .padding(.bottom, 30)
-        // TODO don't allow to show modal if there's no link
-        .sheet(isPresented: $showShareSheet) {
-            // TODO no optional (viewModel.link)
-            ShareSheet(activityItems: [viewModel.linkUrl])
+            // TODO don't allow to show modal if there's no link
+            .sheet(isPresented: $showShareSheet) {
+                // TODO no optional (viewModel.link)
+                ShareSheet(activityItems: [viewModel.linkUrl])
+            }
+            ActionButton("Check session status") {
+                viewModel.updateSession()
+            }
         }
-        Button("Check session status", action: {
-            viewModel.updateSession()
-        })
+        .defaultOuterHPadding()
+
         .navigationBarTitle(Text("Session created!"), displayMode: .inline)
-        .navigationBarBackButtonHidden(true)
         .navigationBarItems(trailing: Button(action: {
             viewModel.onSettingsButtonTap()
         }) { SettingsImage() })
