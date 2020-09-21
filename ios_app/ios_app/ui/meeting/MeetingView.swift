@@ -44,10 +44,9 @@ struct MeetingView: View {
                 .font(.system(size: 50, weight: .heavy))
                 .foregroundColor(colorScheme == .dark ? .white : .black)
                 .padding(.bottom, 50)
-            Button("Delete session") {
+            ActionDeleteButton("Delete session") {
                 viewModel.deleteSession()
             }
-            .styleDelete()
         }
     }
 

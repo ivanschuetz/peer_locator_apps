@@ -21,6 +21,7 @@ struct PairingTypeView: View {
     var body: some View {
         VStack {
             Text("Are you and your peer in the same location now?")
+                .multilineTextAlignment(.center)
                 .padding(.bottom, 30)
             // TODO question mark with expl: "same location: <100m appart"
             ActionButton("Yes") {
@@ -35,6 +36,7 @@ struct PairingTypeView: View {
                Spacer().fixedSize()
             }
         }
+        .defaultOuterHPadding()
         .navigationBarTitle(Text("Session"), displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             viewModel.onSettingsButtonTap()
