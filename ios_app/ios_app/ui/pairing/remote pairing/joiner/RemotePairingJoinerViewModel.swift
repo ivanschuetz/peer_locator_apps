@@ -74,4 +74,8 @@ class RemotePairingJoinerViewModel: ObservableObject {
     func onPasteLinkTap() {
         sessionLinkInput = clipboard.getFromClipboard()
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }

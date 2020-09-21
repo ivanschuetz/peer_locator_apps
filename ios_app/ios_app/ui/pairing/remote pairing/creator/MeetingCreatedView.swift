@@ -55,8 +55,8 @@ struct MeetingCreatedView: View {
 
         .navigationBarTitle(Text("Session created!"), displayMode: .inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(trailing: Button(action: {
-            viewModel.onSettingsButtonTap()
+        .navigationBarItems(trailing: Button(action: { [weak viewModel] in
+            viewModel?.onSettingsButtonTap()
         }) { SettingsImage() })
     }
 }

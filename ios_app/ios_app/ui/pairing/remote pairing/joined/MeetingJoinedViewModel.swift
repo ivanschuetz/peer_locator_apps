@@ -33,5 +33,8 @@ class MeetingJoinedViewModel: ObservableObject {
     func onDeleteSessionTap() -> Bool {
         !sessionManager.delete().isFailure()
     }
-}
 
+    deinit {
+        log.d("View model deinit", .ui)
+    }
+}

@@ -65,4 +65,8 @@ class MeetingCreatedViewModel: ObservableObject {
     func onSettingsButtonTap() {
         settingsShower.show()
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }

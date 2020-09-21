@@ -14,6 +14,10 @@ class SettingsViewModel: ObservableObject {
         case .share: print("tapped share")
         }
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }
 
 struct IdentifiableUserSettingViewData: Identifiable {

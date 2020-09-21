@@ -7,4 +7,8 @@ class ColocatedPairingPasswordViewModel: ObservableObject {
     init(sessionService: ColocatedSessionService) {
         password = sessionService.generatePassword().value
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }

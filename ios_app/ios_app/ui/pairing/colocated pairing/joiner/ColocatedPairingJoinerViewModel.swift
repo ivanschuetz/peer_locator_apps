@@ -41,4 +41,8 @@ class ColocatedPairingJoinerViewModel: ObservableObject {
             uiNotifier.show(.error(msg))
         }
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }

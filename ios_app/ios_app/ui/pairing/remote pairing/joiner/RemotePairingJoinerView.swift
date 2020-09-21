@@ -38,8 +38,8 @@ struct RemotePairingJoinerView: View {
         }
         .defaultOuterHPadding()
         .navigationBarTitle(Text("Join session"), displayMode: .inline)
-        .navigationBarItems(trailing: Button(action: {
-            viewModel.onSettingsButtonTap()
+        .navigationBarItems(trailing: Button(action: { [weak viewModel] in
+            viewModel?.onSettingsButtonTap()
         }) { SettingsImage() })
     }
 }

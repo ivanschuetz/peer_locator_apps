@@ -112,4 +112,8 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
         destination = to
         navigationActive = true
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }

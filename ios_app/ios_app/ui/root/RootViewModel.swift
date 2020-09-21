@@ -82,6 +82,10 @@ class RootViewModel: ObservableObject {
             uiNotifier.show(.error("Error retrieving session: \(e)"))
         }
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }
 
 private func toViewState(sessionRes: Result<Session?, ServicesError>) -> RootViewState {

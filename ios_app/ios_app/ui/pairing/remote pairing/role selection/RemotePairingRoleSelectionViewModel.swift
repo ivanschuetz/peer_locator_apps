@@ -75,6 +75,10 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
         destination = to
         navigationActive = true
     }
+
+    deinit {
+        log.d("View model deinit", .ui)
+    }
 }
 
 // TODO operator for:
