@@ -22,6 +22,8 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
 
     private var sessionStateCancellable: AnyCancellable?
     private var timer: Timer?
+
+    private var keepSendingAfterSessionActiveTimer: Timer?
     
     init(nearbyPairing: NearbyPairing, tokenProcessor: NearbyTokenProcessor, localSessionManager: LocalSessionManager,
          uiNotifier: UINotifier, nearby: Nearby) {
@@ -35,8 +37,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
             .removeDuplicates()
             .filter { $0 == .active }
             .sink { [weak self] sessionState in
-                // active session: stop sending token
-                self?.stopSending()
+                self?.onSessionActive()
         }
     }
 
@@ -47,6 +48,28 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
 //        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
 //                                     userInfo: nil, repeats: true)
         sendNearbyTokenToPeer()
+    }
+
+    private func onSessionActive() {
+        // Nearby session becoming active apparently is one sided: our peer session
+        // is not necessarily active yet. So we keep sending the token a while.
+        // TODO review this, test on devices.
+        log.d("Nearby session active. Start timer to stop sending token.", .nearby)
+        cancelKeepSendingAfterSessionActiveTimer()
+        keepSendingAfterSessionActiveTimer = Timer.scheduledTimer(
+            timeInterval: 30, target: self, selector: #selector(onkeepSendingAfterSessionActiveTimer),
+            userInfo: nil, repeats: false)
+    }
+
+    @objc private func onkeepSendingAfterSessionActiveTimer() {
+        cancelKeepSendingAfterSessionActiveTimer()
+        log.d("Keep sending nearby token timer fired. Stop sending token.", .nearby)
+        stopSending()
+    }
+
+    private func cancelKeepSendingAfterSessionActiveTimer() {
+        keepSendingAfterSessionActiveTimer?.invalidate()
+        keepSendingAfterSessionActiveTimer = nil
     }
 
     private func stopSending() {
