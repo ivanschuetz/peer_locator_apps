@@ -5,6 +5,8 @@ import Combine
 
 protocol PhoneBridge {
     var messages: AnyPublisher<[String: Any], Never> { get }
+
+    func sendMessage(_ message: [String: Any])
 }
 
 class PhoneBridgeImpl: NSObject, WCSessionDelegate, PhoneBridge {
@@ -36,8 +38,9 @@ class PhoneBridgeImpl: NSObject, WCSessionDelegate, PhoneBridge {
         log.d("activationDidCompleteWith activationState:\(activationState.rawValue) error:\(String(describing: error))")
     }
 
-    func sendMessage() {
-        session.sendMessage(["request": "date"],
+    func sendMessage(_ message: [String: Any]) {
+//        session.sendMessage(["request": "date"],
+        session.sendMessage(message,
             replyHandler: { response in
 //                self.messages.append("Reply: \(response)")
             },
@@ -46,4 +49,8 @@ class PhoneBridgeImpl: NSObject, WCSessionDelegate, PhoneBridge {
             }
         )
     }
+}
+
+protocol PhoneBridgeDelegate {
+    func onMessage(_ message: [String: Any])
 }

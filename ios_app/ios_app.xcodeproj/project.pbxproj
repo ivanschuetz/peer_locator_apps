@@ -160,6 +160,7 @@
 		84B70D24250F68920063D8DE /* BleDeviceValidatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D23250F68920063D8DE /* BleDeviceValidatorService.swift */; };
 		84B70D26250F965A0063D8DE /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D25250F965A0063D8DE /* SessionStore.swift */; };
 		84B73D58250A1A3D00C2328D /* Lazy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73D57250A1A3D00C2328D /* Lazy.swift */; };
+		84B82D1D251A883600BC6490 /* U1AvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B82D1C251A883600BC6490 /* U1AvailabilityProvider.swift */; };
 		84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
 		84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */; };
@@ -422,6 +423,7 @@
 		84B70D23250F68920063D8DE /* BleDeviceValidatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDeviceValidatorService.swift; sourceTree = "<group>"; };
 		84B70D25250F965A0063D8DE /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		84B73D57250A1A3D00C2328D /* Lazy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lazy.swift; sourceTree = "<group>"; };
+		84B82D1C251A883600BC6490 /* U1AvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = U1AvailabilityProvider.swift; sourceTree = "<group>"; };
 		84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorBleManager.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
 		84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
@@ -900,6 +902,7 @@
 		84B6DC7F24FBA32F00AA7E6D /* ploc_watch Extension */ = {
 			isa = PBXGroup;
 			children = (
+				84B82D1B251A87D500BC6490 /* bridge */,
 				84014D462506B5880057BBFD /* ploc_watch Extension.entitlements */,
 				84B6DC8024FBA32F00AA7E6D /* ios_appApp.swift */,
 				84B6DC8224FBA32F00AA7E6D /* ContentView.swift */,
@@ -910,7 +913,6 @@
 				84B6DC8F24FBA33000AA7E6D /* Info.plist */,
 				84B6DC9024FBA33000AA7E6D /* PushNotificationPayload.apns */,
 				84B6DC8C24FBA33000AA7E6D /* Preview Content */,
-				84B6DC9C24FBA4EF00AA7E6D /* PhoneBridge.swift */,
 				84B6DCA624FBA88C00AA7E6D /* Dependencies.swift */,
 				84B6DCAA24FBAB1800AA7E6D /* SessionDataDispatcher.swift */,
 				84B6DCB724FBC13900AA7E6D /* ContentViewModel.swift */,
@@ -933,6 +935,15 @@
 				84B6DCA224FBA6FC00AA7E6D /* WatchEventsForwarder.swift */,
 			);
 			path = watch;
+			sourceTree = "<group>";
+		};
+		84B82D1B251A87D500BC6490 /* bridge */ = {
+			isa = PBXGroup;
+			children = (
+				84B6DC9C24FBA4EF00AA7E6D /* PhoneBridge.swift */,
+				84B82D1C251A883600BC6490 /* U1AvailabilityProvider.swift */,
+			);
+			path = bridge;
 			sourceTree = "<group>";
 		};
 		84BCCD972508B47B006EF93F /* role section */ = {
@@ -1518,6 +1529,7 @@
 				84B6DC8524FBA32F00AA7E6D /* NotificationController.swift in Sources */,
 				84318681251129C500078EC0 /* Crypto.swift in Sources */,
 				84B6DC8324FBA32F00AA7E6D /* ContentView.swift in Sources */,
+				84B82D1D251A883600BC6490 /* U1AvailabilityProvider.swift in Sources */,
 				84B6DCB924FBC1AB00AA7E6D /* NumberFormatters.swift in Sources */,
 				84318680251129B400078EC0 /* structs.swift in Sources */,
 				840A8CB62509099100E73815 /* Globals.swift in Sources */,
