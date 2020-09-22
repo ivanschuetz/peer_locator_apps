@@ -18,7 +18,7 @@ use reqwest::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 
-static BASE_URL: &str = "http://192.168.0.2:8000/";
+static BASE_URL: &str = "http://192.168.0.123:8000/";
 // static BASE_URL: &str = "http://127.0.0.1:8000/";
 // static BASE_URL: &str = "http://localhost.charlesproxy.com:8000/";
 
