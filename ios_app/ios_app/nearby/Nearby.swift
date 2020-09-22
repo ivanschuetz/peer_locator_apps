@@ -45,14 +45,14 @@ extension NearbyObj: Hashable {
 }
 
 // NOTE: assumes only 1 peer: if any (i.e. the only peer) is removed, session state is removed
-enum SessionState {
+enum NearbySessionState {
     // TODO do we need to trigger didRemove (or a new state) for didInvalidateWith / sessionSuspensionEnded / sessionWasSuspended?
     case notInit, started, active, removed
 }
 
 protocol Nearby {
     var discovered: AnyPublisher<NearbyObj, Never> { get }
-    var sessionState: AnyPublisher<SessionState, Never> { get }
+    var sessionState: AnyPublisher<NearbySessionState, Never> { get }
 
     func createOrUseSession(callback: @escaping (NearbyToken?) -> Void)
     func setPeer(token: NearbyToken)
@@ -62,7 +62,7 @@ func isNearbySupported() -> Bool {
     NISession.isSupported
 }
 
-private enum NearbySessionState {
+private enum InternalNearbySessionState {
     case active(session: NISession, myToken: NearbyToken, peerToken: NearbyToken?)
     case invalidated
     case inactive
@@ -76,13 +76,13 @@ private enum NearbyTokenState {
 
 class NearbyImpl: NSObject, Nearby, ObservableObject {
 
-    private var session: NearbySessionState = .inactive
+    private var session: InternalNearbySessionState = .inactive
 
     let discoveredSubject: PassthroughSubject<NearbyObj, Never> = PassthroughSubject()
     lazy var discovered: AnyPublisher<NearbyObj, Never> = discoveredSubject.eraseToAnyPublisher()
 
-    let sessionStateSubject: CurrentValueSubject<SessionState, Never> = CurrentValueSubject(.notInit)
-    lazy var sessionState: AnyPublisher<SessionState, Never> = sessionStateSubject.eraseToAnyPublisher()
+    let sessionStateSubject: CurrentValueSubject<NearbySessionState, Never> = CurrentValueSubject(.notInit)
+    lazy var sessionState: AnyPublisher<NearbySessionState, Never> = sessionStateSubject.eraseToAnyPublisher()
 
     /**
      * Creates a new session if there's none yet or it was invalidated, otherwise uses existing one,
@@ -309,7 +309,7 @@ extension NearbyImpl: NISessionDelegate {
 // Note used also in production, by devices that don't support Nearby.
 class NearbyNoop: Nearby {
 
-    var sessionState = Just(SessionState.notInit).eraseToAnyPublisher()
+    var sessionState = Just(NearbySessionState.notInit).eraseToAnyPublisher()
     var discovered: AnyPublisher<NearbyObj, Never> = Empty()
         .eraseToAnyPublisher()
     func createOrUseSession(callback: (NearbyToken?) -> Void) {}
