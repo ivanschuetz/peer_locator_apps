@@ -16,17 +16,19 @@ class WatchEventsForwarderImpl: WatchEventsForwarder {
 
         sessionCancellable = sessionService.session.sink { sessionRes in
             switch sessionRes {
-            case .success(let session):
+            case .result(.success(let session)):
                 let msg = ["session": session as Any]
                 log.d("Sending session data to watch: \(msg)", .watch)
                 watchBridge.send(msg: msg)
-            case .failure(let e):
+            case .result(.failure(let e)):
                 // If there are issues retrieving session this screen normally shouldn't be presented
                 // TODO ensure that only one message of a type shows at a time
                 let msg = "Couldn't retrieve session: \(e)"
                 log.e(msg, .watch)
                 // TODO how to display errors communicating with watch: maybe a badge somewhere
 //                uiNotifier.show(.error(msg))
+            case .progress:
+                log.d("Forward progress to watch?", .watch)
             }
         }
 

@@ -1,5 +1,9 @@
 import Combine
 
+enum SessionState {
+    case result(Result<Session?, ServicesError>)
+    case progress
+}
 /**
  * Manages current configured session.
  * If there's no session configured yet, the observable's session is nil.
@@ -7,9 +11,9 @@ import Combine
  * so observers must not show UI notifications again for this.
  */
 protocol CurrentSessionService {
-    var session: AnyPublisher<Result<Session?, ServicesError>, Never> { get }
+    var session: AnyPublisher<SessionState, Never> { get }
 
-    func setSessionResult(_ result: Result<Session?, ServicesError>)
+    func setSessionState(_ state: SessionState)
 
     // Locally opposed to the automatic deletion in the backend after peers have exchanged data
     // Here the user isn't interested in the session anymore: the session data / keys / peers data are removed
@@ -17,9 +21,9 @@ protocol CurrentSessionService {
 }
 
 class CurrentSessionServiceImpl: CurrentSessionService {
-    private let sessionSubject: CurrentValueSubject<Result<Session?, ServicesError>, Never>
+    private let sessionSubject: CurrentValueSubject<SessionState, Never>
 
-    let session: AnyPublisher<Result<Session?, ServicesError>, Never>
+    let session: AnyPublisher<SessionState, Never>
 
     private let localSessionManager: LocalSessionManager
     private let uiNotifier: UINotifier
@@ -28,26 +32,26 @@ class CurrentSessionServiceImpl: CurrentSessionService {
         self.localSessionManager = localSessionManager
         self.uiNotifier = uiNotifier
 
-        sessionSubject = CurrentValueSubject(localSessionManager.getSession())
+        sessionSubject = CurrentValueSubject(.result(localSessionManager.getSession()))
         session = sessionSubject
             .handleEvents(receiveOutput: { session in
 //                log.d("Current session was updated to: \(session)", .session)
-                if case .failure(let e) = session {
+                if case .result(.failure(let e)) = session {
                     log.e("Current session error: \(e)", .session)
                 }
             })
             .eraseToAnyPublisher()
     }
 
-    func setSessionResult(_ result: Result<Session?, ServicesError>) {
-        sessionSubject.send(result)
+    func setSessionState(_ state: SessionState) {
+        sessionSubject.send(state)
     }
 
     func deleteSessionLocally() -> Result<(), ServicesError> {
         let res = localSessionManager.clear()
         switch res {
         case .success:
-            sessionSubject.send(.success(nil))
+            sessionSubject.send(.result(.success(nil)))
             uiNotifier.show(.success("Session deleted"))
         case .failure(let e):
             log.e("Couldn't delete session locally: \(e)")
@@ -58,9 +62,9 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 }
 
 class NoopCurrentSessionService: CurrentSessionService {
-    var session: AnyPublisher<Result<Session?, ServicesError>, Never> = Just(.success(nil))
+    var session: AnyPublisher<SessionState, Never> = Just(.result(.success(nil)))
         .eraseToAnyPublisher()
 
-    func setSessionResult(_ result: Result<Session?, ServicesError>) {}
+    func setSessionState(_ state: SessionState) {}
     func deleteSessionLocally() -> Result<(), ServicesError> { return .success(()) }
 }

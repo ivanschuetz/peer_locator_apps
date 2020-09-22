@@ -12,31 +12,36 @@ struct RemotePairingJoinerView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Open the link sent by your peer, or insert it below and click \"Join session\"")
-                .multilineTextAlignment(.center)
+        ZStack {
+            VStack {
+                Text("Open the link sent by your peer, or insert it below and click \"Join session\"")
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 30)
+                HStack {
+                    TextField("", text: $viewModel.sessionLinkInput)
+                        .styleDefault()
+                        .padding(.trailing, 10)
+
+                    Button(action: {
+                        viewModel.onPasteLinkTap()
+    //                }) { Image(systemName: "doc.on.clipboard")
+                    }) { Image(systemName: "arrow.down.doc").styleIconDefault() }
+                }
                 .padding(.bottom, 30)
-            HStack {
-                TextField("", text: $viewModel.sessionLinkInput)
-                    .styleDefault()
-                    .padding(.trailing, 10)
 
                 Button(action: {
-                    viewModel.onPasteLinkTap()
-//                }) { Image(systemName: "doc.on.clipboard")
-                }) { Image(systemName: "arrow.down.doc").styleIconDefault() }
+                    viewModel.joinSession()
+                }) { Text("Join session").styleButton() }
+                NavigationLink(destination: Lazy(MeetingJoinedView(viewModelProvider: viewModelProvider)),
+                               isActive: $viewModel.navigateToJoinedView) {
+                   Spacer().fixedSize()
+                }
             }
-            .padding(.bottom, 30)
-
-            Button(action: {
-                viewModel.joinSession()
-            }) { Text("Join session").styleButton() }
-            NavigationLink(destination: Lazy(MeetingJoinedView(viewModelProvider: viewModelProvider)),
-                           isActive: $viewModel.navigateToJoinedView) {
-               Spacer().fixedSize()
+            .defaultOuterHPadding()
+            if viewModel.showLoading {
+                ProgressOverlay()
             }
         }
-        .defaultOuterHPadding()
         .navigationBarTitle(Text("Join session"), displayMode: .inline)
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()

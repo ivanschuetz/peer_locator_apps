@@ -9,10 +9,12 @@ enum RemotePairingRoleDestination {
 class RemotePairingRoleSelectionViewModel: ObservableObject {
     @Published var destination: RemotePairingRoleDestination = .none
     @Published var navigationActive: Bool = false
+    @Published var showLoading: Bool = false
 
     private let remoteSessionManager: RemoteSessionManager
     private let sessionService: CurrentSessionService
     private let settingsShower: SettingsShower
+    private let uiNotifier: UINotifier
 
     private let observeSession = CurrentValueSubject<Bool, Never>(false)
 
@@ -23,37 +25,54 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
         self.remoteSessionManager = remoteSessionManager
         self.sessionService = sessionService
         self.settingsShower = settingsShower
+        self.uiNotifier = uiNotifier
 
         sessionCancellable = sessionService.session
-            .withLatestFrom(observeSession, resultSelector: { ($0, $1) })
-            .compactMap{ sessionRes, switchValue -> Result<Session?, ServicesError>? in
+            .withLatestFrom(observeSession, resultSelector: {
+                ($0, $1)
+            })
+            .compactMap{ sessionRes, switchValue -> SessionState? in
                 if switchValue { return sessionRes } else { return nil }
             }
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionRes in
-                self?.observeSession.send(false)
+                self?.handleSessionState(sessionRes)
+            }
+    }
 
-                switch sessionRes {
-                case .success(let session):
-                    if let session = session {
-                        // filter joined event: since this vm stays in the stack,
-                        // if we don't filter, when we join a session it will navigate to create first
-                        if session.createdByMe {
-                            log.d("Session created, navigating to create view", .ui)
-                            self?.navigate(to: .create)
-                        } else {
-                            // TODO happens in join session view after pasting the link and tapping on join!
-                            // we need something to prevent cross-events between view models?
-                            // we don't want to receive any navigation events here.
-                            log.w("Received session update, session wasn't created by me so not navigating (see TODO).", .ui)
-                        }
-                    } else {
-                        log.v("Session is nil", .ui)
-                    }
-                case .failure(let e):
-                    log.e("Current session error: \(e)", .session, .ui)
-                    uiNotifier.show(.error("Current session error: \(e)"))
-                    // TODO handle
+    private func handleSessionState(_ sessionState: SessionState) {
+        switch sessionState {
+        case .result(.success(let session)):
+            if let session = session {
+                // filter joined event: since this vm stays in the stack,
+                // if we don't filter, when we join a session it will navigate to create first
+                if session.createdByMe {
+                    log.d("Session created, navigating to create view", .ui)
+                    navigate(to: .create)
+                } else {
+                    // TODO happens in join session view after pasting the link and tapping on join!
+                    // we need something to prevent cross-events between view models?
+                    // we don't want to receive any navigation events here.
+                    log.w("Received session update, session wasn't created by me so not navigating (see TODO).", .ui)
                 }
+            } else {
+                log.v("Session is nil", .ui)
+            }
+
+            observeSession.send(false)
+            showLoading = false
+
+        case .result(.failure(let e)):
+            log.e("Current session error: \(e)", .session, .ui)
+            uiNotifier.show(.error("Current session error: \(e)"))
+
+            observeSession.send(false)
+            showLoading = false
+
+            // TODO handle
+        case .progress:
+            showLoading = true
         }
     }
 

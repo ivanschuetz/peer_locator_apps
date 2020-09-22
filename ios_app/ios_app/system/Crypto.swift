@@ -32,7 +32,7 @@ class CryptoImpl: Crypto {
     func sign(privateKey: PrivateKey, payload: Data) -> Data {
         let p5121PrivateKey = try! P521.Signing.PrivateKey(pemRepresentation: privateKey.value)
         let signature = try! p5121PrivateKey.signature(for: payload)
-        log.v("Signed: \(payload), privateKey: \(privateKey), signature: \(signature.rawRepresentation.toHex())")
+//        log.v("Signed: \(payload), privateKey: \(privateKey), signature: \(signature.rawRepresentation.toHex())")
         return signature.rawRepresentation
     }
 

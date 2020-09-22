@@ -18,17 +18,26 @@ class RemoteSessionManagerImpl: RemoteSessionManager {
 
     func create() {
         log.d("Creating session", .session)
-        currentSessionService.setSessionResult(sessionService.createSession().map { $0 })
+        currentSessionService.setSessionState(.progress)
+        DispatchQueue.global(qos: .background).async {
+            self.currentSessionService.setSessionState(.result(self.sessionService.createSession().map { $0 }))
+        }
     }
 
     func join(sessionId: SessionId) {
         log.d("Joining session: \(sessionId)", .session)
-        currentSessionService.setSessionResult(sessionService.joinSession(id: sessionId).map { $0 })
+        currentSessionService.setSessionState(.progress)
+        DispatchQueue.global(qos: .background).async {
+            self.currentSessionService.setSessionState(.result(self.sessionService.joinSession(id: sessionId).map { $0 }))
+        }
     }
 
     func refresh() {
         log.d("Refreshing session", .session)
-        currentSessionService.setSessionResult(sessionService.refreshSession().map { $0 })
+        currentSessionService.setSessionState(.progress)
+        DispatchQueue.global(qos: .background).async {
+            self.currentSessionService.setSessionState(.result(self.sessionService.refreshSession().map { $0 }))
+        }
     }
 
     func delete() -> Result<(), ServicesError> {

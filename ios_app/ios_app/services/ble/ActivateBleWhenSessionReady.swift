@@ -17,14 +17,13 @@ class ActivateBleWhenSessionReadyImpl: ActivateBleWhenSessionReady {
         currentSessionCancellable = sessionService.session
             .map({ sessionRes -> Bool in
                 switch sessionRes {
-                case .success(let session):
+                case .result(.success(let session)):
                     if let session = session {
                         return session.isReady
                     } else {
                         return false
                     }
-                case .failure:
-                    return false
+                default: return false
                 }
             })
             .removeDuplicates()
@@ -36,7 +35,7 @@ class ActivateBleWhenSessionReadyImpl: ActivateBleWhenSessionReady {
                     return .wentOff
                 }
             }
-            .sink { [weak self] stateChange in
+            .sink { stateChange in
                 switch stateChange {
                 case .wentOn:
                     log.i("Session activated, starting ble")

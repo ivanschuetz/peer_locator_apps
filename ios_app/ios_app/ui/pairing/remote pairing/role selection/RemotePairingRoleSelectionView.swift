@@ -11,21 +11,26 @@ struct RemotePairingRoleSelectionView: View {
     }
 
     var body: some View {
-        VStack {
-            ActionButton("Create session") {
-                viewModel.onCreateSessionTap()
+        ZStack {
+            VStack {
+                ActionButton("Create session") {
+                    viewModel.onCreateSessionTap()
+                }
+                .disabled(viewModel.showLoading)
+                .padding(.bottom, buttonsVerticalSpacing)
+                ActionButton("Join session") {
+                    viewModel.onJoinSessionTap()
+                }.disabled(viewModel.showLoading)
+                NavigationLink(destination: Lazy(destinationView(destination: viewModel.destination)),
+                               isActive: $viewModel.navigationActive) {
+                   Spacer().fixedSize()
+                }
             }
-            .padding(.bottom, buttonsVerticalSpacing)
-            // this crashes. Probably SwiftUI bug. TODO revisit in new xcode versions
-//            padding(.bottom, 30)
-            ActionButton("Join session") {
-                viewModel.onJoinSessionTap()
-            }
-            NavigationLink(destination: Lazy(destinationView(destination: viewModel.destination)),
-                           isActive: $viewModel.navigationActive) {
-               Spacer().fixedSize()
+            if viewModel.showLoading {
+                ProgressOverlay()
             }
         }
+
         .navigationBarTitle(Text("Select role"), displayMode: .inline)
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()

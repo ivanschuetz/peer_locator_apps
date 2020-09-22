@@ -201,6 +201,8 @@ class RemoteSessionServiceImpl: RemoteSessionService {
 private extension BackendSession {
     func determinePeer(session: Session) -> Peer? {
         guard keys.count < 3 else {
+            // TODO crash when joining a session multiple times:
+            // (with only one simulator) 1) create, 2) join, enter id, 3) delete session 4) join again, enter id, 5) crash
             fatalError("Invalid state: there are more than 2 peers in the session: \(self)")
         }
 

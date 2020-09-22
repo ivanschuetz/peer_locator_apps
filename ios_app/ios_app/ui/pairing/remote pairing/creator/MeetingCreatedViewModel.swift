@@ -6,6 +6,7 @@ class MeetingCreatedViewModel: ObservableObject {
     @Published var linkText: String = ""
     @Published var linkUrl: URL? = nil
     @Published var sessionLinkInput: String = ""
+    @Published var showLoading: Bool = false
 
     private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
@@ -21,25 +22,33 @@ class MeetingCreatedViewModel: ObservableObject {
         self.uiNotifier = uiNotifier
         self.settingsShower = settingsShower
 
-        sessionCancellable = sessionService.session.sink { [weak self] in
-            self?.handle(sessionRes: $0)
-        }
+        sessionCancellable = sessionService.session
+            .sink { [weak self] in
+                self?.handle(sessionRes: $0)
+            }
     }
 
-    private func handle(sessionRes: Result<Session?, ServicesError>) {
+    private func handle(sessionRes: SessionState) {
         switch sessionRes {
-        case .success(let session):
+        case .result(.success(let session)):
             if let session = session {
                 let link = session.id.createLink()
                 log.d("Created session link: \(link)", .ui)
                 linkUrl = link.url
                 linkText = link.url.absoluteString
             }
-        case .failure(let e):
+            showLoading = false
+
+        case .result(.failure(let e)):
             // If there are issues retrieving session this screen normally shouldn't be presented
             // TODO ensure that only one message of a type shows at a time
             let msg = "Couldn't retrieve session: \(e). NOTE: shouldn't happen in this screen."
             log.e(msg, .ui)
+            showLoading = false
+
+        case .progress:
+            log.d("TODO handle progress session staet", .ui)
+            showLoading = true
         }
     }
 

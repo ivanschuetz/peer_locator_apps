@@ -49,7 +49,7 @@ class RootViewModel: ObservableObject {
         }
     }
 
-    private func handleSessionStateOnAppLaunched(_ sessionRes: Result<Session?, ServicesError>) {
+    private func handleSessionStateOnAppLaunched(_ sessionRes: SessionState) {
         updateState(sessionRes)
     }
 
@@ -57,19 +57,23 @@ class RootViewModel: ObservableObject {
     // otherwise when we manipulate the session during session pairing, we will activate navigation. We don't want this.
     // Note that this can cause duplicate navigation events with handleSessionStateOnAppLaunched
     // but we don't react to duplicate navigation events, so not an issue.
-    private func handleSessionState(_ sessionRes: Result<Session?, ServicesError>) {
+    private func handleSessionState(_ sessionRes: SessionState) {
         switch sessionRes {
-        case .success(let session):
+        case .result(.success(let session)):
             if let session = session, session.isReady {
                 updateState(sessionRes)
             }
-        case .failure(let e):
+        case .result(.failure(let e)):
             log.e("Session failure state: \(e)", .session)
+        case .progress: break
         }
     }
 
-    private func updateState(_ sessionRes: Result<Session?, ServicesError>) {
-        let viewState = toViewState(sessionRes: sessionRes)
+    private func updateState(_ sessionRes: SessionState) {
+        guard let viewState = toViewState(sessionRes: sessionRes) else {
+            // No changes (.progress state: this is an overlay, view state here stays the same)
+            return
+        }
 
         if viewState == state {
             return
@@ -78,7 +82,7 @@ class RootViewModel: ObservableObject {
         log.d("New session state in root: \(sessionRes), view state: \(viewState)", .session)
         state = viewState
 
-        if case .failure(let e) = sessionRes {
+        if case .result(.failure(let e)) = sessionRes {
             uiNotifier.show(.error("Error retrieving session: \(e)"))
         }
     }
@@ -88,10 +92,10 @@ class RootViewModel: ObservableObject {
     }
 }
 
-private func toViewState(sessionRes: Result<Session?, ServicesError>) -> RootViewState {
+private func toViewState(sessionRes: SessionState) -> RootViewState? {
     log.d("Root view model: toViewState: \(sessionRes)", .ui)
     switch sessionRes {
-    case .success(let session):
+    case .result(.success(let session)):
         if let session = session {
             if session.isReady {
                 return .meetingActive
@@ -101,7 +105,8 @@ private func toViewState(sessionRes: Result<Session?, ServicesError>) -> RootVie
         } else {
             return .noMeeting
         }
-    case .failure:
+    case .result(.failure):
         return .noMeeting // TODO error view state
+    case .progress: return nil
     }
 }

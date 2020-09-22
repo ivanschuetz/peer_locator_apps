@@ -5,6 +5,7 @@ import Combine
 class RemotePairingJoinerViewModel: ObservableObject {
     @Published var sessionLinkInput: String = ""
     @Published var navigateToJoinedView: Bool = false
+    @Published var showLoading: Bool = false
 
     private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
@@ -24,26 +25,42 @@ class RemotePairingJoinerViewModel: ObservableObject {
 
         sessionCancellable = sessionService.session
             .withLatestFrom(observeSession, resultSelector: { ($0, $1) })
-            .compactMap{ sessionRes, switchValue -> Result<Session?, ServicesError>? in
+            .compactMap{ sessionRes, switchValue -> SessionState? in
                 if switchValue { return sessionRes } else { return nil }
             }
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionRes in
-                self?.observeSession.send(false)
-
-                switch sessionRes {
-                case .success(let session):
-                    if let session = session {
-                        if session.createdByMe {
-                            // TODO revise this. Ideally we shouldn't throw fatal errors.
-                            fatalError("Invalid state: If I'm in joiner view, I can't have created the session.")
-                        }
-                        self?.navigateToJoinedView = true
-                    }
-                case .failure(let e):
-                    let msg = "Couldn't retrieve session: \(e)"
-                    log.e(msg, .ui)
-                }
+                self?.handleSessionState(sessionRes)
             }
+    }
+
+    private func handleSessionState(_ sessionState: SessionState) {
+        switch sessionState {
+        case .result(.success(let session)):
+            if let session = session {
+                if session.createdByMe {
+                    // TODO revise this. Ideally we shouldn't throw fatal errors.
+                    fatalError("Invalid state: If I'm in joiner view, I can't have created the session.")
+                }
+                navigateToJoinedView = true
+            }
+
+            observeSession.send(false)
+            showLoading = false
+
+        case .result(.failure(let e)):
+            let msg = "Couldn't retrieve session: \(e)"
+            log.e(msg, .ui)
+
+            observeSession.send(false)
+            showLoading = false
+
+        case .progress:
+            log.d("TODO handle progress session state", .ui)
+
+            showLoading = true
+        }
     }
 
     func joinSession() {
