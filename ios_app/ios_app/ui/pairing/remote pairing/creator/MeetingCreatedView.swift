@@ -18,6 +18,7 @@ struct MeetingCreatedView: View {
                     .padding(.bottom, 30)
 
                 Text(viewModel.linkText)
+                    .multilineTextAlignment(.center)
                     .foregroundColor(Color.blue)
                     .padding(.bottom, 20)
 
