@@ -20,6 +20,7 @@ struct RemotePairingJoinerView: View {
                 HStack {
                     TextField("", text: $viewModel.sessionLinkInput)
                         .styleDefault()
+                        .truncationMode(.middle)
                         .padding(.trailing, 10)
 
                     Button(action: {
