@@ -1,4 +1,4 @@
 import Foundation
 
 let appDomain: String = "xyz.ploc"
-let deeplinkScheme: String = "ploc://"
+let deeplinkScheme: String = "peerfinder://"

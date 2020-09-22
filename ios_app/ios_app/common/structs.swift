@@ -38,7 +38,7 @@ extension SessionId {
     func createLink() -> SessionLink {
         // Unwrap: we know that the string is a valid url
         // Unwrap: we know that the url is a valid session id, so initializer can't fail
-        SessionLink(url: URL(string: "ploc://\(value)")!)!
+        SessionLink(url: URL(string: "peerfinder://\(value)")!)!
     }
 }
 
