@@ -7,4 +7,10 @@ extension Array {
         }
         return first
     }
+
+    func removeAllImmutable(_ pred: (Element) -> Bool) -> Self {
+        var mutSelf = self
+        mutSelf.removeAll { pred($0) }
+        return mutSelf
+    }
 }

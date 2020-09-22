@@ -161,6 +161,8 @@
 		84B70D26250F965A0063D8DE /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B70D25250F965A0063D8DE /* SessionStore.swift */; };
 		84B73D58250A1A3D00C2328D /* Lazy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B73D57250A1A3D00C2328D /* Lazy.swift */; };
 		84B82D1D251A883600BC6490 /* U1AvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B82D1C251A883600BC6490 /* U1AvailabilityProvider.swift */; };
+		84B82D37251A916800BC6490 /* String+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B82D31251A911700BC6490 /* String+Convenience.swift */; };
+		84B82D3C251A917B00BC6490 /* String+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B82D31251A911700BC6490 /* String+Convenience.swift */; };
 		84B967CD24FE28F600560AE0 /* SimulatorBleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */; };
 		84BB92E624F3A28C00CAB5A7 /* BleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92E524F3A28C00CAB5A7 /* BleManager.swift */; };
 		84BB92ED24F3D8E700CAB5A7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */; };
@@ -424,6 +426,7 @@
 		84B70D25250F965A0063D8DE /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		84B73D57250A1A3D00C2328D /* Lazy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lazy.swift; sourceTree = "<group>"; };
 		84B82D1C251A883600BC6490 /* U1AvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = U1AvailabilityProvider.swift; sourceTree = "<group>"; };
+		84B82D31251A911700BC6490 /* String+Convenience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Convenience.swift"; sourceTree = "<group>"; };
 		84B967CC24FE28F600560AE0 /* SimulatorBleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorBleManager.swift; sourceTree = "<group>"; };
 		84BB92E524F3A28C00CAB5A7 /* BleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleManager.swift; sourceTree = "<group>"; };
 		84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
@@ -1086,6 +1089,7 @@
 				841C331724F4F24000F99B93 /* Result+Convenience.swift */,
 				84BC33CE250E3A96000E9E0C /* Sequence+Convenience.swift */,
 				84F10B52250FA3FF00F28C9D /* Array+Convenience.swift */,
+				84B82D31251A911700BC6490 /* String+Convenience.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -1365,6 +1369,7 @@
 				840FCE0B2511495A00DFD672 /* RemoteSessionManager.swift in Sources */,
 				8459E0952506435C0058D692 /* Json.swift in Sources */,
 				8459E080250642860058D692 /* ploc_widget.swift in Sources */,
+				84B82D3C251A917B00BC6490 /* String+Convenience.swift in Sources */,
 				8431867F2511291E00078EC0 /* structs.swift in Sources */,
 				8459E08F250643260058D692 /* CachingLog.swift in Sources */,
 				840A8CB72509099F00E73815 /* Globals.swift in Sources */,
@@ -1426,6 +1431,7 @@
 				8402CD80250ABA1300DDE03F /* RemotePairingJoinerView.swift in Sources */,
 				841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */,
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
+				84B82D37251A916800BC6490 /* String+Convenience.swift in Sources */,
 				84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */,
 				84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */,
 				84BCCDA42508CF86006EF93F /* ColocatedPairingPasswordView.swift in Sources */,

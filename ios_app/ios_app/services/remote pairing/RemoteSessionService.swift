@@ -58,7 +58,9 @@ class RemoteSessionServiceImpl: RemoteSessionService {
         // and ensure that normally there's not already an active session here, i.e. error handlers etc. delete when needed, UI
         // doesn't allow to double tap etc.
         loadOrCreateSession(isCreate: true,
-                            sessionIdGenerator: { SessionId(value: UUID().uuidString) }).flatMap { session in
+                            sessionIdGenerator: { SessionId(
+                                value: UUID().uuidString.removeAllImmutable(where: { $0 == "-" })
+                            ) }).flatMap { session in
             switch sessionApi
                 .createSession(sessionId: session.id, publicKey: session.publicKey) {
             case .success(let backendSession):
