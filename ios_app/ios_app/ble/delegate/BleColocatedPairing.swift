@@ -24,6 +24,8 @@ class BleColocatedPairingImpl: BleColocatedPairing {
 
     private var discoveredCharacteristic: CBCharacteristic?
 
+    private var retry: RetryData<SerializedEncryptedPublicKey>?
+
     // TODO confirm: is the peripheral reliably available here? Probably we should use reactive
     // instead, with poweredOn + write?
     func write(publicKey: SerializedEncryptedPublicKey) -> Bool {
@@ -79,7 +81,6 @@ extension BleColocatedPairingImpl: BleCentralDelegate {
         }
     }
 
-
     func onReadCharacteristic(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) -> Bool {
         if characteristic.uuid == characteristicUuid {
             fatalError("We don't read colocated characteristic")
@@ -91,11 +92,27 @@ extension BleColocatedPairingImpl: BleCentralDelegate {
         guard characteristic.uuid == characteristicUuid else { return }
 
         if let error = error {
-            log.e("Error: \(error) writing characteristic: \(characteristic)", .ble)
-            // TODO investigate: do we need to implement retry
-            errorSendingKeySubject.send(error)
+            handleWriteError(error)
         } else {
+            retry = nil
             log.d("Successfully wrote characteristic: \(characteristic)", .ble)
+        }
+    }
+
+    private func handleWriteError(_ error: Error) {
+        log.e("Error: \(error) writing colocated key: \(characteristic)", .ble)
+        if let retry = retry {
+            if retry.shouldRetry() {
+                log.d("Retrying colocated key write. Attempt: \(retry.count)", .ble)
+                self.retry = retry.increment()
+                _ = write(publicKey: retry.data)
+            } else {
+                log.d("Failed colocated key write after \(retry.count) attempts. Error.", .ble)
+                errorSendingKeySubject.send(error)
+            }
+        } else {
+            log.e("Illegal state? retry should be set when receiving ack", .ble)
+            errorSendingKeySubject.send(error)
         }
     }
 }

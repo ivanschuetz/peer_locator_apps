@@ -23,6 +23,8 @@ class BleValidationDataReaderImpl: BleValidationDataReader {
 
     private var discoveredCharacteristic: CBCharacteristic?
 
+    private var retry: RetryData<()>?
+
     init(idService: BleIdService) {
         self.idService = idService
     }
@@ -104,9 +106,7 @@ extension BleValidationDataReaderImpl: BleCentralDelegate {
         switch characteristic.uuid {
         case characteristicUuid:
             if let error = error {
-                log.e("Error reading validation characteristic: \(error)", .ble)
-                // TODO investigate: what errors can we get? what is handled by ble? does it make sense to retry?
-                errorReadingValidationSubject.send(error)
+                handleReadError(error)
             } else {
                 if let value = characteristic.value {
                     // Unwrap: We send BleId, so we always expect BleId
@@ -114,11 +114,31 @@ extension BleValidationDataReaderImpl: BleCentralDelegate {
                     readSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id,
                                                    distance: -1)) // TODO distance: handle this?
                 } else {
-                    log.e("Verification characteristic had no value", .ble)
+                    let msg = "Verification characteristic had no value"
+                    log.e(msg, .ble)
+                    handleReadError(ServicesError.general(msg))
                 }
             }
             return true
         default: return false
+        }
+    }
+
+    private func handleReadError(_ error: Error) {
+        log.e("Error reading validation characteristic: \(error)", .ble)
+        
+        if let retry = retry {
+            if retry.shouldRetry() {
+                log.d("Retrying colocated key write. Attempt: \(retry.count)", .ble)
+                self.retry = retry.increment()
+                _ = validatePeer()
+            } else {
+                log.d("Failed colocated key write after \(retry.count) attempts. Error.", .ble)
+                errorReadingValidationSubject.send(error)
+            }
+        } else {
+            log.e("Illegal state? retry should be set when receiving ack", .ble)
+            errorReadingValidationSubject.send(error)
         }
     }
 

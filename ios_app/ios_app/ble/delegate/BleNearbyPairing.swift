@@ -53,6 +53,8 @@ class BleNearbyPairing: NearbyPairing {
 
     private var writeTokenCancellable: AnyCancellable?
 
+    private var retry: RetryData<SerializedSignedNearbyToken>?
+
     init(bleValidator: BleDeviceValidatorService) {
         validatedPeripheral = bleValidator
             .filterIsValid(peripheral: peripheral.eraseToAnyPublisher())
@@ -69,6 +71,7 @@ class BleNearbyPairing: NearbyPairing {
     }
 
     func sendDiscoveryToken(token: SerializedSignedNearbyToken) {
+        retry = RetryData(token)
         writeToken.send(token)
     }
 
@@ -135,11 +138,27 @@ extension BleNearbyPairing: BleCentralDelegate {
         guard characteristic.uuid == characteristicUuid else { return }
         
         if let error = error {
-            log.e("Error: \(error) writing characteristic: \(characteristic)", .ble)
-            // TODO investigate: do we need to implement retry
-            errorSendingTokenSubject.send(error)
+            handleWriteError(error)
         } else {
+            retry = nil
             log.d("Successfully wrote characteristic: \(characteristic)", .ble)
+        }
+    }
+
+    private func handleWriteError(_ error: Error) {
+        log.e("Error: \(error) writing nearby token: \(characteristic)", .ble)
+        if let retry = retry {
+            if retry.shouldRetry() {
+                log.d("Retrying nearby token write. Attempt: \(retry.count)", .ble)
+                self.retry = retry.increment()
+                sendDiscoveryToken(token: retry.data)
+            } else {
+                log.d("Failed nearby token write after \(retry.count) attempts. Error.", .ble)
+                errorSendingTokenSubject.send(error)
+            }
+        } else {
+            log.e("Illegal state? retry should be set when receiving ack", .ble)
+            errorSendingTokenSubject.send(error)
         }
     }
 }

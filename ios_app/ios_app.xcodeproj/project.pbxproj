@@ -13,6 +13,7 @@
 		8402CD7D250A818C00DDE03F /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 8402CD7C250A818C00DDE03F /* CodeScanner */; };
 		8402CD80250ABA1300DDE03F /* RemotePairingJoinerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8402CD7F250ABA1300DDE03F /* RemotePairingJoinerView.swift */; };
 		8402CD82250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8402CD81250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift */; };
+		840610BD2519F0DA0098D765 /* RetryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840610BC2519F0DA0098D765 /* RetryData.swift */; };
 		84094EF824EACC3C0028BBDF /* PairingTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF724EACC3C0028BBDF /* PairingTypeView.swift */; };
 		84094EFA24EACC4E0028BBDF /* PairingTypeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84094EF924EACC4E0028BBDF /* PairingTypeViewModel.swift */; };
 		840A8CB22509052800E73815 /* ColocatedPairingPasswordService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */; };
@@ -303,6 +304,7 @@
 		84014D482506BBBA0057BBFD /* PeerForWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerForWidget.swift; sourceTree = "<group>"; };
 		8402CD7F250ABA1300DDE03F /* RemotePairingJoinerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePairingJoinerView.swift; sourceTree = "<group>"; };
 		8402CD81250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePairingJoinerViewModel.swift; sourceTree = "<group>"; };
+		840610BC2519F0DA0098D765 /* RetryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryData.swift; sourceTree = "<group>"; };
 		84094EF724EACC3C0028BBDF /* PairingTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTypeView.swift; sourceTree = "<group>"; };
 		84094EF924EACC4E0028BBDF /* PairingTypeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTypeViewModel.swift; sourceTree = "<group>"; };
 		840A8CB12509052800E73815 /* ColocatedPairingPasswordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColocatedPairingPasswordService.swift; sourceTree = "<group>"; };
@@ -686,6 +688,7 @@
 				847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */,
 				847E0EE1250E488A0092E3B2 /* BleValidationDataReader.swift */,
 				84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */,
+				840610BC2519F0DA0098D765 /* RetryData.swift */,
 			);
 			path = delegate;
 			sourceTree = "<group>";
@@ -1484,6 +1487,7 @@
 				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,
 				8486E5942518A0B500EFD64E /* ViewExtensions.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* MultipeerTokenServiceImpl.swift in Sources */,
+				840610BD2519F0DA0098D765 /* RetryData.swift in Sources */,
 				84B70D24250F68920063D8DE /* BleDeviceValidatorService.swift in Sources */,
 				8486E57C25189DE500EFD64E /* TextStyles.swift in Sources */,
 				849B612924EDB99400D321D1 /* RemoteSessionService.swift in Sources */,
