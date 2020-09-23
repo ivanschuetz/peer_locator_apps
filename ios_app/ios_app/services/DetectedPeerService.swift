@@ -17,16 +17,13 @@ class DetectedPeerServiceImpl: DetectedPeerService {
     let peer: AnyPublisher<DetectedPeer?, Never>
 
     private let nearby: Nearby
-    private let bleManager: BleManager
     private let bleIdService: BleIdService
 
-    init(nearby: Nearby, bleManager: BleManager, bleIdService: BleIdService,
-         validDeviceService: DetectedBleDeviceFilterService) {
+    init(nearby: Nearby, bleIdService: BleIdService, detectedBleDeviceService: DetectedBleDeviceFilterService) {
         self.nearby = nearby
-        self.bleManager = bleManager
         self.bleIdService = bleIdService
 
-        let blePeer: AnyPublisher<DetectedPeer, Never> = validDeviceService.device
+        let blePeer: AnyPublisher<DetectedPeer, Never> = detectedBleDeviceService.device
             // Split the stream in chunks
             .scan([]) { acc, peer -> [BlePeer] in
                 if acc.count < bleMeasurementsChunkSize {

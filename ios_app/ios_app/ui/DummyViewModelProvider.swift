@@ -3,10 +3,8 @@ import Foundation
 class DummyViewModelProvider: ViewModelProvider {
 
     func meeting() -> MeetingViewModel {
-        let bleManager = BleManagerImpl(peripheral: BlePeripheralNoop(), central: BleCentralNoop())
-        let peerService = DetectedPeerServiceImpl(nearby: NearbyNoop(), bleManager: bleManager,
-                                          bleIdService: BleIdServiceNoop(),
-                                          validDeviceService: NoopDetectedDeviceFilterService())
+        let peerService = DetectedPeerServiceImpl(nearby: NearbyNoop(), bleIdService: BleIdServiceNoop(),
+                                                  detectedBleDeviceService: NoopDetectedDeviceFilterService())
         return MeetingViewModel(peerService: peerService, sessionManager: NoopRemoteSessionManager(),
                                 settingsShower: NoopSettingsShower(), bleEnabler: NoopBleEnabler(),
                                 bleState: NoopBleStateObservable(), bleManager: BleManagerNoop())

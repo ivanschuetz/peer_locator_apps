@@ -158,9 +158,8 @@ class Dependencies {
 
         container.register(.eagerSingleton) { DetectedPeerServiceImpl(
             nearby: try container.resolve(),
-            bleManager: try container.resolve(),
             bleIdService: try container.resolve(),
-            validDeviceService: try container.resolve()
+            detectedBleDeviceService: try container.resolve()
         ) as DetectedPeerService }
 
         container.register(.singleton) { LocalSessionManagerImpl(
