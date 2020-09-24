@@ -55,7 +55,7 @@ class MeetingCreatedViewModel: ObservableObject {
 
     func onCopyLinkTap() {
         clipboard.putInClipboard(text: linkText)
-        uiNotifier.show(.success("Copied link to clipboard: \(linkText)"))
+        uiNotifier.show(.success("Copied link to clipboard"))
         log.d("Copied link to clipboard: \(linkText)", .ui)
     }
 
