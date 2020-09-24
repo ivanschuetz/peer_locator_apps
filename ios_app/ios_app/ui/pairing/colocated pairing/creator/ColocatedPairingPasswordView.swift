@@ -20,7 +20,7 @@ struct ColocatedPairingPasswordView: View {
                 .scaledToFit()
                 .frame(width: 200, height: 200)
             Text(viewModel.password)
-            Text("Tell your peer to read this QR code")
+            Text("Tell your peer to select \"join session\" and scan this QR code")
         }
     }
 
