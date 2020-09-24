@@ -92,10 +92,13 @@ extension BleValidationImpl: BlePeripheralDelegateReadOnly {
 extension BleValidationImpl: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
+        log.d("Ble validation discovered peripheral: \(peripheral)", .ble)
         self.peripheral = peripheral
     }
 
     func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral, error: Error?) -> Bool {
+        log.d("Ble validation discovered peripheral's characteristics (\(characteristics.count))", .ble)
+
         if let characteristic = characteristics.first(where: {
             $0.uuid == characteristicUuid
         }) {

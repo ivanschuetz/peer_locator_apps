@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 /**
- * Observes relevant events to start/stop the central and peripheral
+ * Observes relevant events to start/stop the central and peripheral and validation process.
  * Note: Not related with enabling ble itself (this is done by BleEnabler)
  * TODO: the current implementation seems outdated. Review.
  * TODO: coordination with BleEnabler? E.g. if we detect that ble was enabled,
@@ -10,41 +10,21 @@ import Combine
  */
 
 class ActivateBleWhenSessionReady {
-    private var currentSessionCancellable: AnyCancellable?
+    private var cancellables: Set<AnyCancellable> = []
 
-    init(bleManager: BleManager, sessionService: CurrentSessionService, bleEnabler: BleEnabler) {
-        currentSessionCancellable = sessionService.session
-            .map({ sessionRes -> Bool in
-                switch sessionRes {
-                case .result(.success(let session)):
-                    if let session = session {
-                        return session.isReady
-                    } else {
-                        return false
-                    }
-                default: return false
-                }
-            })
-            .removeDuplicates()
-            // If we map to ready/not ready and remove duplicates, it means each event is a ready<->not ready change
-            .map { isReady -> SessionStateChangeEvent in
-                if isReady {
-                    return .wentOn
-                } else {
-                    return .wentOff
-                }
-            }
-            .sink { stateChange in
-                switch stateChange {
-                case .wentOn:
+    init(bleManager: BleManager, bleEnabler: BleEnabler, sessionIsReady: SessionIsReady) {
+        sessionIsReady.isReady
+            .sink { ready in
+                if ready {
                     log.i("Session activated, starting ble", .ble)
                     bleEnabler.showEnableDialogIfDisabled()
                     bleManager.start()
-                case .wentOff:
+                } else {
                     log.i("Session deactivated, stopping ble", .ble)
                     bleManager.stop()
                 }
             }
+            .store(in: &cancellables)
     }
 }
 

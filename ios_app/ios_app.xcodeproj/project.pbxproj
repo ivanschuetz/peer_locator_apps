@@ -96,6 +96,7 @@
 		8477E07D251C834800F7797E /* BleDeviceValidatorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E052251C7DDC00F7797E /* BleDeviceValidatorServiceTests.swift */; };
 		8477E089251C83B600F7797E /* mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E083251C83A500F7797E /* mocks.swift */; };
 		8477E09C251C8F3F00F7797E /* DetectedBleDeviceFilterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E092251C8C8D00F7797E /* DetectedBleDeviceFilterServiceTests.swift */; };
+		8477E0AC251CD16800F7797E /* PeerValidationActivator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E0AB251CD16800F7797E /* PeerValidationActivator.swift */; };
 		847C89172517F158009BD327 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C89162517F158009BD327 /* ButtonStyles.swift */; };
 		847E0EDE250E484E0092E3B2 /* BleNearbyPairing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EDD250E484E0092E3B2 /* BleNearbyPairing.swift */; };
 		847E0EE0250E48710092E3B2 /* BleDelegatesRegisterer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EDF250E48710092E3B2 /* BleDelegatesRegisterer.swift */; };
@@ -103,6 +104,8 @@
 		847E0EE4250E48B00092E3B2 /* BleColocatedPairing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */; };
 		847E0EE6250E495F0092E3B2 /* BlePeripheralDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE5250E495F0092E3B2 /* BlePeripheralDelegate.swift */; };
 		847E0EE8250E7C590092E3B2 /* BleCentralDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE7250E7C590092E3B2 /* BleCentralDelegate.swift */; };
+		8485A125251CD4090023E49D /* SessionIsReady.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8485A124251CD4090023E49D /* SessionIsReady.swift */; };
+		8485A126251CD4090023E49D /* SessionIsReady.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8485A124251CD4090023E49D /* SessionIsReady.swift */; };
 		8486E5702518991300EFD64E /* TextFieldStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486E56F2518991300EFD64E /* TextFieldStyles.swift */; };
 		8486E576251899D900EFD64E /* ImageStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486E575251899D900EFD64E /* ImageStyles.swift */; };
 		8486E57C25189DE500EFD64E /* TextStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486E57B25189DE500EFD64E /* TextStyles.swift */; };
@@ -365,6 +368,7 @@
 		8477E052251C7DDC00F7797E /* BleDeviceValidatorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDeviceValidatorServiceTests.swift; sourceTree = "<group>"; };
 		8477E083251C83A500F7797E /* mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mocks.swift; sourceTree = "<group>"; };
 		8477E092251C8C8D00F7797E /* DetectedBleDeviceFilterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectedBleDeviceFilterServiceTests.swift; sourceTree = "<group>"; };
+		8477E0AB251CD16800F7797E /* PeerValidationActivator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerValidationActivator.swift; sourceTree = "<group>"; };
 		847C89162517F158009BD327 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		847E0EDD250E484E0092E3B2 /* BleNearbyPairing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleNearbyPairing.swift; sourceTree = "<group>"; };
 		847E0EDF250E48710092E3B2 /* BleDelegatesRegisterer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDelegatesRegisterer.swift; sourceTree = "<group>"; };
@@ -372,6 +376,7 @@
 		847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleColocatedPairing.swift; sourceTree = "<group>"; };
 		847E0EE5250E495F0092E3B2 /* BlePeripheralDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlePeripheralDelegate.swift; sourceTree = "<group>"; };
 		847E0EE7250E7C590092E3B2 /* BleCentralDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleCentralDelegate.swift; sourceTree = "<group>"; };
+		8485A124251CD4090023E49D /* SessionIsReady.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionIsReady.swift; sourceTree = "<group>"; };
 		8486E56F2518991300EFD64E /* TextFieldStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldStyles.swift; sourceTree = "<group>"; };
 		8486E575251899D900EFD64E /* ImageStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStyles.swift; sourceTree = "<group>"; };
 		8486E57B25189DE500EFD64E /* TextStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextStyles.swift; sourceTree = "<group>"; };
@@ -592,6 +597,7 @@
 				84B70D25250F965A0063D8DE /* SessionStore.swift */,
 				843186782510ED3A00078EC0 /* LocalSessionManager.swift */,
 				841CBBF324F3DC39003E2A60 /* CurrentSessionService.swift */,
+				8485A124251CD4090023E49D /* SessionIsReady.swift */,
 			);
 			path = session;
 			sourceTree = "<group>";
@@ -601,6 +607,7 @@
 			children = (
 				84723B7725025777007C7C6D /* BleEnabler.swift */,
 				843F7EF224F10582002AA5F8 /* ActivateBleWhenSessionReady.swift */,
+				8477E0AB251CD16800F7797E /* PeerValidationActivator.swift */,
 				84993A1A24B5C1340044AA27 /* BleIdService.swift */,
 				843F7EF024F10477002AA5F8 /* BleId.swift */,
 				84B70D21250F64410063D8DE /* DetectedBleDeviceFilterService.swift */,
@@ -1408,6 +1415,7 @@
 				8459E08C250643260058D692 /* CompositeLog.swift in Sources */,
 				840FCE1125114A7200DFD672 /* CurrentSessionService.swift in Sources */,
 				840FCE1A2511534A00DFD672 /* BleValidationDataMediator.swift in Sources */,
+				8485A126251CD4090023E49D /* SessionIsReady.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1464,6 +1472,7 @@
 				84E3DC8124C6F64300E2F175 /* CachingLog.swift in Sources */,
 				84BCCDAA2508CFBF006EF93F /* ColocatedPairingJoinerViewModel.swift in Sources */,
 				840FCE1525114AAB00DFD672 /* UINotifier.swift in Sources */,
+				8485A125251CD4090023E49D /* SessionIsReady.swift in Sources */,
 				847E0EE4250E48B00092E3B2 /* BleColocatedPairing.swift in Sources */,
 				84BCCDA22508CCFC006EF93F /* RemotePairingRoleSelectionView.swift in Sources */,
 				84BCCDA62508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift in Sources */,
@@ -1523,6 +1532,7 @@
 				848D5F5124CCA8E900F2D80B /* PeerDistanceNotificationService.swift in Sources */,
 				847E0EE8250E7C590092E3B2 /* BleCentralDelegate.swift in Sources */,
 				84B6DCA124FBA65F00AA7E6D /* WatchBridge.swift in Sources */,
+				8477E0AC251CD16800F7797E /* PeerValidationActivator.swift in Sources */,
 				8486E5942518A0B500EFD64E /* ViewExtensions.swift in Sources */,
 				84E3DC8524C6F9E900E2F175 /* MultipeerTokenServiceImpl.swift in Sources */,
 				840610BD2519F0DA0098D765 /* RetryData.swift in Sources */,

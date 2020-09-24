@@ -45,8 +45,9 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
         cancelTimer()
         timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(onTimerTick),
                                      userInfo: nil, repeats: true)
-//        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
-//                                     userInfo: nil, repeats: true)
+        timer?.tolerance = 1
+        //        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
+        //                                     userInfo: nil, repeats: true)
         sendNearbyTokenToPeer()
     }
 
@@ -59,6 +60,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
         keepSendingAfterSessionActiveTimer = Timer.scheduledTimer(
             timeInterval: 30, target: self, selector: #selector(onkeepSendingAfterSessionActiveTimer),
             userInfo: nil, repeats: false)
+        keepSendingAfterSessionActiveTimer?.tolerance = 1
     }
 
     @objc private func onkeepSendingAfterSessionActiveTimer() {

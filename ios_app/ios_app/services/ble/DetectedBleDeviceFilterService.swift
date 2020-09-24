@@ -33,7 +33,7 @@ class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
         .compactMap { device, validDevices -> (BleDetectedDevice, BleId)? in
 //            log.v("Validating detected device: \(device)", .session)
             if let bleId = validDevices[device.uuid] {
-                log.v("Device is valid", .session)
+//                log.v("Device is valid", .session)
                 return (device, bleId)
             } else {
 //                log.v("Device: \(device.uuid) is not valid. Valid devices: \(validDevices)", .session)
@@ -59,7 +59,7 @@ extension BleDetectedDevice {
 }
 
 private func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {
-    log.d("Estimating distance for rssi: \(rssi), power level: \(String(describing: powerLevelMaybe))")
+//    log.d("Estimating distance for rssi: \(rssi), power level: \(String(describing: powerLevelMaybe))")
     return estimatedDistance(
         rssi: rssi,
         powerLevel: powerLevel(powerLevelMaybe: powerLevelMaybe)

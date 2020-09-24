@@ -69,6 +69,7 @@ class PeerDistanceNotificationService {
         timeToShowNotificationAgainTimer = Timer.scheduledTimer(timeInterval: timeToShowNotificationAgain,
                                                                 target: self, selector: #selector(fireTimer),
                                                                 userInfo: nil, repeats: false)
+        timeToShowNotificationAgainTimer?.tolerance = 1
         showIsCloseNotification(peer: peer)
     }
 

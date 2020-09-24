@@ -124,8 +124,19 @@ class BleCentralImpl: NSObject, BleCentral {
         }
     }
 
-    private func flush(_ peripheral: CBPeripheral) {}
+    private func resetPeripheral(_ peripheral: CBPeripheral) {
+        log.d("Resetting periperal. State: \(peripheral.state)", .ble)
+        if peripheral.state == .connecting || peripheral.state == .connected {
+            centralManager?.cancelPeripheralConnection(peripheral)
+        }
+        peripheral.delegate = nil
+        discoverServices(peripheral)
+    }
 
+    private func discoverServices(_ peripheral: CBPeripheral) {
+        log.d("Central discovering services for peripheral: \(peripheral.identifier)", .ble)
+        peripheral.discoverServices([CBUUID.serviceCBUUID])
+    }
 }
 
 extension BleCentralImpl: CBCentralManagerDelegate {
@@ -171,7 +182,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         log.v("Central did connect to peripheral", .ble)
-        peripheral.discoverServices([CBUUID.serviceCBUUID])
+        discoverServices(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -199,6 +210,11 @@ extension BleCentralImpl: CBPeripheralDelegate {
         }
 
         guard let services = peripheral.services else { return }
+
+        if services.isEmpty {
+            log.e("Error? Peripheral: \(peripheral.identifier) has no services.", .ble)
+        }
+
         for service in services {
             log.v("Central did discover service: \(service)", .ble)
             peripheral.discoverCharacteristics(nil, for: service)
@@ -236,6 +252,20 @@ extension BleCentralImpl: CBPeripheralDelegate {
 
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         delegates.forEach { _ = $0.onWriteCharacteristicAck(characteristic, peripheral: peripheral, error: error) }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+        log.w("Peripheral invalidated services: \(invalidatedServices). Resetting...", .ble)
+        // This was a bit weird: one of the devices didn't seem to have the peripheral activated
+        // (no .poweredOn (the peripheral is even manually stopped at the beginning), also after app re-install)
+        // the other would still discover it, but without any services. Unclear why this happens.
+        // this could be consistently reproduced (create remote session, join, ack on both devices)
+        // Anyway: the (solvable) problem is that when we actually start advertising in the former device,
+        // the second device still sees no services.
+        // Turns that this method is called, telling us that the peripheral's "no services state" was invalidated
+        // (since the peripheral started advertising)
+        // We've to manually trigger a discovery again (we do this in resetPeripheral) to get the updated services.
+        resetPeripheral(peripheral)
     }
 }
 

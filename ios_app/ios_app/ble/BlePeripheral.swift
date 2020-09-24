@@ -38,6 +38,8 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
         stateCancellable = statusSubject.sink { [weak self] state, pm in
             if let pm = pm, state == .poweredOn {
                 self?.addServiceIfNotAdded(peripheralManager: pm)
+            } else {
+                log.v("Peripheral status: \(state), pm: \(String(describing: pm)). Not adding service.", .ble)
             }
         }
 
@@ -45,9 +47,11 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
             .withLatestFrom(status)
             .sink { [weak self] state in
             if state != .poweredOn {
-                self?.peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
+                log.d("Initializing peripheral manager", .ble)
+                let peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
                    CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
                ])
+                self?.peripheralManager = peripheralManager
             }
         }
     }
@@ -66,7 +70,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     }
 
     func stop() {
-        log.i("Stopping peripheral", .ble)
+        log.i("Peripheral stopping advertising, peripheralManager is set?: \(peripheralManager != nil)", .ble)
         peripheralManager?.stopAdvertising()
         peripheralManager = nil
     }
