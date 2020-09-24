@@ -62,15 +62,16 @@ class RemotePairingJoinerViewModel: ObservableObject {
     }
 
     func joinSession() {
-        guard !sessionLinkInput.isEmpty else {
-            log.e("Session link is empty. Nothing to join", .session)
-            uiNotifier.show(.error("Session link is empty. Nothing to join"))
-            // TODO this state should be impossible: if there's no link in input, don't allow to press join
+        let trimmed = sessionLinkInput.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmed.isEmpty else {
+            log.e("Session link is empty.", .session)
+            uiNotifier.show(.error("The session link is empty."))
             return
         }
-        guard let url = URL(string: sessionLinkInput) else {
-            log.e("Invalid session link input: \(sessionLinkInput).", .session)
-            uiNotifier.show(.error("Invalid session link: \(sessionLinkInput)."))
+        guard let url = URL(string: trimmed) else {
+            log.e("Invalid session link: \(trimmed).", .session)
+            uiNotifier.show(.error("Invalid session link: \(trimmed)."))
             return
         }
         guard let sessionLink = SessionLink(url: url) else {
