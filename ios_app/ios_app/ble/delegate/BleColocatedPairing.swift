@@ -1,7 +1,7 @@
 import CoreBluetooth
 import Combine
 
-protocol BleColocatedPairing {
+protocol BleColocatedPairing: BlePeripheralDelegate, BleCentralDelegate {
     var publicKey: AnyPublisher<SerializedEncryptedPublicKey, Never> { get }
     var errorSendingKey: AnyPublisher<Error, Never> { get }
 

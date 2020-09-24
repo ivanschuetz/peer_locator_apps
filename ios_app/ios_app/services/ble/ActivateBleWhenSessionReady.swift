@@ -8,9 +8,8 @@ import Combine
  * TODO: coordination with BleEnabler? E.g. if we detect that ble was enabled,
  * shouldn't we activate too?
  */
-protocol ActivateBleWhenSessionReady {}
 
-class ActivateBleWhenSessionReadyImpl: ActivateBleWhenSessionReady {
+class ActivateBleWhenSessionReady {
     private var currentSessionCancellable: AnyCancellable?
 
     init(bleManager: BleManager, sessionService: CurrentSessionService, bleEnabler: BleEnabler) {
@@ -38,11 +37,11 @@ class ActivateBleWhenSessionReadyImpl: ActivateBleWhenSessionReady {
             .sink { stateChange in
                 switch stateChange {
                 case .wentOn:
-                    log.i("Session activated, starting ble")
+                    log.i("Session activated, starting ble", .ble)
                     bleEnabler.showEnableDialogIfDisabled()
                     bleManager.start()
                 case .wentOff:
-                    log.i("Session deactivated, stopping ble")
+                    log.i("Session deactivated, stopping ble", .ble)
                     bleManager.stop()
                 }
             }

@@ -6,7 +6,9 @@ import CoreBluetooth
  * Broadcasts validated ble peer.
  * Acts as a filter of the "raw" detected ble peer, which has not been validated.
  */
+// TODO rename DetectedBlePeerFilterService
 protocol DetectedBleDeviceFilterService {
+    // TODO rename blePeer
     var device: AnyPublisher<BlePeer, Never> { get }
 }
 
@@ -25,10 +27,23 @@ class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
     let device: AnyPublisher<BlePeer, Never>
 
     init(deviceDetector: BleDeviceDetector, deviceValidator: BleDeviceValidatorService) {
-        device = deviceValidator
-            .filterIsValid(device: deviceDetector.discovered)
-            .map { detected, bleId in detected.toPeer(bleId: bleId) }
-            .eraseToAnyPublisher()
+        device = deviceDetector.discovered.withLatestFrom(deviceValidator.validDevices) { device, validDevices in
+            (device, validDevices)
+        }
+        .compactMap { device, validDevices -> (BleDetectedDevice, BleId)? in
+//            log.v("Validating detected device: \(device)", .session)
+            if let bleId = validDevices[device.uuid] {
+                log.v("Device is valid", .session)
+                return (device, bleId)
+            } else {
+//                log.v("Device: \(device.uuid) is not valid. Valid devices: \(validDevices)", .session)
+                return nil
+            }
+        }
+        .map { detected, bleId in
+            detected.toPeer(bleId: bleId)
+        }
+        .eraseToAnyPublisher()
     }
 }
 

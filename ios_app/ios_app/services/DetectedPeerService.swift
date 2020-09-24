@@ -23,6 +23,9 @@ class DetectedPeerServiceImpl: DetectedPeerService {
         self.nearby = nearby
         self.bleIdService = bleIdService
 
+        // Peer went out of range detection
+        let sessionTimeOut = Timer.publish(every: 5, on: .current, in: .common).autoconnect()
+
         let blePeer: AnyPublisher<DetectedPeer, Never> = detectedBleDeviceService.device
             // Split the stream in chunks
             .scan([]) { acc, peer -> [BlePeer] in
@@ -99,8 +102,23 @@ class DetectedPeerServiceImpl: DetectedPeerService {
                 peer.src == filter
             }
             .map { peer, _ in peer }
-            .prepend(nil) // start with peer == nil, meaning out of range
+            // If the timeout fires (x secs without having been cancelled), fire nil event (means: not connected / out of range)
+            // TODO uncomment when solved how to restart timer.
+//            .merge(with: sessionTimeOut.map { _ in nil })
+            .handleEvents(receiveOutput: { peer in
+                if peer != nil {
+                    sessionTimeOut.upstream.connect().cancel()
+                    // TODO how to restart?
+//                    sessionTimeOut.upstream.connect().
+                }
+            })
+            .prepend(nil) // start with peer == nil, meaning not connected / out of range
             .eraseToAnyPublisher()
+    }
+
+
+    @objc private func onSessionTimeout() {
+
     }
 }
 

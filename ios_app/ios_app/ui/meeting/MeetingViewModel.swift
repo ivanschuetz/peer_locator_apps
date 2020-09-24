@@ -12,7 +12,6 @@ class MeetingViewModel: ObservableObject {
     @Published var mainViewContent: MeetingMainViewContent = .connected
 
     private var peerCancellable: AnyCancellable?
-    private var bleEnabledCancellable: AnyCancellable?
 
     private let sessionManager: RemoteSessionManager
     private let settingsShower: SettingsShower
@@ -26,17 +25,27 @@ class MeetingViewModel: ObservableObject {
         self.bleEnabler = bleEnabler
         self.bleManager = bleManager
 
-        peerCancellable = peerService.peer.sink { [weak self] peer in
-            self?.handlePeer(peerMaybe: peer)
-        }
-
-        // TODO test that state updates corrently when ble disabled, enabled, open again...
-        bleEnabledCancellable = bleState.bleEnabled.sink { [weak self] enabled in
-            self?.mainViewContent = enabled ? .connected : .enableBle
-        }
+        peerCancellable = peerService.peer
+            .combineLatest(bleState.bleEnabled)
+            .removeDuplicates(by: { t1, t2 in
+                t1 == t2
+            })
+            .sink { [weak self] peer, bleEnabled in
+                self?.handlePeer(peerMaybe: peer, bleEnabled: bleEnabled)
+            }
     }
 
-    private func handlePeer(peerMaybe: DetectedPeer?) {
+    private func handlePeer(peerMaybe: DetectedPeer?, bleEnabled: Bool) {
+        let content = mainViewContent(peerMaybe: peerMaybe, bleEnabled: bleEnabled)
+        log.d("Main view content: \(content), is there peer: \(peerMaybe != nil), bleEnabled: \(bleEnabled)", .ui)
+        mainViewContent = content
+    }
+
+    private func mainViewContent(peerMaybe: DetectedPeer?, bleEnabled: Bool) -> MeetingMainViewContent {
+        guard bleEnabled else {
+            return .enableBle
+        }
+        
         if let peer = peerMaybe {
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
             // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
@@ -44,9 +53,9 @@ class MeetingViewModel: ObservableObject {
             if let dir = peer.dir {
                 directionAngle.radians = toAngle(dir: dir)
             }
-            mainViewContent = .connected
+            return .connected
         } else {
-            mainViewContent = .unavailable
+            return .unavailable
         }
     }
 

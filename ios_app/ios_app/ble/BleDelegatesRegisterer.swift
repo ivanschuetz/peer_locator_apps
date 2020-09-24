@@ -3,11 +3,10 @@ import Combine
 
 class BleDelegatesRegisterer {
 
-    init(blePeripheral: BlePeripheral, idService: BleIdService) {
-        let validation = BleValidationDataReaderImpl(idService: idService)
-        let nearbyPairing = BleNearbyPairing(bleValidator: NoopBleValidatorService())
-        let colocatedPairing = BleColocatedPairingImpl()
-
-        blePeripheral.register(delegates: [validation, nearbyPairing, colocatedPairing])
+    init(blePeripheral: BlePeripheral, bleCentral: BleCentral, nearbyPairing: NearbyPairing,
+         bleValidation: BleValidation, bleDeviceDetector: BleDeviceDetector,
+         idService: BleIdService, colocatedPairing: BleColocatedPairing) {
+        blePeripheral.register(delegates: [bleValidation, nearbyPairing, colocatedPairing])
+        bleCentral.register(delegates: [bleDeviceDetector, bleValidation, nearbyPairing, colocatedPairing])
     }
 }

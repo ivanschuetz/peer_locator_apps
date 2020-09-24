@@ -16,6 +16,7 @@ class BleManagerImpl: BleManager {
     }
 
     func start() {
+        log.d("Ble manager starting ble components...", .ble)
         peripheral.requestStart()
         central.requestStart()
     }
@@ -23,6 +24,7 @@ class BleManagerImpl: BleManager {
     // TODO should we call stop (in the central/peripheral probably) when .poweredOff? or is it the other way,
     // that when we stop we get .poweredOff event?
     func stop() {
+        log.d("Ble manager stopping ble components...", .ble)
         peripheral.stop()
         central.stop()
     }

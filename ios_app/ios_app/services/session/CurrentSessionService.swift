@@ -44,6 +44,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
     }
 
     func setSessionState(_ state: SessionState) {
+        // TODO warning says that we can publish changes only from main thread (use receive(on:))
         sessionSubject.send(state)
     }
 

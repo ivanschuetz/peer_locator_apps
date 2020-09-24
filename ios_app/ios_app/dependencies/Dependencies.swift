@@ -69,14 +69,15 @@ class Dependencies {
         ) as BleIdService }
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
         container.register(.singleton) {
-            BleValidationDataReaderImpl(idService: try container.resolve()) as BleValidationDataReader
+            BleValidationImpl(idService: try container.resolve()) as BleValidation
         }
         container.register(.eagerSingleton) { BleValidationUIErrorDisplayer(uiNotifier: try container.resolve(),
                                                                             bleValidation: try container.resolve()) }
-        container.register(.singleton) { BleDeviceValidatorServiceImpl(
-            validationDataReader: try container.resolve(),
+        container.register(.eagerSingleton) { BleDeviceValidatorServiceImpl(
+            bleValidation: try container.resolve(),
             idService: try container.resolve()
         ) as BleDeviceValidatorService }
+
         container.register(.singleton) { DetectedBleDeviceFilterServiceImpl(
             deviceDetector: try container.resolve(),
             deviceValidator: try container.resolve()
@@ -87,6 +88,13 @@ class Dependencies {
         }
         container.register(.eagerSingleton) {
             BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
+        }
+        container.register(.eagerSingleton) {
+            ActivateBleWhenSessionReady(
+                bleManager: try container.resolve(),
+                sessionService: try container.resolve(),
+                bleEnabler: try container.resolve()
+            )
         }
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
@@ -125,7 +133,15 @@ class Dependencies {
             BleStateObservableImpl(bleCentral: try container.resolve(),
                                    blePeripheral: try container.resolve()) as BleStateObservable
         }
-        container.register(.singleton) { ValidatedBlePeerEvent() as ValidatedPeerEvent }
+        container.register(.singleton) { ValidatedBlePeerEvent(
+            validDeviceService: try container.resolve()) as ValidatedPeerEvent
+        }
+        container.register(.eagerSingleton) {
+            BleDelegatesRegisterer(blePeripheral: try container.resolve(), bleCentral: try container.resolve(),
+                                   nearbyPairing: try container.resolve(), bleValidation: try container.resolve(),
+                                   bleDeviceDetector: try container.resolve(), idService: try container.resolve(),
+                                   colocatedPairing: try container.resolve())
+        }
         #endif
     }
 

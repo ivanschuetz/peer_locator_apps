@@ -23,7 +23,7 @@ import Combine
  * If a device doesn't support Nearby, it just does nothing (don't write the token)
  * This way a session isn't established, so there's no nearby measurements and we stay with ble.
  */
-protocol NearbyPairing {
+protocol NearbyPairing: BlePeripheralDelegate, BleCentralDelegate {
     var token: AnyPublisher<SerializedSignedNearbyToken, Never> { get }
 
     // For now not used, as we've a timer to send the nearby token each x secs until it succeeds.
@@ -56,10 +56,20 @@ class BleNearbyPairing: NearbyPairing {
     private var retry: RetryData<SerializedSignedNearbyToken>?
 
     init(bleValidator: BleDeviceValidatorService) {
-        validatedPeripheral = bleValidator
-            .filterIsValid(peripheral: peripheral.eraseToAnyPublisher())
-            .map { $0 }
-            .eraseToAnyPublisher()
+        validatedPeripheral = peripheral.withLatestFrom(bleValidator.validDevices) { peripheral, validDevices in
+            (peripheral, validDevices)
+        }
+        .compactMap { peripheral, validDevices -> (CBPeripheral)? in
+            log.v("Validating peripheral: \(peripheral.identifier)", .nearby)
+            if validDevices.keys.contains(peripheral.identifier) {
+                log.v("Peripheral is valid", .nearby)
+                return peripheral
+            } else {
+                log.v("Peripheral is not valid", .nearby)
+                return nil
+            }
+        }
+        .eraseToAnyPublisher()
 
         writeTokenCancellable = writeToken
             .withLatestFrom(validatedPeripheral) { token, peripheral in (token, peripheral) }

@@ -29,6 +29,9 @@ class BleStateObservableImpl: BleStateObservable {
         bleEnabled = central
             .map { $0 == .poweredOn }
             .prepend(false)
+            .handleEvents(receiveOutput: { enabled in
+                log.d("Ble enabled: \(enabled)", .ble)
+            })
             .eraseToAnyPublisher()
 
         allReady = central.combineLatest(peripheral)

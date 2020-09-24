@@ -102,7 +102,10 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
             type: .serviceCBUUID,
             primary: true
         )
-        service.characteristics = delegates.map { $0.characteristic }
+        let characteristics = delegates.map { $0.characteristic }
+        log.d("Peripheral has \(delegates.count) delegates. Created service with characteristics: \(characteristics)",
+              .ble)
+        service.characteristics = characteristics
         return service
     }
 

@@ -1,14 +1,20 @@
 import CoreBluetooth
 import Combine
 
-protocol BleValidationDataReader {
+/**
+ * Sends and receives ble peer validation data
+ */
+protocol BleValidation: BlePeripheralDelegate, BleCentralDelegate {
     var read: AnyPublisher<BlePeer, Never> { get }
     var errorReadingValidation: AnyPublisher<Error, Never> { get }
 
+    /*
+     * @returns whether validation request was sent.
+     */
     func validatePeer() -> Bool
 }
 
-class BleValidationDataReaderImpl: BleValidationDataReader {
+class BleValidationImpl: BleValidation {
     let readSubject = PassthroughSubject<BlePeer, Never>()
     lazy var read = readSubject.eraseToAnyPublisher()
 
@@ -24,6 +30,8 @@ class BleValidationDataReaderImpl: BleValidationDataReader {
     private var discoveredCharacteristic: CBCharacteristic?
 
     private var retry: RetryData<()>?
+
+    var cancellables: Set<AnyCancellable> = []
 
     init(idService: BleIdService) {
         self.idService = idService
@@ -48,13 +56,13 @@ class BleValidationDataReaderImpl: BleValidationDataReader {
             log.e("Attempted to validate peer, but characteristic is not set.", .ble)
             return false
         }
-        log.d("Validing peer", .ble)
+        log.d("Sending validation data read request", .ble)
         peripheral.readValue(for: characteristic)
         return true
     }
 }
 
-extension BleValidationDataReaderImpl: BlePeripheralDelegateReadOnly {
+extension BleValidationImpl: BlePeripheralDelegateReadOnly {
     var characteristic: CBMutableCharacteristic {
         CBMutableCharacteristic(
             type: characteristicUuid,
@@ -65,9 +73,10 @@ extension BleValidationDataReaderImpl: BlePeripheralDelegateReadOnly {
     }
 
     func handleRead(uuid: CBUUID, request: CBATTRequest, peripheral: CBPeripheralManager) {
+        log.v("Peripheral received validation read request", .ble)
         if let myId = idService.id() {
-//            self.readMyId.send(myId)
             request.value = myId.data
+            log.d("Peripheral sending validation data", .ble)
             peripheral.respond(to: request, withResult: .success)
 
         } else {
@@ -80,7 +89,7 @@ extension BleValidationDataReaderImpl: BlePeripheralDelegateReadOnly {
     }
 }
 
-extension BleValidationDataReaderImpl: BleCentralDelegate {
+extension BleValidationImpl: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
         self.peripheral = peripheral
@@ -105,14 +114,16 @@ extension BleValidationDataReaderImpl: BleCentralDelegate {
     func onReadCharacteristic(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) -> Bool {
         switch characteristic.uuid {
         case characteristicUuid:
+            log.d("Central received validation data. Is error?: \(error != nil)", .ble)
             if let error = error {
                 handleReadError(error)
             } else {
                 if let value = characteristic.value {
                     // Unwrap: We send BleId, so we always expect BleId
                     let id = BleId(data: value)!
+                    log.d("Central forwarding validation data", .ble)
                     readSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id,
-                                                   distance: -1)) // TODO distance: handle this?
+                                             distance: -1)) // TODO distance: handle this?
                 } else {
                     let msg = "Verification characteristic had no value"
                     log.e(msg, .ble)

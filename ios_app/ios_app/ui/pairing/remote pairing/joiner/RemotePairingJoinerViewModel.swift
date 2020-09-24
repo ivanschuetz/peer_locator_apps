@@ -57,8 +57,6 @@ class RemotePairingJoinerViewModel: ObservableObject {
             showLoading = false
 
         case .progress:
-            log.d("TODO handle progress session state", .ui)
-
             showLoading = true
         }
     }

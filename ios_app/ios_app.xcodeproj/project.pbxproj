@@ -93,10 +93,13 @@
 		846E28C02501238100E66F57 /* SettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846E28BF2501238100E66F57 /* SettingsButton.swift */; };
 		84723B7825025777007C7C6D /* BleEnabler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84723B7725025777007C7C6D /* BleEnabler.swift */; };
 		84752DA92515106000740E16 /* BleActivator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84752DA82515106000740E16 /* BleActivator.swift */; };
+		8477E07D251C834800F7797E /* BleDeviceValidatorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E052251C7DDC00F7797E /* BleDeviceValidatorServiceTests.swift */; };
+		8477E089251C83B600F7797E /* mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E083251C83A500F7797E /* mocks.swift */; };
+		8477E09C251C8F3F00F7797E /* DetectedBleDeviceFilterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8477E092251C8C8D00F7797E /* DetectedBleDeviceFilterServiceTests.swift */; };
 		847C89172517F158009BD327 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C89162517F158009BD327 /* ButtonStyles.swift */; };
 		847E0EDE250E484E0092E3B2 /* BleNearbyPairing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EDD250E484E0092E3B2 /* BleNearbyPairing.swift */; };
 		847E0EE0250E48710092E3B2 /* BleDelegatesRegisterer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EDF250E48710092E3B2 /* BleDelegatesRegisterer.swift */; };
-		847E0EE2250E488A0092E3B2 /* BleValidationDataReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE1250E488A0092E3B2 /* BleValidationDataReader.swift */; };
+		847E0EE2250E488A0092E3B2 /* BleValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE1250E488A0092E3B2 /* BleValidation.swift */; };
 		847E0EE4250E48B00092E3B2 /* BleColocatedPairing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */; };
 		847E0EE6250E495F0092E3B2 /* BlePeripheralDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE5250E495F0092E3B2 /* BlePeripheralDelegate.swift */; };
 		847E0EE8250E7C590092E3B2 /* BleCentralDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847E0EE7250E7C590092E3B2 /* BleCentralDelegate.swift */; };
@@ -359,10 +362,13 @@
 		846E28BF2501238100E66F57 /* SettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButton.swift; sourceTree = "<group>"; };
 		84723B7725025777007C7C6D /* BleEnabler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleEnabler.swift; sourceTree = "<group>"; };
 		84752DA82515106000740E16 /* BleActivator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleActivator.swift; sourceTree = "<group>"; };
+		8477E052251C7DDC00F7797E /* BleDeviceValidatorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDeviceValidatorServiceTests.swift; sourceTree = "<group>"; };
+		8477E083251C83A500F7797E /* mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mocks.swift; sourceTree = "<group>"; };
+		8477E092251C8C8D00F7797E /* DetectedBleDeviceFilterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectedBleDeviceFilterServiceTests.swift; sourceTree = "<group>"; };
 		847C89162517F158009BD327 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		847E0EDD250E484E0092E3B2 /* BleNearbyPairing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleNearbyPairing.swift; sourceTree = "<group>"; };
 		847E0EDF250E48710092E3B2 /* BleDelegatesRegisterer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleDelegatesRegisterer.swift; sourceTree = "<group>"; };
-		847E0EE1250E488A0092E3B2 /* BleValidationDataReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleValidationDataReader.swift; sourceTree = "<group>"; };
+		847E0EE1250E488A0092E3B2 /* BleValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleValidation.swift; sourceTree = "<group>"; };
 		847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleColocatedPairing.swift; sourceTree = "<group>"; };
 		847E0EE5250E495F0092E3B2 /* BlePeripheralDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlePeripheralDelegate.swift; sourceTree = "<group>"; };
 		847E0EE7250E7C590092E3B2 /* BleCentralDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleCentralDelegate.swift; sourceTree = "<group>"; };
@@ -676,6 +682,14 @@
 			path = "shared views";
 			sourceTree = "<group>";
 		};
+		8477E082251C839100F7797E /* mocks */ = {
+			isa = PBXGroup;
+			children = (
+				8477E083251C83A500F7797E /* mocks.swift */,
+			);
+			path = mocks;
+			sourceTree = "<group>";
+		};
 		847C891C2517F1BB009BD327 /* styles */ = {
 			isa = PBXGroup;
 			children = (
@@ -693,7 +707,7 @@
 			children = (
 				847E0EDD250E484E0092E3B2 /* BleNearbyPairing.swift */,
 				847E0EE3250E48B00092E3B2 /* BleColocatedPairing.swift */,
-				847E0EE1250E488A0092E3B2 /* BleValidationDataReader.swift */,
+				847E0EE1250E488A0092E3B2 /* BleValidation.swift */,
 				84B70D1F250F56C30063D8DE /* BleDeviceDetector.swift */,
 				840610BC2519F0DA0098D765 /* RetryData.swift */,
 			);
@@ -878,7 +892,10 @@
 		84B0673622F9B400006DDC18 /* ios_appTests */ = {
 			isa = PBXGroup;
 			children = (
+				8477E082251C839100F7797E /* mocks */,
 				84B0673722F9B400006DDC18 /* ios_appTests.swift */,
+				8477E052251C7DDC00F7797E /* BleDeviceValidatorServiceTests.swift */,
+				8477E092251C8C8D00F7797E /* DetectedBleDeviceFilterServiceTests.swift */,
 				84B0673922F9B400006DDC18 /* Info.plist */,
 			);
 			path = ios_appTests;
@@ -1425,7 +1442,7 @@
 				84B5371124FAB453000B42C7 /* DeeplinkHandler.swift in Sources */,
 				84BEFEE424F66CF7006E4B61 /* MeetingJoinedView.swift in Sources */,
 				846E28C02501238100E66F57 /* SettingsButton.swift in Sources */,
-				847E0EE2250E488A0092E3B2 /* BleValidationDataReader.swift in Sources */,
+				847E0EE2250E488A0092E3B2 /* BleValidation.swift in Sources */,
 				840FCE1C2511539B00DFD672 /* BlePeerDataValidator.swift in Sources */,
 				84E3DC7F24C6F64300E2F175 /* CompositeLog.swift in Sources */,
 				8402CD80250ABA1300DDE03F /* RemotePairingJoinerView.swift in Sources */,
@@ -1520,7 +1537,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8477E089251C83B600F7797E /* mocks.swift in Sources */,
+				8477E07D251C834800F7797E /* BleDeviceValidatorServiceTests.swift in Sources */,
 				84B0673822F9B400006DDC18 /* ios_appTests.swift in Sources */,
+				8477E09C251C8F3F00F7797E /* DetectedBleDeviceFilterServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

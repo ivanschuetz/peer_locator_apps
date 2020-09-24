@@ -28,8 +28,14 @@ struct MeetingView: View {
     }
 
     private func enableBleView() -> some View {
-        Button("Please enable bluetooth to connect with peer") {
-            viewModel.requestEnableBle()
+        VStack {
+            Button("Please enable bluetooth to connect with peer") {
+                viewModel.requestEnableBle()
+            }
+            .padding(.bottom, 50)
+            ActionDeleteButton("Delete session") {
+                viewModel.deleteSession()
+            }
         }
     }
 
@@ -51,8 +57,18 @@ struct MeetingView: View {
     }
 
     private func unavailableView() -> some View {
-        // TODO maybe add question mark and explain: out of range / device off / ble off
-        Text("Peer is not in range")
+        VStack {
+            Text("Peer not detected")
+                .bold()
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 30)
+            Text("Your peer is not in range or their device isn't available")
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 50)
+            ActionDeleteButton("Delete session") {
+                viewModel.deleteSession()
+            }
+        }
     }
 }
 

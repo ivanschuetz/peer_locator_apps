@@ -40,6 +40,8 @@ class RootViewModel: ObservableObject {
             }
 
         sessionStateCancellable = sessionService.session
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionRes in
                 self?.handleSessionState(sessionRes)
             }

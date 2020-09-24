@@ -10,6 +10,8 @@ protocol BleCentral {
     var status: AnyPublisher<BleState, Never> { get }
     var discovered: AnyPublisher<BlePeer, Never> { get }
 
+    func register(delegates: [BleCentralDelegate])
+
     // Starts central if status is powered on. If request is sent before status is on, it will be
     // processed when status in on.
     func requestStart()
@@ -47,6 +49,13 @@ class BleCentralImpl: NSObject, BleCentral {
     private let createCentralSubject = PassthroughSubject<(), Never>()
     private var createCentralCancellable: AnyCancellable?
 
+    // If we don't hold a strong reference to the peripheral, Core Bluetooth shows a warning/error: API MISUSE: Cancelling connection for unused peripheral
+    // https://stackoverflow.com/questions/34837148/error-corebluetooth-api-misuse-cancelling-connection-for-unused-peripheral
+    // It's weird, because we hold a strong reference to it in the delegates?
+    // but this made it go away
+    // TODO investigate
+    private var peripheralReferenceToPreventWarning: CBPeripheral?
+
     init(idService: BleIdService) {
         self.idService = idService
         super.init()
@@ -67,6 +76,11 @@ class BleCentralImpl: NSObject, BleCentral {
                 ])
             }
         }
+    }
+
+    // Note: has to be called before requestStart()
+    func register(delegates: [BleCentralDelegate]) {
+        self.delegates = delegates
     }
 
     func requestStart() {
@@ -146,6 +160,8 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         peripheral.delegate = self
         delegates.forEach { $0.onDiscoverPeripheral(peripheral, advertisementData: advertisementData, rssi: rssi) }
 
+        peripheralReferenceToPreventWarning = peripheral
+
         if peripheral.state != .connected && peripheral.state != .connecting {
             // TODO connection count limit?
             log.v("Connecting to peripheral", .ble)
@@ -154,7 +170,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        log.v("Did connect to peripheral", .ble)
+        log.v("Central did connect to peripheral", .ble)
         peripheral.discoverServices([CBUUID.serviceCBUUID])
     }
 
@@ -162,7 +178,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         // Note: this can be _any_ peripheral (gadgets etc.) not sure a retry here is meaningful
         // if it happens to be our peer, it is, but there's no way to know here.
         // TODO research: when is this called? does ble maybe do some sort of retry? should we do it?
-        log.w("Did fail to connect to peripheral: \(String(describing: error))", .ble)
+        log.w("Central did fail to connect to peripheral: \(String(describing: error))", .ble)
     }
 
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
@@ -184,7 +200,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
 
         guard let services = peripheral.services else { return }
         for service in services {
-            log.v("Did discover service: \(service)", .ble)
+            log.v("Central did discover service: \(service)", .ble)
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
@@ -207,11 +223,9 @@ extension BleCentralImpl: CBPeripheralDelegate {
             return
         }
 
-        log.d("Did discover characteristics: \(characteristics.count)", .ble)
+        log.d("Central did discover characteristics: \(characteristics.count)", .ble)
 
-        // TODO error handling: probably in the delegates
-
-        if !delegates.allSatisfy({ $0.onDiscoverCaracteristics(characteristics, peripheral: peripheral, error: error)}) {
+        if !delegates.evaluate({ $0.onDiscoverCaracteristics(characteristics, peripheral: peripheral, error: error)}) {
             log.e("One or more characteristics were not handled", .ble)
         }
     }
@@ -231,6 +245,7 @@ class BleCentralNoop: NSObject, BleCentral {
     let discoveredPairing = PassthroughSubject<PairingBleId, Never>().eraseToAnyPublisher()
     let statusMsg = PassthroughSubject<String, Never>()
     func requestStart() {}
+    func register(delegates: [BleCentralDelegate]) {}
     func stop() {}
     func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
     func write(publicKey: SerializedEncryptedPublicKey) -> Bool { true }
@@ -259,6 +274,7 @@ class BleCentralFixedDistance: NSObject, BleCentral {
     var discoveredPairing = Just(PairingBleId(str: "123")!).eraseToAnyPublisher()
     let status = Just(BleState.poweredOn).eraseToAnyPublisher()
     func requestStart() {}
+    func register(delegates: [BleCentralDelegate]) {}
     func stop() {}
     func write(nearbyToken: SerializedSignedNearbyToken) -> Bool { true }
     func write(publicKey: SerializedEncryptedPublicKey) -> Bool { true }

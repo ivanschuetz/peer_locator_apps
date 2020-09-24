@@ -1,9 +1,41 @@
 import Foundation
 import MultipeerConnectivity
 import Combine
+import CoreBluetooth
 
 protocol TokenServiceDelegate {
     func receivedToken(token: SerializedSignedNearbyToken)
+}
+
+// TODO remove this, of course it's nonsense. Just to make it compile quickly.
+extension MultipeerTokenServiceImpl: BleCentralDelegate {
+    var characteristic: CBMutableCharacteristic {
+        CBMutableCharacteristic(
+            type: CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376513"),
+            properties: [.write],
+            value: nil,
+            // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
+            permissions: [.writeable]
+        )
+    }
+
+    func handleEvent(_ event: BlePeripheralEvent) -> Bool {
+        false
+    }
+
+    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
+    }
+
+    func onReadCharacteristic(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) -> Bool {
+        false
+    }
+
+    func onWriteCharacteristicAck(_ characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) {
+    }
+
+    func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral, error: Error?) -> Bool {
+        false
+    }
 }
 
 class MultipeerTokenServiceImpl: NSObject, NearbyPairing {

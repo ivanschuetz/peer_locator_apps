@@ -6,7 +6,7 @@ import Combine
 class BleValidationUIErrorDisplayer {
     private let bleValidationCancellable: AnyCancellable?
 
-    init(uiNotifier: UINotifier, bleValidation: BleValidationDataReader) {
+    init(uiNotifier: UINotifier, bleValidation: BleValidation) {
         bleValidationCancellable = bleValidation.errorReadingValidation.sink { error in
             // TODO how to handle this? if this happens consistently it's critical,
             // as this happens during the meeting, so it probably doesn't make sense to tell user to re-create the session.

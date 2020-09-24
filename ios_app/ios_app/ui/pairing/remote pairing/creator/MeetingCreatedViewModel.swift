@@ -23,6 +23,8 @@ class MeetingCreatedViewModel: ObservableObject {
         self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.handle(sessionRes: $0)
             }
@@ -47,7 +49,6 @@ class MeetingCreatedViewModel: ObservableObject {
             showLoading = false
 
         case .progress:
-            log.d("TODO handle progress session staet", .ui)
             showLoading = true
         }
     }
