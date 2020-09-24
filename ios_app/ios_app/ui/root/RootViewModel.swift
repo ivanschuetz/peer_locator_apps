@@ -85,7 +85,8 @@ class RootViewModel: ObservableObject {
         state = viewState
 
         if case .result(.failure(let e)) = sessionRes {
-            uiNotifier.show(.error("Error retrieving session: \(e)"))
+            log.e("Error retrieving session: \(e)", .ui)
+            uiNotifier.show(.error("Couldn't retrieve sessiond data."))
         }
     }
 

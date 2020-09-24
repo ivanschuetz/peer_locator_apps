@@ -56,7 +56,8 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         errorWritingPublicKeyCancellable = colocatedPairing.errorSendingKey.sink { error in
             // TODO dialog offering to retry? and/or exit->create/join session again? or toggle the device's ble, restart the app?
             // note that this will be triggered after the automatic low level retry (when implemented)
-            uiNotifier.show(.error("Error seding public key to peer: \(error)"))
+            log.e("Error seding public key to peer: \(error)", .cp)
+            uiNotifier.show(.error("Bluetooth communication error. Please try again."))
         }
     }
 
@@ -77,9 +78,8 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         if let password = passwordProvider.password() {
             handleReceivedKey(key: key, password: password, shouldReply: shouldReply)
         } else {
-            let msg = "Invalid state? peer sent us their public key but we haven't stored a pw."
-            log.e(msg, .cp)
-            uiNotifier.show(.success(msg))
+            log.e("Invalid state? peer sent us their public key but we haven't stored a pw.", .cp)
+            uiNotifier.show(.error("Unknown error. Please try again"))
             // TODO better handling
         }
     }
@@ -154,9 +154,8 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
                 log.e("Couldn't write my public key to ble", .cp)
             }
         case .failure(let e):
-            let msg = "Error generating or encrypting my session data: \(e)"
-            log.e(msg, .cp)
-            uiNotifier.show(.error(msg))
+            log.e("Error generating or encrypting my session data: \(e)", .cp)
+            uiNotifier.show(.error("Unknown error. Please try again."))
         }
     }
 }

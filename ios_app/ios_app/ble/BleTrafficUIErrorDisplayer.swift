@@ -12,7 +12,8 @@ class BleValidationUIErrorDisplayer {
             // as this happens during the meeting, so it probably doesn't make sense to tell user to re-create the session.
             // maybe restart app/ble? what kind of errors can these be?
 
-            uiNotifier.show(.error("Error reading periperal validation data: \(error)"))
+            log.e("Error reading periperal validation data: \(error)", .ble)
+            uiNotifier.show(.error("Error validating peer. Can't track."))
         }
     }
 }

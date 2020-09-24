@@ -69,13 +69,13 @@ class RemotePairingJoinerViewModel: ObservableObject {
             return
         }
         guard let url = URL(string: sessionLinkInput) else {
-            log.e("Invalid session link input: \(sessionLinkInput). Nothing to join", .session)
-            uiNotifier.show(.error("Invalid session link input: \(sessionLinkInput). Nothing to join"))
+            log.e("Invalid session link input: \(sessionLinkInput).", .session)
+            uiNotifier.show(.error("Invalid session link: \(sessionLinkInput)."))
             return
         }
         guard let sessionLink = SessionLink(url: url) else {
-            log.e("Invalid session url: \(url). Nothing to join", .session)
-            uiNotifier.show(.error("Invalid session url: \(url). Nothing to join"))
+            log.e("Invalid session url: \(url).", .session)
+            uiNotifier.show(.error("Invalid session link: \(url)."))
             return
         }
         observeSession.send(true)

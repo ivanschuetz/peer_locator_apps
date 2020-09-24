@@ -18,9 +18,13 @@ class PeerValidationActivatorImpl: PeerValidationActivator {
         sessionIsReady.isReady
             .sink { [weak self] ready in
                 if ready {
+                    // TODO does this work after e.g. restarting the app (with an active meeting)?
+                    // (assume yes, as "ready" status is persisted, so we get it at launch)
                     log.i("Session activated, starting peer validation", .ble)
                     self?.activate()
                 } else {
+                    // TODO maybe stop validation when peers are successfully exchanging data?
+                    // the behavior re: what to do if the periodic validation fails after peers are exchanging data, is currently undefined. In the future we _need_ this validation, but then we'll also have a spec.
                     log.i("Session deactivated, stopping peer validation", .ble)
                     self?.deactivate()
                 }

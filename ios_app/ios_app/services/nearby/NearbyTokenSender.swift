@@ -126,7 +126,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
             log.e("Failure fetching session data. Can't start nearby session. \(e)", .nearby)
             // TODO we really should prevent this (see comments above): it would be terrible ux
             // also, allow the user to report errors from the notification
-            uiNotifier.show(.error("Couldn't start nearby session"))
+            uiNotifier.show(.error("Failure initiating high-accuracy tracking session."))
         }
     }
 }

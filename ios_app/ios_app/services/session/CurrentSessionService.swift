@@ -56,7 +56,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
             uiNotifier.show(.success("Session deleted"))
         case .failure(let e):
             log.e("Couldn't delete session locally: \(e)")
-            uiNotifier.show(.error("Error deleting sesion: \(e)"))
+            uiNotifier.show(.error("Couldn't delete session."))
         }
         return res
     }

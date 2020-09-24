@@ -41,7 +41,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
                 nearby.setPeer(token: token)
             case .invalid:
                 log.e("Nearby token validation failed. Can't start nearby session", .nearby)
-                uiNotifier.show(.error("Nearby peer couldn't be validated. Can't start nearby session"))
+                uiNotifier.show(.error("Can't start high-accuracy tracking: peer invalid"))
             }
         }
     }

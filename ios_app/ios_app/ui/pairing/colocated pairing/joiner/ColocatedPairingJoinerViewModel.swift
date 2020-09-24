@@ -36,9 +36,8 @@ class ColocatedPairingJoinerViewModel: ObservableObject {
         case .success(let password):
             passwordService.processPassword(ColocatedPeeringPassword(value: password))
         case .failure(let error):
-            let msg = "QR code scanning failed: \(error)"
-            log.e(msg, .ui)
-            uiNotifier.show(.error(msg))
+            log.e("QR code scanning failed: \(error)", .ui)
+            uiNotifier.show(.error("Scanning failed."))
         }
     }
 

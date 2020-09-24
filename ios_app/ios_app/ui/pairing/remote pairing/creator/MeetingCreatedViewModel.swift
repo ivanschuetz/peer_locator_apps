@@ -54,11 +54,9 @@ class MeetingCreatedViewModel: ObservableObject {
     }
 
     func onCopyLinkTap() {
-        // TODO check that link isn't empty
         clipboard.putInClipboard(text: linkText)
-        // TODO notification
-        uiNotifier.show(.success("Copied link to clipboard: \(String(describing: link))"))
-        log.d("Copied link to clipboard: \(String(describing: link))", .ui)
+        uiNotifier.show(.success("Copied link to clipboard: \(linkText)"))
+        log.d("Copied link to clipboard: \(linkText)", .ui)
     }
 
     func onUpdateStatusTap() {

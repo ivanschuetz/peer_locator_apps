@@ -37,11 +37,11 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionRes in
-                self?.handleSessionState(sessionRes)
+                self?.handleSessionStateAfterTapCreate(sessionRes)
             }
     }
 
-    private func handleSessionState(_ sessionState: SessionState) {
+    private func handleSessionStateAfterTapCreate(_ sessionState: SessionState) {
         switch sessionState {
         case .result(.success(let session)):
             if let session = session {
@@ -64,8 +64,9 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
             showLoading = false
 
         case .result(.failure(let e)):
+            // TODO message specific for networking errors.
             log.e("Current session error: \(e)", .session, .ui)
-            uiNotifier.show(.error("Current session error: \(e)"))
+            uiNotifier.show(.error("Error creating create session. Please try again."))
 
             observeSession.send(false)
             showLoading = false
