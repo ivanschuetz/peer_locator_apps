@@ -6,6 +6,6 @@ struct SettingsImage: View {
         Image(systemName: "gearshape")
             .resizable()
             .foregroundColor(Color.icon)
-            .padding(.trailing, 30)
+            .padding(.trailing, 10)
     }
 }
