@@ -42,7 +42,7 @@ struct MeetingView: View {
     private func connectedView() -> some View {
         VStack(alignment: .center) {
             Triangle()
-                .fill(Color.black)
+                .fill(Color.icon)
                 .frame(width: 60, height: 60)
                 .padding(.bottom, 30)
                 .rotationEffect(viewModel.directionAngle)

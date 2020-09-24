@@ -5,7 +5,7 @@ struct SettingsImage: View {
     var body: some View {
         Image(systemName: "gearshape")
             .resizable()
-            .foregroundColor(.black)
+            .foregroundColor(Color.icon)
             .padding(.trailing, 30)
     }
 }

@@ -14,8 +14,8 @@ extension Text {
             .padding(.bottom, actionPaddingV)
             .padding(.leading, actionPaddingH)
             .padding(.trailing, actionPaddingH)
-            .background(Color.black)
-            .foregroundColor(Color.white)
+            .background(Color.buttonBackground)
+            .foregroundColor(Color.buttonText)
             .cornerRadius(actionRadius)
     }
 

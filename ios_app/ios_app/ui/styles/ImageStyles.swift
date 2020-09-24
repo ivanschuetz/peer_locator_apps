@@ -9,7 +9,7 @@ extension Image {
     func styleIconDefault() -> some View {
         resizable()
             .scaledToFill()
-            .foregroundColor(.black)
+            .foregroundColor(Color.icon)
             .frame(width: iconDefaultSize, height: iconDefaultSize, alignment: .center)
     }
 
