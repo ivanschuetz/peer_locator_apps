@@ -9,7 +9,7 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 
     init(nearby: Nearby, nearbyPairing: NearbyPairing, uiNotifier: UINotifier, localSessionManager: LocalSessionManager,
          tokenProcessor: NearbyTokenProcessor, validatedPeerEvent: ValidatedPeerEvent,
-         appEvents: AppEvents, tokenSender: NearbyTokenSender) {
+         appEvents: AppEvents, tokenSender: NearbyTokenSender, currentSession: CurrentSessionService) {
 
         // Idea is to send the nearby token (i.e. initiate the session) when
         // 1) the devices come in ble range (to be tested whether this doesn't trigger nearby timeout/invalidation)
@@ -28,8 +28,14 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
         // if the session was not invalidated, this should be a Noop (TODO confirm)
         // as we'd be sending the already active discovery token and peer will ignore it.
         sendNearbyTokenCancellable = validatedPeerEvent.event.combineLatest(appCameToFg)
-            .sink { _, _ in
-                tokenSender.startSending()
+            .withLatestFrom(currentSession.session)
+            .sink { sessionState in
+                if sessionState.isReady() {
+                    log.d("Starting periodic sending of nearby token to peer", .nearby)
+                    tokenSender.startSending()
+                } else {
+                    log.d("Not starting periodic sending of nearby token, since there's not a ready session.", .nearby)
+                }
             }
 
         receivedNearbyTokenCancellable = nearbyPairing.token.sink { serializedToken in
@@ -97,8 +103,20 @@ class ValidatedBlePeerEvent: ValidatedPeerEvent {
     }
 }
 
-// Simulator: since validation runs through ble, we don't validate.
+// Simulator: since validation runs through ble, we can't use it. So we fake a valid event when the session is ready.
 // Ideally we'd make the validation work with multipeer service. No time right now.
 class AlwaysValidPeerEvent: ValidatedPeerEvent {
-    let event: AnyPublisher<(), Never> = Just(()).eraseToAnyPublisher()
+    private let eventSubject = PassthroughSubject<(), Never>()
+    lazy var event: AnyPublisher<(), Never> = eventSubject.eraseToAnyPublisher()
+
+    private var cancellables: Set<AnyCancellable> = []
+
+    init(currentSession: CurrentSessionService) {
+        currentSession.session.sink { [weak self] sessionState in
+            if sessionState.isReady() {
+                self?.eventSubject.send(())
+            }
+        }
+        .store(in: &cancellables)
+    }
 }

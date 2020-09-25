@@ -111,7 +111,8 @@ class Dependencies {
         container.register(multipeerTokenService, type: NearbyTokenSender.self)
         container.register(.singleton) { SimulatorBleEnablerImpl() as BleEnabler }
         container.register(.singleton) { NoopBleStateObservable() as BleStateObservable }
-        container.register(.singleton) { AlwaysValidPeerEvent() as ValidatedPeerEvent }
+        container.register(.singleton) { AlwaysValidPeerEvent(currentSession: try container.resolve())
+            as ValidatedPeerEvent }
         #else
         container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
 
@@ -175,7 +176,8 @@ class Dependencies {
             tokenProcessor: try container.resolve(),
             validatedPeerEvent: try container.resolve(),
             appEvents: try container.resolve(),
-            tokenSender: try container.resolve()
+            tokenSender: try container.resolve(),
+            currentSession: try container.resolve()
         ) as NearbySessionCoordinator }
 
         container.register(.eagerSingleton) { DetectedPeerServiceImpl(

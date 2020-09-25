@@ -51,6 +51,15 @@ enum SessionState: Equatable {
         default: return false
         }
     }
+
+    // Convenience
+    func isReady() -> Bool {
+        if case .result(.success(.isSet(let session))) = self {
+            return session.isReady
+        } else {
+            return false
+        }
+    }
 }
 
 /**
