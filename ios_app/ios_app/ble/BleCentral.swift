@@ -49,6 +49,9 @@ class BleCentralImpl: NSObject, BleCentral {
     private let createCentralSubject = PassthroughSubject<(), Never>()
     private var createCentralCancellable: AnyCancellable?
 
+    // development
+    private var verboseLogThrottler = 0
+
     // If we don't hold a strong reference to the peripheral, Core Bluetooth shows a warning/error: API MISUSE: Cancelling connection for unused peripheral
     // https://stackoverflow.com/questions/34837148/error-corebluetooth-api-misuse-cancelling-connection-for-unused-peripheral
     // It's weird, because we hold a strong reference to it in the delegates?
@@ -159,7 +162,11 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
-//        log.v("Discovered peripheral: \(peripheral)", .ble)
+
+        if verboseLogThrottler % 50 == 0 {
+            log.v("Discovered peripheral: \(peripheral)", .ble)
+            verboseLogThrottler = verboseLogThrottler + 1
+        }
 
         guard let centralManager = centralManager else {
             // This probably should be a fatal error, but leaving it in case it happens e.g. when exiting the app.
