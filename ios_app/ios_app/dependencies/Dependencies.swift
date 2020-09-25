@@ -28,7 +28,7 @@ class Dependencies {
         registerBle(container: container)
         registerServices(container: container)
         registerViewModels(container: container)
-        registerWatch(container: container)
+//        registerWatch(container: container)
         registerAccessibility(container: container)
 
         // Throws if components fail to instantiate
