@@ -5,6 +5,9 @@ import NearbyInteraction // leaky abstraction: TODO map nearby simd_float3 to ow
 
 struct MeetingView: View {
     @ObservedObject private var viewModel: MeetingViewModel
+
+    @State private var showConfirmDeleteAlert = false
+
     @Environment(\.colorScheme) var colorScheme
 
     init(viewModelProvider: ViewModelProvider) {
@@ -51,8 +54,17 @@ struct MeetingView: View {
                 .foregroundColor(colorScheme == .dark ? .white : .black)
                 .padding(.bottom, 50)
             ActionDeleteButton("Delete session") {
-                viewModel.deleteSession()
+                showConfirmDeleteAlert = true
             }
+        }
+        .alert(isPresented: $showConfirmDeleteAlert) {
+            Alert(title: Text("Delete session"),
+                  message: Text("Are you sure? You and your peer will have pair again."),
+                  primaryButton: .default(Text("Yes")) {
+                    viewModel.deleteSession()
+                  },
+                  secondaryButton: .default(Text("Cancel"))
+            )
         }
     }
 
@@ -62,7 +74,7 @@ struct MeetingView: View {
                 .bold()
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 30)
-            Text("Your peer is not in range or their device isn't available")
+            Text("Your peer is not in range or their device is not available")
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 50)
             ActionDeleteButton("Delete session") {

@@ -4,6 +4,7 @@ struct MeetingCreatedView: View {
     @ObservedObject var viewModel: MeetingCreatedViewModel
 
     @State private var showShareSheet = false
+    @State private var showConfirmDeleteAlert = false
 
     @Environment(\.presentationMode) var presentation
 
@@ -21,11 +22,14 @@ struct MeetingCreatedView: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color.blue)
                     .padding(.bottom, 20)
-
+                    .onTapGesture {
+                        viewModel.onCopyLinkTap()
+                    }
                 HStack {
                     Button(action: {
                         viewModel.onCopyLinkTap()
-                    }) { Image(systemName: "arrow.up.doc").styleIconDefault() }
+//                    }) { Image(systemName: "arrow.up.doc").styleIconDefault() }
+                    }) { Image(systemName: "square.on.square").styleIconDefault() }
                     .padding(.trailing, 30)
 
                     Button(action: {
@@ -48,12 +52,7 @@ struct MeetingCreatedView: View {
 //                }
 //                .padding(.bottom, 10)
                 ActionDeleteButton("Delete session") {
-                    // Doesn't work when environment is in view model.
-                    // this could be implemented reactively but this seems ok for now.
-                    if viewModel.onDeleteSessionTap() {
-                        log.d("Navigating back from created view", .ui)
-                        presentation.wrappedValue.dismiss()
-                    }
+                    showConfirmDeleteAlert = true
                 }
             }
             .defaultOuterHPadding()
@@ -62,7 +61,20 @@ struct MeetingCreatedView: View {
                 ProgressOverlay()
             }
         }
-
+        .alert(isPresented: $showConfirmDeleteAlert) {
+            Alert(title: Text("Delete session"),
+                  message: Text("Are you sure?"),
+                  primaryButton: .default(Text("Yes")) {
+                    if viewModel.onDeleteSessionTap() {
+                        // Doesn't work when environment is in view model.
+                        // this could be implemented reactively but this seems ok for now.
+                        log.d("Navigating back from created view", .ui)
+                        presentation.wrappedValue.dismiss()
+                    }
+                  },
+                  secondaryButton: .default(Text("Cancel"))
+            )
+        }
         .navigationBarTitle(Text("Session created!"), displayMode: .inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in

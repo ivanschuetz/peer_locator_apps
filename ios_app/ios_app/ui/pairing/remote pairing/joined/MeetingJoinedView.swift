@@ -3,6 +3,8 @@ import SwiftUI
 struct MeetingJoinedView: View {
     private let viewModel: MeetingJoinedViewModel
     
+    @State private var showConfirmDeleteAlert = false
+
     @Environment(\.presentationMode) var presentation
 
     init(viewModelProvider: ViewModelProvider) {
@@ -19,12 +21,21 @@ struct MeetingJoinedView: View {
 //            }
             .padding(.bottom, 10)
             ActionDeleteButton("Delete session") {
-                // Doesn't work when environment is in view model.
-                // this could be implemented reactively but this seems ok for now.
-                if viewModel.onDeleteSessionTap() {
-                    log.d("Navigating back from created view", .ui)
-                    presentation.wrappedValue.dismiss()
-                }
+                showConfirmDeleteAlert = true
+            }
+            .alert(isPresented: $showConfirmDeleteAlert) {
+                Alert(title: Text("Delete session"),
+                      message: Text("Are you sure? You and your peer will have pair again."),
+                      primaryButton: .default(Text("Yes")) {
+                        if viewModel.onDeleteSessionTap() {
+                            // Doesn't work when environment is in view model.
+                            // this could be implemented reactively but this seems ok for now.
+                            log.d("Navigating back from created view", .ui)
+                            presentation.wrappedValue.dismiss()
+                        }
+                      },
+                      secondaryButton: .default(Text("Cancel"))
+                )
             }
             .navigationBarTitle(Text("Session joined!"), displayMode: .inline)
             .navigationBarBackButtonHidden(true)

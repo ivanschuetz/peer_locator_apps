@@ -26,7 +26,8 @@ struct RemotePairingJoinerView: View {
                     Button(action: {
                         viewModel.onPasteLinkTap()
     //                }) { Image(systemName: "doc.on.clipboard")
-                    }) { Image(systemName: "arrow.down.doc").styleIconDefault() }
+//                    }) { Image(systemName: "arrow.down.doc").styleIconDefault() }
+                }) { Image(systemName: "square.on.square").styleIconDefault() }
                 }
                 .padding(.bottom, 30)
 

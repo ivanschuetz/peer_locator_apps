@@ -12,6 +12,9 @@ struct ColocatedPairingRoleSelectionView: View {
 
     var body: some View {
         VStack {
+            Text("Create a new session or join a session created by your peer")
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 30)
             Button("Create session") {
                 viewModel.onCreateSessionTap()
             }
@@ -26,6 +29,7 @@ struct ColocatedPairingRoleSelectionView: View {
                Spacer().fixedSize()
             }
         }
+        .defaultOuterHPadding()
         .navigationBarTitle(Text("Select role"), displayMode: .inline)
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()

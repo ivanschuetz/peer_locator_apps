@@ -13,6 +13,9 @@ struct RemotePairingRoleSelectionView: View {
     var body: some View {
         ZStack {
             VStack {
+                Text("Create a new session or join a session created by your peer")
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 30)
                 ActionButton("Create session") {
                     viewModel.onCreateSessionTap()
                 }
@@ -26,11 +29,11 @@ struct RemotePairingRoleSelectionView: View {
                    Spacer().fixedSize()
                 }
             }
+            .defaultOuterHPadding()
             if viewModel.showLoading {
                 ProgressOverlay()
             }
         }
-
         .navigationBarTitle(Text("Select role"), displayMode: .inline)
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()
