@@ -117,7 +117,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
 
             switch localSessionManager.saveIsReady(true) {
             case .success(let session):
-                sessionService.setSessionState(.result(Result.success(session).map { $0 }))
+                sessionService.setSessionState(.result(Result.success(session).map { .isSet($0) }))
             case .failure(let e):
                 log.e("Error updating session isReady: \(e)", .cp)
                 sessionService.setSessionState(.result(.failure(e)))

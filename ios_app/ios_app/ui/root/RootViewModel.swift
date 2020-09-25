@@ -61,9 +61,17 @@ class RootViewModel: ObservableObject {
     // but we don't react to duplicate navigation events, so not an issue.
     private func handleSessionState(_ sessionRes: SessionState) {
         switch sessionRes {
-        case .result(.success(let session)):
-            if let session = session, session.isReady {
-                updateState(sessionRes)
+        case .result(.success(let sessionSet)):
+            switch sessionSet {
+            case .isSet(let session):
+                // When a session was successfully initiated, we want root to show meeting view
+                if session.isReady {
+                    updateState(sessionRes)
+                }
+            // When the session was deleted, we want root to update navigation (go back to session type view)
+            case .deleted: updateState(sessionRes)
+            // Do nothing
+            case .notSet: break
             }
         case .result(.failure(let e)):
             log.e("Session failure state: \(e)", .session)
@@ -98,14 +106,15 @@ class RootViewModel: ObservableObject {
 private func toViewState(sessionRes: SessionState) -> RootViewState? {
     log.d("Root view model: toViewState: \(sessionRes)", .ui)
     switch sessionRes {
-    case .result(.success(let session)):
-        if let session = session {
+    case .result(.success(let sessionSet)):
+        switch sessionSet {
+        case .isSet(let session):
             if session.isReady {
                 return .meetingActive
             } else {
                 return .noMeeting
             }
-        } else {
+        case .deleted, .notSet:
             return .noMeeting
         }
     case .result(.failure):

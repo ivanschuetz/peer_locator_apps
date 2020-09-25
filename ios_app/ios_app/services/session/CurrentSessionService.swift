@@ -1,7 +1,42 @@
 import Combine
 
+enum SessionSet: Equatable {
+    case isSet(Session)
+    case notSet
+
+    // Whether the session was just deleted. Note that this is a "memory-only" state. If we delete a session
+    // and restart the app, the status will be .notSet.
+    // Functionally, .deleted is a subset to .notSet. Use asNilable() if only interested in "is set" / "is not set"
+    // .deleted is used only in special cases, where we want to know the cause of "not set",
+    // like navigation: if the session was deleted, we navigate, if the
+    // session is just nil, we don't navigate, as this can happen in several places where we don't want to
+    // navigate. TODO revisit, feel that there's something in the navigation architecture that has to be improved.
+    case deleted
+
+    func asNilable() -> Session? {
+        switch self {
+        case .notSet, .deleted: return nil
+        case .isSet(let session): return session
+        }
+    }
+
+    static func fromNilable(_ session: Session?) -> SessionSet {
+        if let session = session {
+            return .isSet(session)
+        } else {
+            return .notSet
+        }
+    }
+
+    static func fromNilableResult(_ res: Result<Session?, ServicesError>) -> Result<SessionSet, ServicesError> {
+        res.map {
+            fromNilable($0)
+        }
+    }
+}
+
 enum SessionState: Equatable {
-    case result(Result<Session?, ServicesError>)
+    case result(Result<SessionSet, ServicesError>)
     case progress
 
     static func == (lhs: SessionState, rhs: SessionState) -> Bool {
@@ -46,7 +81,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
         self.localSessionManager = localSessionManager
         self.uiNotifier = uiNotifier
 
-        sessionSubject = CurrentValueSubject(.result(localSessionManager.getSession()))
+        sessionSubject = CurrentValueSubject(.result(SessionSet.fromNilableResult(localSessionManager.getSession())))
         session = sessionSubject
             .handleEvents(receiveOutput: { session in
 //                log.d("Current session was updated to: \(session)", .session)
@@ -66,7 +101,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
         let res = localSessionManager.clear()
         switch res {
         case .success:
-            sessionSubject.send(.result(.success(nil)))
+            sessionSubject.send(.result(.success(.deleted)))
             uiNotifier.show(.success("Session deleted"))
         case .failure(let e):
             log.e("Couldn't delete session locally: \(e)")
@@ -77,7 +112,7 @@ class CurrentSessionServiceImpl: CurrentSessionService {
 }
 
 class NoopCurrentSessionService: CurrentSessionService {
-    var session: AnyPublisher<SessionState, Never> = Just(.result(.success(nil)))
+    var session: AnyPublisher<SessionState, Never> = Just(.result(.success(.notSet)))
         .eraseToAnyPublisher()
 
     func setSessionState(_ state: SessionState) {}

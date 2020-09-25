@@ -33,7 +33,7 @@ class MeetingCreatedViewModel: ObservableObject {
     private func handle(sessionRes: SessionState) {
         switch sessionRes {
         case .result(.success(let session)):
-            if let session = session {
+            if let session = session.asNilable() {
                 let link = session.id.createLink()
                 log.d("Created session link: \(link)", .ui)
                 linkUrl = link.url

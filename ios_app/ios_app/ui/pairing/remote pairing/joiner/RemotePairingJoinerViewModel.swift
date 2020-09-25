@@ -38,7 +38,7 @@ class RemotePairingJoinerViewModel: ObservableObject {
     private func handleSessionState(_ sessionState: SessionState) {
         switch sessionState {
         case .result(.success(let session)):
-            if let session = session {
+            if let session = session.asNilable() {
                 if session.createdByMe {
                     // TODO revise this. Ideally we shouldn't throw fatal errors.
                     fatalError("Invalid state: If I'm in joiner view, I can't have created the session.")

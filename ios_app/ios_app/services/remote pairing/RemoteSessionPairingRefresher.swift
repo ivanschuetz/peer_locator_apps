@@ -25,10 +25,10 @@ class RemoteSessionPairingRefresher {
             .store(in: &cancellables)
     }
 
-    private func handleSessionResult(_ result: Result<Session?, ServicesError>) {
+    private func handleSessionResult(_ result: Result<SessionSet, ServicesError>) {
         switch result {
         case .success(let session):
-            if let session = session {
+            if let session = session.asNilable() {
                 if !session.isReady {
                     log.d("There's a session and it's not ready. Refreshing...", .session)
                     startRefreshTimer()

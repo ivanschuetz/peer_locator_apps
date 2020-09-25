@@ -60,7 +60,7 @@ class MeetingViewModel: ObservableObject {
     }
 
     func deleteSession() {
-        sessionManager.delete()
+        _ = sessionManager.delete()
     }
 
     func onSettingsButtonTap() {

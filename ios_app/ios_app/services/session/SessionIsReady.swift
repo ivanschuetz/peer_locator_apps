@@ -13,7 +13,7 @@ class SessionIsReadyImpl: SessionIsReady {
             .map({ sessionRes -> Bool in
                 switch sessionRes {
                 case .result(.success(let session)):
-                    if let session = session {
+                    if let session = session.asNilable() {
                         return session.isReady
                     } else {
                         return false

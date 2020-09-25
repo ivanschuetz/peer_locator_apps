@@ -33,7 +33,7 @@ class RemoteSessionManagerImpl: RemoteSessionManager {
     }
 
     private func handleCreateOrJoinSessionStateResult(_ result: Result<Session, ServicesError>) {
-        currentSessionService.setSessionState(.result(result.map { $0 }))
+        currentSessionService.setSessionState(.result(result.map { .isSet($0) }))
     }
 
     func refresh() {
@@ -41,7 +41,7 @@ class RemoteSessionManagerImpl: RemoteSessionManager {
         // Note: no progress state. This is only for visuals (show progress indicator) and refresh
         // done in the background.
         DispatchQueue.global(qos: .background).async {
-            self.currentSessionService.setSessionState(.result(self.sessionService.refreshSession().map { $0 }))
+            self.currentSessionService.setSessionState(.result(self.sessionService.refreshSession().map { .isSet($0) }))
         }
     }
 

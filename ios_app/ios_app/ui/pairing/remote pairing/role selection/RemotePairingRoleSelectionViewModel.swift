@@ -44,7 +44,7 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
     private func handleSessionStateAfterTapCreate(_ sessionState: SessionState) {
         switch sessionState {
         case .result(.success(let session)):
-            if let session = session {
+            if let session = session.asNilable() {
                 // filter joined event: since this vm stays in the stack,
                 // if we don't filter, when we join a session it will navigate to create first
                 if session.createdByMe {
