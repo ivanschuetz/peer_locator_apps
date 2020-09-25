@@ -37,7 +37,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
             .removeDuplicates()
             .filter { $0 == .active }
             .sink { [weak self] sessionState in
-                self?.onSessionActive()
+                self?.startStopSendingAfterSessionActiveTimer()
         }
     }
 
@@ -51,7 +51,7 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
         sendNearbyTokenToPeer()
     }
 
-    private func onSessionActive() {
+    private func startStopSendingAfterSessionActiveTimer() {
         // Nearby session becoming active apparently is one sided: our peer session
         // is not necessarily active yet. So we keep sending the token a while.
         // TODO review this, test on devices.

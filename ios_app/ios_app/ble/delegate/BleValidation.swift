@@ -92,7 +92,7 @@ extension BleValidationImpl: BlePeripheralDelegateReadOnly {
 extension BleValidationImpl: BleCentralDelegate {
 
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        log.d("Ble validation discovered peripheral: \(peripheral)", .ble)
+//        log.d("Ble validation discovered peripheral: \(peripheral)", .ble)
         self.peripheral = peripheral
     }
 
