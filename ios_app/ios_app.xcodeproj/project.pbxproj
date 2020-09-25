@@ -128,6 +128,8 @@
 		8490DBE7251D1E9C00275889 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490DBE6251D1E9C00275889 /* Color.swift */; };
 		84993A1824B5C0730044AA27 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1724B5C0730044AA27 /* Preferences.swift */; };
 		84993A1B24B5C1340044AA27 /* BleIdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84993A1A24B5C1340044AA27 /* BleIdService.swift */; };
+		849B39E8251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B39E7251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift */; };
+		849B39E9251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B39E7251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift */; };
 		849B612924EDB99400D321D1 /* RemoteSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* RemoteSessionService.swift */; };
 		84A211E42501590A008B370E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E32501590A008B370E /* SettingsView.swift */; };
 		84A211E72501596D008B370E /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E62501596D008B370E /* SettingsViewModel.swift */; };
@@ -399,6 +401,7 @@
 		8490DBE6251D1E9C00275889 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		84993A1724B5C0730044AA27 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		84993A1A24B5C1340044AA27 /* BleIdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleIdService.swift; sourceTree = "<group>"; };
+		849B39E7251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSessionPairingRefresher.swift; sourceTree = "<group>"; };
 		849B612824EDB99400D321D1 /* RemoteSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSessionService.swift; sourceTree = "<group>"; };
 		84A211E32501590A008B370E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		84A211E62501596D008B370E /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -570,6 +573,7 @@
 			children = (
 				849B612824EDB99400D321D1 /* RemoteSessionService.swift */,
 				848AE8072507772B00DB192A /* RemoteSessionManager.swift */,
+				849B39E7251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift */,
 			);
 			path = "remote pairing";
 			sourceTree = "<group>";
@@ -1402,6 +1406,7 @@
 				840A8CB72509099F00E73815 /* Globals.swift in Sources */,
 				8459E096250643610058D692 /* RemoteSessionService.swift in Sources */,
 				8459E090250643320058D692 /* BleUuids.swift in Sources */,
+				849B39E9251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift in Sources */,
 				840FCE1725114ABF00DFD672 /* UINotifier.swift in Sources */,
 				84F10B54250FA49E00F28C9D /* Array+Convenience.swift in Sources */,
 				8459E09D2506438C0058D692 /* Data+hex.swift in Sources */,
@@ -1431,6 +1436,7 @@
 				8486E58D2518A05300EFD64E /* Spacing.swift in Sources */,
 				84094EFA24EACC4E0028BBDF /* PairingTypeViewModel.swift in Sources */,
 				84094EF824EACC3C0028BBDF /* PairingTypeView.swift in Sources */,
+				849B39E8251DE4CF006F2DAC /* RemoteSessionPairingRefresher.swift in Sources */,
 				84B6DCBC24FBC28400AA7E6D /* Triangle.swift in Sources */,
 				84752DA92515106000740E16 /* BleActivator.swift in Sources */,
 				848D5F4E24CCA7AF00F2D80B /* AppBadgeUpdater.swift in Sources */,

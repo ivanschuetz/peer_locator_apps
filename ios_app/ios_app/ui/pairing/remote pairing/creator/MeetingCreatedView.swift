@@ -40,10 +40,13 @@ struct MeetingCreatedView: View {
                     ShareSheet(activityItems: [viewModel.linkUrl])
                 }
                 .padding(.bottom, 10)
-                ActionButton("Update status") {
-                    viewModel.onUpdateStatusTap()
-                }
-                .padding(.bottom, 10)
+                Text("Waiting for your peer to join")
+                    .padding(.bottom, 10)
+                // For dev
+//                ActionButton("Update status") {
+//                    viewModel.onUpdateStatusTap()
+//                }
+//                .padding(.bottom, 10)
                 ActionDeleteButton("Delete session") {
                     // Doesn't work when environment is in view model.
                     // this could be implemented reactively but this seems ok for now.

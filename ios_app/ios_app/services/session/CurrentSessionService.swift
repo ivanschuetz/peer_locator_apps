@@ -1,9 +1,23 @@
 import Combine
 
-enum SessionState {
+enum SessionState: Equatable {
     case result(Result<Session?, ServicesError>)
     case progress
+
+    static func == (lhs: SessionState, rhs: SessionState) -> Bool {
+        switch (lhs, rhs) {
+        case (.result(let res1), .result(let res2)):
+            switch (res1, res2) {
+            case (.success(let session1), .success(let session2)): return session1 == session2
+            case (.failure(let e1), .failure(let e2)): return e1 == e2
+            default: return false
+            }
+        case (.progress, progress): return true
+        default: return false
+        }
+    }
 }
+
 /**
  * Manages current configured session.
  * If there's no session configured yet, the observable's session is nil.

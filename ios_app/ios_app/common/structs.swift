@@ -16,16 +16,16 @@ extension PublicKey {
     }
 }
 
-struct PrivateKey: Codable {
+struct PrivateKey: Codable, Equatable {
     let value: String // P521 PEM representation
 }
 
 // Public key hash
-struct PeerId: Codable {
+struct PeerId: Codable, Equatable {
     let value: String
 }
 
-struct Peer: Codable {
+struct Peer: Codable, Equatable {
     let publicKey: PublicKey
 }
 
@@ -47,7 +47,7 @@ struct KeyPair {
     let publicKey: PublicKey
 }
 
-struct Session: Codable {
+struct Session: Codable, Equatable {
     let id: SessionId
     let privateKey: PrivateKey
     // TODO (low prio): review: the own public key seems not necessary to store at the moment

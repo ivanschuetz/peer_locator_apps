@@ -13,9 +13,10 @@ struct MeetingJoinedView: View {
         VStack {
             Text("Joined! Waiting for peer to acknowledge.")
                 .padding(.bottom, 30)
-            ActionButton("Check status") {
-                viewModel.updateSession()
-            }
+            // For dev
+//            ActionButton("Check status") {
+//                viewModel.updateSession()
+//            }
             .padding(.bottom, 10)
             ActionDeleteButton("Delete session") {
                 // Doesn't work when environment is in view model.

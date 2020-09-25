@@ -256,6 +256,10 @@ class Dependencies {
         container.register(.singleton) {
             SessionIsReadyImpl(sessionService: try container.resolve()) as SessionIsReady
         }
+        container.register(.eagerSingleton) {
+            RemoteSessionPairingRefresher(sessionService: try container.resolve(),
+                                          sessionManager: try container.resolve())
+        }
     }
 
     private func registerViewModels(container: DependencyContainer) {
