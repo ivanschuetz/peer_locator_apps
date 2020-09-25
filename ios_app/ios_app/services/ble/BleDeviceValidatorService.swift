@@ -61,9 +61,16 @@ private func updateValidPeers(validationResults: [UUID: DetectedDeviceValidation
     // if it was already validated, don't validate again (validation is expensive).
     // when we implement periodic validation probably we have to pass a flag to force validation.
     // clearing the dictionary would probably not be good, as it would interrupt the distance measurements.
-    if validationResults.keys.contains(blePeer.deviceUuid) {
-        return validationResults
-    }
+
+    // TODO commenting for now, as we implemented periodic validation, and of course this will cache
+    // invalid state forever. We need to improve the mechanism.
+    // Note that it's not overly critical pre-mvp, as validation happens only each 5 secs and most people testing
+    // will not have a lot of devices with the app installed around. It also doesn't seem critical for release.
+    // it should be improved when we believe enough people are using the app.
+//    if validationResults.keys.contains(blePeer.deviceUuid) {
+//        log.d("Device was already validated. Returning cached result: \(validationResults[blePeer.deviceUuid])", .session)
+//        return validationResults
+//    }
 
     var mutDict = validationResults
     let isValid = idService.validate(bleId: blePeer.id)
