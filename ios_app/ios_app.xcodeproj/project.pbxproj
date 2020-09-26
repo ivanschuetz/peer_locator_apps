@@ -194,7 +194,6 @@
 		84BEFEE024F63B61006E4B61 /* MeetingCreatedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */; };
 		84BEFEE424F66CF7006E4B61 /* MeetingJoinedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */; };
 		84BEFEE624F66D01006E4B61 /* MeetingJoinedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEFEE524F66D01006E4B61 /* MeetingJoinedViewModel.swift */; };
-		84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D1D7AF25015047005A3710 /* SettingsShower.swift */; };
 		84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D895EB24FD333A005360DB /* NearbySessionCoordinator.swift */; };
 		84DC104824B49E340064DEBE /* MeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC104724B49E340064DEBE /* MeetingView.swift */; };
 		84DC105524B4A5AE0064DEBE /* BleCentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DC105424B4A5AE0064DEBE /* BleCentral.swift */; };
@@ -465,7 +464,6 @@
 		84BEFEDF24F63B61006E4B61 /* MeetingCreatedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingCreatedViewModel.swift; sourceTree = "<group>"; };
 		84BEFEE324F66CF7006E4B61 /* MeetingJoinedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingJoinedView.swift; sourceTree = "<group>"; };
 		84BEFEE524F66D01006E4B61 /* MeetingJoinedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingJoinedViewModel.swift; sourceTree = "<group>"; };
-		84D1D7AF25015047005A3710 /* SettingsShower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsShower.swift; sourceTree = "<group>"; };
 		84D895EB24FD333A005360DB /* NearbySessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbySessionCoordinator.swift; sourceTree = "<group>"; };
 		84DC104724B49E340064DEBE /* MeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingView.swift; sourceTree = "<group>"; };
 		84DC105424B4A5AE0064DEBE /* BleCentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleCentral.swift; sourceTree = "<group>"; };
@@ -1042,7 +1040,6 @@
 				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				840FCE1425114AAB00DFD672 /* UINotifier.swift */,
 				84B5370D24FA833D000B42C7 /* Sharer.swift */,
-				84D1D7AF25015047005A3710 /* SettingsShower.swift */,
 				84BCCD9C2508C1B6006EF93F /* DummyViewModelProvider.swift */,
 				84B73D57250A1A3D00C2328D /* Lazy.swift */,
 				843CFABD2512615D00874741 /* AppEvents.swift */,
@@ -1466,7 +1463,6 @@
 				841C331824F4F24000F99B93 /* Result+Convenience.swift in Sources */,
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
 				84B82D37251A916800BC6490 /* String+Convenience.swift in Sources */,
-				84D1D7B025015047005A3710 /* SettingsShower.swift in Sources */,
 				84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */,
 				84BCCDA42508CF86006EF93F /* ColocatedPairingPasswordView.swift in Sources */,
 				8431867E2511291600078EC0 /* structs.swift in Sources */,

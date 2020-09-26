@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MeetingCreatedView: View {
     @ObservedObject var viewModel: MeetingCreatedViewModel
+    private var viewModelProvider: ViewModelProvider
 
     @State private var showShareSheet = false
     @State private var showConfirmDeleteAlert = false
@@ -10,6 +11,7 @@ struct MeetingCreatedView: View {
 
     init(viewModelProvider: ViewModelProvider) {
         self.viewModel = viewModelProvider.meetingCreated()
+        self.viewModelProvider = viewModelProvider
     }
 
     var body: some View {
@@ -80,6 +82,9 @@ struct MeetingCreatedView: View {
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()
         }) { SettingsImage() })
+        .sheet(isPresented: $viewModel.showSettingsModal) {
+            SettingsView(viewModel: viewModelProvider.settings())
+        }
     }
 }
 

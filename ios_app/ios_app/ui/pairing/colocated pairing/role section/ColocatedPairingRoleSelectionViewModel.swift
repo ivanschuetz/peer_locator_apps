@@ -10,12 +10,12 @@ enum ColocatedPairingRoleDestination {
 class ColocatedPairingRoleSelectionViewModel: ObservableObject {
     @Published var destination: ColocatedPairingRoleDestination = .none
     @Published var navigationActive: Bool = false
+    @Published var showSettingsModal: Bool = false
 
     private let bleState: BleStateObservable
     private let sessionService: ColocatedSessionService
     private let bleActivator: BleActivator
     private let uiNotifier: UINotifier
-    private let settingsShower: SettingsShower
 
     private let createSessionSubject: PassthroughSubject = PassthroughSubject<(), Never>()
     private let joinSessionSubject: PassthroughSubject = PassthroughSubject<(), Never>()
@@ -28,12 +28,11 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
     private var navigateToCancellable: AnyCancellable?
 
     init(sessionService: ColocatedSessionService, bleState: BleStateObservable, bleActivator: BleActivator,
-         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+         uiNotifier: UINotifier) {
         self.sessionService = sessionService
         self.bleState = bleState
         self.uiNotifier = uiNotifier
         self.bleActivator = bleActivator
-        self.settingsShower = settingsShower
 
         createSessionCancellable = createSessionSubject.withLatestFrom(bleState.allReady.removeDuplicates())
             .sink { [weak self] bleReady in
@@ -104,7 +103,7 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
     }
 
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
 
     private func navigate(to: ColocatedPairingRoleDestination) {

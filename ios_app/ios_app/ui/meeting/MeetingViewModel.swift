@@ -10,18 +10,17 @@ class MeetingViewModel: ObservableObject {
     @Published var distance: String = ""
     @Published var directionAngle: Angle = Angle(radians: 0)
     @Published var mainViewContent: MeetingMainViewContent = .connected
+    @Published var showSettingsModal: Bool = false
 
     private var peerCancellable: AnyCancellable?
 
     private let sessionManager: RemoteSessionManager
-    private let settingsShower: SettingsShower
     private let bleEnabler: BleEnabler
     private let bleManager: BleManager
 
-    init(peerService: DetectedPeerService, sessionManager: RemoteSessionManager, settingsShower: SettingsShower,
-         bleEnabler: BleEnabler, bleState: BleStateObservable, bleManager: BleManager) {
+    init(peerService: DetectedPeerService, sessionManager: RemoteSessionManager, bleEnabler: BleEnabler,
+         bleState: BleStateObservable, bleManager: BleManager) {
         self.sessionManager = sessionManager
-        self.settingsShower = settingsShower
         self.bleEnabler = bleEnabler
         self.bleManager = bleManager
 
@@ -64,7 +63,7 @@ class MeetingViewModel: ObservableObject {
     }
 
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
 
     func requestEnableBle() {

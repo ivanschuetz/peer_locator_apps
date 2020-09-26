@@ -6,22 +6,21 @@ class RemotePairingJoinerViewModel: ObservableObject {
     @Published var sessionLinkInput: String = ""
     @Published var navigateToJoinedView: Bool = false
     @Published var showLoading: Bool = false
+    @Published var showSettingsModal: Bool = false
 
     private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
-    private let settingsShower: SettingsShower
-    
+
     private let observeSession = CurrentValueSubject<Bool, Never>(false)
 
     private var sessionCancellable: Cancellable?
 
     init(sessionManager: RemoteSessionManager, sessionService: CurrentSessionService, clipboard: Clipboard,
-         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+         uiNotifier: UINotifier) {
         self.sessionManager = sessionManager
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
-        self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session
             .withLatestFrom(observeSession, resultSelector: { ($0, $1) })
@@ -84,7 +83,7 @@ class RemotePairingJoinerViewModel: ObservableObject {
     }
     
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
 
     func onPasteLinkTap() {

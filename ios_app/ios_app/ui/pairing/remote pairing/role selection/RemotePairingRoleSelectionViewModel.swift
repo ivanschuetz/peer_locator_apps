@@ -10,21 +10,19 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
     @Published var destination: RemotePairingRoleDestination = .none
     @Published var navigationActive: Bool = false
     @Published var showLoading: Bool = false
+    @Published var showSettingsModal: Bool = false
 
     private let remoteSessionManager: RemoteSessionManager
     private let sessionService: CurrentSessionService
-    private let settingsShower: SettingsShower
     private let uiNotifier: UINotifier
 
     private let observeSession = CurrentValueSubject<Bool, Never>(false)
 
     private var sessionCancellable: AnyCancellable?
 
-    init(remoteSessionManager: RemoteSessionManager, sessionService: CurrentSessionService, uiNotifier: UINotifier,
-         settingsShower: SettingsShower) {
+    init(remoteSessionManager: RemoteSessionManager, sessionService: CurrentSessionService, uiNotifier: UINotifier) {
         self.remoteSessionManager = remoteSessionManager
         self.sessionService = sessionService
-        self.settingsShower = settingsShower
         self.uiNotifier = uiNotifier
 
         sessionCancellable = sessionService.session
@@ -87,7 +85,7 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
     }
 
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
     
     private func navigate(to: RemotePairingRoleDestination) {

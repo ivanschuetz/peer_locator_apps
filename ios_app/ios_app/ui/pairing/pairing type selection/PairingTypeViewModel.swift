@@ -7,15 +7,10 @@ enum PairingTypeDestination {
 class PairingTypeViewModel: ObservableObject {
     @Published var destination: PairingTypeDestination = .none
     @Published var navigationActive: Bool = false
-
-    private let settingsShower: SettingsShower
-
-    init(settingsShower: SettingsShower) {
-        self.settingsShower = settingsShower
-    }
+    @Published var showSettingsModal: Bool = false
 
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
 
     func onColocatedTap() {

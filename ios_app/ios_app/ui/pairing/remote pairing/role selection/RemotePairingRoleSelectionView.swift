@@ -38,6 +38,9 @@ struct RemotePairingRoleSelectionView: View {
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()
         }) { SettingsImage() })
+        .sheet(isPresented: $viewModel.showSettingsModal) {
+            SettingsView(viewModel: viewModelProvider.settings())
+        }
     }
 
     private func destinationView(destination: RemotePairingRoleDestination) -> some View {

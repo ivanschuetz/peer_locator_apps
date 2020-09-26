@@ -4,18 +4,17 @@ import Combine
 
 class MeetingJoinedViewModel: ObservableObject {
     @Published var sessionLinkInput: String = ""
+    @Published var showSettingsModal: Bool = false
 
     private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
-    private let settingsShower: SettingsShower
 
     init(sessionManager: RemoteSessionManager, sessionService: CurrentSessionService, clipboard: Clipboard,
-         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+         uiNotifier: UINotifier) {
         self.sessionManager = sessionManager
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
-        self.settingsShower = settingsShower
     }
 
     // For dev
@@ -24,7 +23,7 @@ class MeetingJoinedViewModel: ObservableObject {
     }
 
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
 
     func onDeleteSessionTap() -> Bool {

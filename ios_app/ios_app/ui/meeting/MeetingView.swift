@@ -5,6 +5,7 @@ import NearbyInteraction // leaky abstraction: TODO map nearby simd_float3 to ow
 
 struct MeetingView: View {
     @ObservedObject private var viewModel: MeetingViewModel
+    private var viewModelProvider: ViewModelProvider
 
     @State private var showConfirmDeleteAlert = false
 
@@ -12,6 +13,7 @@ struct MeetingView: View {
 
     init(viewModelProvider: ViewModelProvider) {
         self.viewModel = viewModelProvider.meeting()
+        self.viewModelProvider = viewModelProvider
     }
 
     var body: some View {
@@ -20,6 +22,9 @@ struct MeetingView: View {
             .navigationBarItems(trailing: Button(action: { [weak viewModel] in
                 viewModel?.onSettingsButtonTap()
             }) { SettingsImage() })
+        .sheet(isPresented: $viewModel.showSettingsModal) {
+            SettingsView(viewModel: viewModelProvider.settings())
+        }
     }
 
     private func mainView(content: MeetingMainViewContent) -> some View {

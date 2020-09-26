@@ -17,9 +17,6 @@ struct RootView: View {
 
     var body: some View {
         viewForState(state: viewModel.state)
-            .sheet(isPresented: $viewModel.showSettingsModal) {
-                SettingsView(viewModel: viewModelProvider.settings())
-            }
     }
 
     private func viewForState(state: RootViewState) -> some View {
@@ -45,12 +42,6 @@ struct RootView_Previews: PreviewProvider {
     static var previews: some View {
         RootView(viewModelProvider: DummyViewModelProvider())
     }
-}
-
-class NoopSettingsShower: SettingsShower {
-    lazy var showing: AnyPublisher<Bool, Never> = Just(false).eraseToAnyPublisher()
-    func show() {}
-    func hide() {}
 }
 
 class NoopBleEnabler: BleEnabler {

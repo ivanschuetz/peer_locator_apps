@@ -57,7 +57,6 @@ class Dependencies {
             sessionManager: try container.resolve(),
             colocatedPasswordService: try container.resolve()
         ) as DeeplinkHandler }
-        container.register(.singleton) { SettingsShowerImpl() as SettingsShower }
     }
 
     private func registerBle(container: DependencyContainer) {
@@ -267,31 +266,26 @@ class Dependencies {
     private func registerViewModels(container: DependencyContainer) {
         container.register { MeetingViewModel(peerService: try container.resolve(),
                                               sessionManager: try container.resolve(),
-                                              settingsShower: try container.resolve(),
                                               bleEnabler: try container.resolve(),
                                               bleState: try container.resolve(),
                                               bleManager: try container.resolve()) }
-        container.register { PairingTypeViewModel(settingsShower: try container.resolve()) }
+        container.register { PairingTypeViewModel() }
         container.register { RootViewModel(sessionService: try container.resolve(),
                                            uiNotifier: try container.resolve(),
-                                           settingsShower: try container.resolve(),
                                            appEvents: try container.resolve()) }
         container.register { MeetingCreatedViewModel(sessionManager: try container.resolve(),
                                                      sessionService: try container.resolve(),
                                                      clipboard: try container.resolve(),
-                                                     uiNotifier: try container.resolve(),
-                                                     settingsShower: try container.resolve()) }
+                                                     uiNotifier: try container.resolve()) }
         container.register { MeetingJoinedViewModel(sessionManager: try container.resolve(),
                                                     sessionService: try container.resolve(),
                                                     clipboard: try container.resolve(),
-                                                    uiNotifier: try container.resolve(),
-                                                    settingsShower: try container.resolve()) }
+                                                    uiNotifier: try container.resolve()) }
         container.register { SettingsViewModel() }
         container.register { ColocatedPairingRoleSelectionViewModel(sessionService: try container.resolve(),
                                                                     bleState: try container.resolve(),
                                                                     bleActivator: try container.resolve(),
-                                                                    uiNotifier: try container.resolve(),
-                                                                    settingsShower: try container.resolve()) }
+                                                                    uiNotifier: try container.resolve()) }
 
         container.register { ColocatedPairingPasswordViewModel(sessionService: try container.resolve()) }
         container.register { ColocatedPairingJoinerViewModel(passwordService: try container.resolve(),
@@ -299,15 +293,13 @@ class Dependencies {
         container.register { RemotePairingRoleSelectionViewModel(
             remoteSessionManager: try container.resolve(),
             sessionService: try container.resolve(),
-            uiNotifier: try container.resolve(),
-            settingsShower: try container.resolve())
+            uiNotifier: try container.resolve())
         }
         container.register { RemotePairingJoinerViewModel(
             sessionManager: try container.resolve(),
             sessionService: try container.resolve(),
             clipboard: try container.resolve(),
-            uiNotifier: try container.resolve(),
-            settingsShower: try container.resolve())
+            uiNotifier: try container.resolve())
         }
     }
 

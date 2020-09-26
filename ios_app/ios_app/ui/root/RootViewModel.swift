@@ -21,14 +21,12 @@ class RootViewModel: ObservableObject {
     private let uiNotifier: UINotifier
 
     @Published var state: RootViewState = .noMeeting
-    @Published var showSettingsModal: Bool = false
 
     private var didLaunchCancellable: AnyCancellable?
     private var sessionStateCancellable: AnyCancellable?
     private var showSettingsCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, uiNotifier: UINotifier, settingsShower: SettingsShower,
-         appEvents: AppEvents) {
+    init(sessionService: CurrentSessionService, uiNotifier: UINotifier, appEvents: AppEvents) {
         self.sessionService = sessionService
         self.uiNotifier = uiNotifier
 
@@ -45,10 +43,6 @@ class RootViewModel: ObservableObject {
             .sink { [weak self] sessionRes in
                 self?.handleSessionState(sessionRes)
             }
-
-        showSettingsCancellable = settingsShower.showing.sink { [weak self] showing in
-            self?.showSettingsModal = showing
-        }
     }
 
     private func handleSessionStateOnAppLaunched(_ sessionRes: SessionState) {

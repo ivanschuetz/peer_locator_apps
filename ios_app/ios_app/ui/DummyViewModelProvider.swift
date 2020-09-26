@@ -6,41 +6,37 @@ class DummyViewModelProvider: ViewModelProvider {
         let peerService = DetectedPeerServiceImpl(nearby: NearbyNoop(), bleIdService: BleIdServiceNoop(),
                                                   detectedBleDeviceService: NoopDetectedDeviceFilterService())
         return MeetingViewModel(peerService: peerService, sessionManager: NoopRemoteSessionManager(),
-                                settingsShower: NoopSettingsShower(), bleEnabler: NoopBleEnabler(),
-                                bleState: NoopBleStateObservable(), bleManager: BleManagerNoop())
+                                bleEnabler: NoopBleEnabler(), bleState: NoopBleStateObservable(),
+                                bleManager: BleManagerNoop())
     }
 
     func session() -> PairingTypeViewModel {
-        PairingTypeViewModel(settingsShower: NoopSettingsShower())
+        PairingTypeViewModel()
     }
 
     func root() -> RootViewModel {
         RootViewModel(
             sessionService: NoopCurrentSessionService(),
             uiNotifier: NoopUINotifier(),
-            settingsShower: NoopSettingsShower(),
             appEvents: NoopAppEvents())
     }
 
     func meetingCreated() -> MeetingCreatedViewModel {
         MeetingCreatedViewModel(sessionManager: NoopRemoteSessionManager(),
                                 sessionService: NoopCurrentSessionService(),
-                                clipboard: NoopClipboard(), uiNotifier: NoopUINotifier(),
-                                settingsShower: NoopSettingsShower())
+                                clipboard: NoopClipboard(), uiNotifier: NoopUINotifier())
     }
 
     func meetingJoined() -> MeetingJoinedViewModel {
         MeetingJoinedViewModel(sessionManager: NoopRemoteSessionManager(), sessionService: NoopCurrentSessionService(),
-                               clipboard: NoopClipboard(), uiNotifier: NoopUINotifier(),
-                               settingsShower: NoopSettingsShower())
+                               clipboard: NoopClipboard(), uiNotifier: NoopUINotifier())
     }
 
     func meetingJoiner() -> RemotePairingJoinerViewModel {
         RemotePairingJoinerViewModel(sessionManager: NoopRemoteSessionManager(),
                                      sessionService: NoopCurrentSessionService(),
                                      clipboard: NoopClipboard(),
-                                     uiNotifier: NoopUINotifier(),
-                                     settingsShower: NoopSettingsShower())
+                                     uiNotifier: NoopUINotifier())
     }
 
     func settings() -> SettingsViewModel {
@@ -51,15 +47,13 @@ class DummyViewModelProvider: ViewModelProvider {
         ColocatedPairingRoleSelectionViewModel(sessionService: NoopColocatedSessionService(),
                                                bleState: NoopBleStateObservable(),
                                                bleActivator: NoopBleActivator(),
-                                               uiNotifier: NoopUINotifier(),
-                                               settingsShower: NoopSettingsShower())
+                                               uiNotifier: NoopUINotifier())
     }
 
     func remotePairingRole() -> RemotePairingRoleSelectionViewModel {
         RemotePairingRoleSelectionViewModel(remoteSessionManager: NoopRemoteSessionManager(),
                                             sessionService: NoopCurrentSessionService(),
-                                            uiNotifier: NoopUINotifier(),
-                                            settingsShower: NoopSettingsShower())
+                                            uiNotifier: NoopUINotifier())
     }
 
     func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel {

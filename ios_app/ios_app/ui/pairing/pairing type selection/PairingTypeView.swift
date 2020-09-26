@@ -41,8 +41,10 @@ struct PairingTypeView: View {
         .navigationBarItems(trailing: Button(action: { [weak viewModel] in
             viewModel?.onSettingsButtonTap()
         }) { SettingsImage() })
+        .sheet(isPresented: $viewModel.showSettingsModal) {
+            SettingsView(viewModel: viewModelProvider.settings())
+        }
     }
-
 
     private func destinationView(destination: PairingTypeDestination) -> some View {
         switch destination {

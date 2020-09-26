@@ -7,20 +7,19 @@ class MeetingCreatedViewModel: ObservableObject {
     @Published var linkUrl: URL? = nil
     @Published var sessionLinkInput: String = ""
     @Published var showLoading: Bool = false
+    @Published var showSettingsModal: Bool = false
 
     private let sessionManager: RemoteSessionManager
     private let clipboard: Clipboard
     private let uiNotifier: UINotifier
-    private let settingsShower: SettingsShower
 
     private var sessionCancellable: Cancellable?
 
     init(sessionManager: RemoteSessionManager, sessionService: CurrentSessionService, clipboard: Clipboard,
-         uiNotifier: UINotifier, settingsShower: SettingsShower) {
+         uiNotifier: UINotifier) {
         self.sessionManager = sessionManager
         self.clipboard = clipboard
         self.uiNotifier = uiNotifier
-        self.settingsShower = settingsShower
 
         sessionCancellable = sessionService.session
             .subscribe(on: DispatchQueue.global())
@@ -69,7 +68,7 @@ class MeetingCreatedViewModel: ObservableObject {
     }
 
     func onSettingsButtonTap() {
-        settingsShower.show()
+        showSettingsModal = true
     }
 
     deinit {
