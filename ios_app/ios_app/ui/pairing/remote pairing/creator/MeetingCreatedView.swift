@@ -83,7 +83,7 @@ struct MeetingCreatedView: View {
             viewModel?.onSettingsButtonTap()
         }) { SettingsImage() })
         .sheet(isPresented: $viewModel.showSettingsModal) {
-            SettingsView(viewModel: viewModelProvider.settings())
+            SettingsView(viewModelProvider: viewModelProvider)
         }
     }
 }

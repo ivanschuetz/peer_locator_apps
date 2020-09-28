@@ -59,5 +59,9 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>QR code scanning for colocated pairing</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>twitter</string>
+	</array>
 </dict>
 </plist>

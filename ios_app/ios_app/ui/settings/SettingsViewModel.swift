@@ -3,6 +3,8 @@ import Combine
 
 class SettingsViewModel: ObservableObject {
     @Published var settingsViewData: [IdentifiableUserSettingViewData] = []
+    @Published var presentingSafariView = false
+    @Published var safariViewUrl: URL = URL(string: "https://discourse.peerfinder.xyz")!
 
     init() {
         settingsViewData = buildSettings()
@@ -10,7 +12,8 @@ class SettingsViewModel: ObservableObject {
 
     func onAction(id: UserSettingActionId) {
         switch id {
-        case .about: print("tapped about")
+        case .community:
+            presentingSafariView = true
         case .share: print("tapped share")
         }
     }
@@ -26,7 +29,8 @@ struct IdentifiableUserSettingViewData: Identifiable {
 }
 
 enum UserSettingViewData {
-    case textAction(text: String, id: UserSettingActionId)
+    case action(text: String, id: UserSettingActionId)
+    case navigationAction(text: String, target: UserSettingNavigationTarget)
 }
 
 enum UserSettingToggleId {
@@ -36,14 +40,19 @@ enum UserSettingToggleId {
 }
 
 enum UserSettingActionId {
-    case about
     case share
+    case community
+}
+
+enum UserSettingNavigationTarget {
+    case about
 }
 
 private func buildSettings() -> [IdentifiableUserSettingViewData] {
     [
-        UserSettingViewData.textAction(text: "About", id: .about),
-        UserSettingViewData.textAction(text: "Share", id: .share)
+        UserSettingViewData.navigationAction(text: "About", target: .about),
+        UserSettingViewData.action(text: "Community", id: .community)
+//        UserSettingViewData.action(text: "Share", id: .share)
     // Note: index as id assumes hardcoded settings list, as above
     ].enumerated().map { index, data in IdentifiableUserSettingViewData(id: index, data: data) }
 }

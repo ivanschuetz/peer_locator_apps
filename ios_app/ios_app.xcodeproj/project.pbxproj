@@ -133,6 +133,11 @@
 		849B612924EDB99400D321D1 /* RemoteSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849B612824EDB99400D321D1 /* RemoteSessionService.swift */; };
 		84A211E42501590A008B370E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E32501590A008B370E /* SettingsView.swift */; };
 		84A211E72501596D008B370E /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A211E62501596D008B370E /* SettingsViewModel.swift */; };
+		84A964D82520CC860007ECB2 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A964D72520CC860007ECB2 /* AboutView.swift */; };
+		84A964DE2520CC900007ECB2 /* AboutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A964DD2520CC900007ECB2 /* AboutViewModel.swift */; };
+		84AC2CCF2522646B002427FE /* Email.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AC2CCE2522646B002427FE /* Email.swift */; };
+		84AC2CD62522653E002427FE /* ViewControllerBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AC2CD52522653E002427FE /* ViewControllerBridge.swift */; };
+		84AC2CDC252268C2002427FE /* TwitterOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AC2CDB252268C2002427FE /* TwitterOpener.swift */; };
 		84B0672A22F9B3FF006DDC18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672922F9B3FF006DDC18 /* Assets.xcassets */; };
 		84B0672D22F9B3FF006DDC18 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84B0672B22F9B3FF006DDC18 /* LaunchScreen.storyboard */; };
 		84B0673822F9B400006DDC18 /* ios_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B0673722F9B400006DDC18 /* ios_appTests.swift */; };
@@ -404,6 +409,11 @@
 		849B612824EDB99400D321D1 /* RemoteSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSessionService.swift; sourceTree = "<group>"; };
 		84A211E32501590A008B370E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		84A211E62501596D008B370E /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		84A964D72520CC860007ECB2 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		84A964DD2520CC900007ECB2 /* AboutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewModel.swift; sourceTree = "<group>"; };
+		84AC2CCE2522646B002427FE /* Email.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Email.swift; sourceTree = "<group>"; };
+		84AC2CD52522653E002427FE /* ViewControllerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerBridge.swift; sourceTree = "<group>"; };
+		84AC2CDB252268C2002427FE /* TwitterOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitterOpener.swift; sourceTree = "<group>"; };
 		84B0671F22F9B3FE006DDC18 /* Match.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Match.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B0672922F9B3FF006DDC18 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		84B0672C22F9B3FF006DDC18 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -820,6 +830,8 @@
 				84BE8E1324F00E9F004CE510 /* Crypto.swift */,
 				84BB92EC24F3D8E700CAB5A7 /* Clipboard.swift */,
 				84B5371024FAB453000B42C7 /* DeeplinkHandler.swift */,
+				84AC2CCE2522646B002427FE /* Email.swift */,
+				84AC2CDB252268C2002427FE /* TwitterOpener.swift */,
 			);
 			path = system;
 			sourceTree = "<group>";
@@ -844,8 +856,18 @@
 			children = (
 				84A211E32501590A008B370E /* SettingsView.swift */,
 				84A211E62501596D008B370E /* SettingsViewModel.swift */,
+				84A964D72520CC860007ECB2 /* AboutView.swift */,
+				84A964DD2520CC900007ECB2 /* AboutViewModel.swift */,
 			);
 			path = settings;
+			sourceTree = "<group>";
+		};
+		84AC2CD425226520002427FE /* swiftui bridge */ = {
+			isa = PBXGroup;
+			children = (
+				84AC2CD52522653E002427FE /* ViewControllerBridge.swift */,
+			);
+			path = "swiftui bridge";
 			sourceTree = "<group>";
 		};
 		84B0671622F9B3FE006DDC18 = {
@@ -1037,6 +1059,7 @@
 				8486E5922518A0A800EFD64E /* extensions */,
 				847C891C2517F1BB009BD327 /* styles */,
 				8486E58125189EB200EFD64E /* views */,
+				84AC2CD425226520002427FE /* swiftui bridge */,
 				841C331924F53AD300F99B93 /* UINotifications.swift */,
 				840FCE1425114AAB00DFD672 /* UINotifier.swift */,
 				84B5370D24FA833D000B42C7 /* Sharer.swift */,
@@ -1464,6 +1487,7 @@
 				84B5370E24FA833D000B42C7 /* Sharer.swift in Sources */,
 				84B82D37251A916800BC6490 /* String+Convenience.swift in Sources */,
 				84B6DCA524FBA73A00AA7E6D /* WatchEventsForwarder.swift in Sources */,
+				84A964D82520CC860007ECB2 /* AboutView.swift in Sources */,
 				84BCCDA42508CF86006EF93F /* ColocatedPairingPasswordView.swift in Sources */,
 				8431867E2511291600078EC0 /* structs.swift in Sources */,
 				84DC105724B4B3EB0064DEBE /* MeetingViewModel.swift in Sources */,
@@ -1483,12 +1507,14 @@
 				84BCCDA62508CF97006EF93F /* ColocatedPairingPasswordViewModel.swift in Sources */,
 				84DC106024B4CCE80064DEBE /* Dependencies.swift in Sources */,
 				84BCCDAC2508FF58006EF93F /* Globals.swift in Sources */,
+				84AC2CDC252268C2002427FE /* TwitterOpener.swift in Sources */,
 				842CC95925029ED80003F96F /* PeerVoice.swift in Sources */,
 				8459D6BE250016D2007C9516 /* NearbyTokenProcessor.swift in Sources */,
 				8402CD82250ABA2300DDE03F /* RemotePairingJoinerViewModel.swift in Sources */,
 				84DC104824B49E340064DEBE /* MeetingView.swift in Sources */,
 				84DC106424B502690064DEBE /* BlePeripheral.swift in Sources */,
 				84A211E42501590A008B370E /* SettingsView.swift in Sources */,
+				84A964DE2520CC900007ECB2 /* AboutViewModel.swift in Sources */,
 				841C331A24F53AD300F99B93 /* UINotifications.swift in Sources */,
 				843CFABE2512615D00874741 /* AppEvents.swift in Sources */,
 				84E3DC8824C723AC00E2F175 /* DetectedPeerService.swift in Sources */,
@@ -1507,6 +1533,7 @@
 				84014D492506BBBA0057BBFD /* PeerForWidget.swift in Sources */,
 				8487FA3024EE77CE003FDB0C /* KeyChain.swift in Sources */,
 				84E02D732513F07E00E2A8B3 /* ActivateBleWhenAppComesToFg.swift in Sources */,
+				84AC2CCF2522646B002427FE /* Email.swift in Sources */,
 				84DC106624B503CA0064DEBE /* BleUuids.swift in Sources */,
 				84E3DC8624C6F9E900E2F175 /* Nearby.swift in Sources */,
 				84BEFEE624F66D01006E4B61 /* MeetingJoinedViewModel.swift in Sources */,
@@ -1524,6 +1551,7 @@
 				8490DBE7251D1E9C00275889 /* Color.swift in Sources */,
 				8489BAEE24EB1761006D1CD3 /* matchApp.swift in Sources */,
 				84D895EC24FD333B005360DB /* NearbySessionCoordinator.swift in Sources */,
+				84AC2CD62522653E002427FE /* ViewControllerBridge.swift in Sources */,
 				84BCCD9D2508C1B6006EF93F /* DummyViewModelProvider.swift in Sources */,
 				843186792510ED3A00078EC0 /* LocalSessionManager.swift in Sources */,
 				840FCE192511502F00DFD672 /* BleValidationDataMediator.swift in Sources */,

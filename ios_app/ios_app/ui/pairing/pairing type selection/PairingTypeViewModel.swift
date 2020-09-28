@@ -8,9 +8,13 @@ class PairingTypeViewModel: ObservableObject {
     @Published var destination: PairingTypeDestination = .none
     @Published var navigationActive: Bool = false
     @Published var showSettingsModal: Bool = false
+    
+    @Published var presentingSafariView = false
+    @Published var safariViewUrl: URL = URL(string: "https://discourse.peerfinder.xyz")!
 
     func onSettingsButtonTap() {
         showSettingsModal = true
+//        presentingSafariView = true
     }
 
     func onColocatedTap() {

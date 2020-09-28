@@ -64,4 +64,8 @@ class DummyViewModelProvider: ViewModelProvider {
     func colocatedPassword() -> ColocatedPairingPasswordViewModel {
         ColocatedPairingPasswordViewModel(sessionService: NoopColocatedSessionService())
     }
+
+    func about() -> AboutViewModel {
+        AboutViewModel(email: NoopEmail(), twitterOpener: NoopTwitterOpener())
+    }
 }

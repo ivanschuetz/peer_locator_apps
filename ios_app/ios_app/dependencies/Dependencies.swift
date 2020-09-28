@@ -4,7 +4,6 @@ import Dip
 protocol ViewModelProvider {
     func session() -> PairingTypeViewModel
     func root() -> RootViewModel
-    func settings() -> SettingsViewModel
 
     func colocatedPairingRole() -> ColocatedPairingRoleSelectionViewModel
     func colocatedPairingJoiner() -> ColocatedPairingJoinerViewModel
@@ -16,6 +15,9 @@ protocol ViewModelProvider {
     func meetingJoiner() -> RemotePairingJoinerViewModel
 
     func meeting() -> MeetingViewModel
+
+    func settings() -> SettingsViewModel
+    func about() -> AboutViewModel
 }
 
 class Dependencies {
@@ -57,6 +59,8 @@ class Dependencies {
             sessionManager: try container.resolve(),
             colocatedPasswordService: try container.resolve()
         ) as DeeplinkHandler }
+        container.register(.singleton) { EmailImpl() as Email }
+        container.register(.singleton) { TwitterOpenerImpl() as TwitterOpener }
     }
 
     private func registerBle(container: DependencyContainer) {
@@ -101,6 +105,7 @@ class Dependencies {
                 sessionIsReady: try container.resolve()
             ) as PeerValidationActivator
         }
+
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
         let multipeerTokenService = container.register(.eagerSingleton) {
@@ -301,6 +306,8 @@ class Dependencies {
             clipboard: try container.resolve(),
             uiNotifier: try container.resolve())
         }
+        container.register { AboutViewModel(email: try container.resolve(),
+                                            twitterOpener: try container.resolve()) }
     }
 
     private func registerWatch(container: DependencyContainer) {
@@ -364,6 +371,10 @@ extension DependencyContainer: ViewModelProvider {
     }
 
     func meetingJoiner() -> RemotePairingJoinerViewModel {
+        try! resolve()
+    }
+
+    func about() -> AboutViewModel {
         try! resolve()
     }
 }
