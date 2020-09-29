@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 enum RemotePairingRoleDestination {
-    case create, join, none
+    case join, none
 }
 
 class RemotePairingRoleSelectionViewModel: ObservableObject {
@@ -41,23 +41,8 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
 
     private func handleSessionStateAfterTapCreate(_ sessionState: SessionState) {
         switch sessionState {
-        case .result(.success(let session)):
-            if let session = session.asNilable() {
-                // filter joined event: since this vm stays in the stack,
-                // if we don't filter, when we join a session it will navigate to create first
-                if session.createdByMe {
-                    log.d("Session created, navigating to create view", .ui)
-                    navigate(to: .create)
-                } else {
-                    // TODO happens in join session view after pasting the link and tapping on join!
-                    // we need something to prevent cross-events between view models?
-                    // we don't want to receive any navigation events here.
-                    log.w("Received session update, session wasn't created by me so not navigating (see TODO).", .ui)
-                }
-            } else {
-                log.v("Session is nil", .ui)
-            }
-
+        case .result(.success):
+           // Navigation here is controller by root view model
             observeSession.send(false)
             showLoading = false
 

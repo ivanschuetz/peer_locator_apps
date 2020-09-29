@@ -276,8 +276,7 @@ class Dependencies {
                                               bleManager: try container.resolve()) }
         container.register { PairingTypeViewModel() }
         container.register { RootViewModel(sessionService: try container.resolve(),
-                                           uiNotifier: try container.resolve(),
-                                           appEvents: try container.resolve()) }
+                                           uiNotifier: try container.resolve()) }
         container.register { MeetingCreatedViewModel(sessionManager: try container.resolve(),
                                                      sessionService: try container.resolve(),
                                                      clipboard: try container.resolve(),

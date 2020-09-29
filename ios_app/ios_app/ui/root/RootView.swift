@@ -26,7 +26,19 @@ struct RootView: View {
             return AnyView(noMeetingView())
         case .meetingActive:
             return AnyView(meetingActiveView())
+        case .meetingCreated:
+            return AnyView(meetingCreatedView())
+        case .meetingJoined:
+            return AnyView(meetingJoinedView())
         }
+    }
+
+    private func meetingCreatedView() -> some View {
+        MeetingCreatedView(viewModelProvider: viewModelProvider)
+    }
+
+    private func meetingJoinedView() -> some View {
+        MeetingJoinedView(viewModelProvider: viewModelProvider)
     }
 
     private func noMeetingView() -> some View {

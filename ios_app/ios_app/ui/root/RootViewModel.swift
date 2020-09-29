@@ -8,8 +8,8 @@ enum RootViewState {
     // For now only a "waiting" screen, for simplicity
     // maybe we can integrate creating/joined only as text
 //    case meetingWaiting
-//    case meetingCreated // "Session created!" "Waiting for the other peer to accept"
-//    case meetingJoined // "Session joined!" "Waiting for the other peer to acknowledge"
+    case meetingCreated // "Session created!" "Waiting for the other peer to accept"
+    case meetingJoined // "Session joined!" "Waiting for the other peer to acknowledge"
 
 //    case meetingReady "the meeting is ready!" but should probably be a dialog/notification
 
@@ -26,22 +26,15 @@ class RootViewModel: ObservableObject {
     private var sessionStateCancellable: AnyCancellable?
     private var showSettingsCancellable: AnyCancellable?
 
-    init(sessionService: CurrentSessionService, uiNotifier: UINotifier, appEvents: AppEvents) {
+    init(sessionService: CurrentSessionService, uiNotifier: UINotifier) {
         self.sessionService = sessionService
         self.uiNotifier = uiNotifier
 
-        didLaunchCancellable = appEvents.events
-            .filter { $0 == .didLaunch }
-            .withLatestFrom(sessionService.session)
-            .sink { [weak self] sessionRes in
-                self?.handleSessionStateOnAppLaunched(sessionRes)
-            }
-
-        sessionStateCancellable = sessionService.session
+        didLaunchCancellable = sessionService.session
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionRes in
-                self?.handleSessionState(sessionRes)
+                self?.updateState(sessionRes)
             }
     }
 
@@ -53,7 +46,7 @@ class RootViewModel: ObservableObject {
     // otherwise when we manipulate the session during session pairing, we will activate navigation. We don't want this.
     // Note that this can cause duplicate navigation events with handleSessionStateOnAppLaunched
     // but we don't react to duplicate navigation events, so not an issue.
-    private func handleSessionState(_ sessionRes: SessionState) {
+    private func handleSessionStateAfterAppLaunched(_ sessionRes: SessionState) {
         switch sessionRes {
         case .result(.success(let sessionSet)):
             switch sessionSet {
@@ -106,7 +99,11 @@ private func toViewState(sessionRes: SessionState) -> RootViewState? {
             if session.isReady {
                 return .meetingActive
             } else {
-                return .noMeeting
+                if session.createdByMe {
+                    return .meetingCreated
+                } else {
+                    return .meetingJoined
+                }
             }
         case .deleted, .notSet:
             return .noMeeting

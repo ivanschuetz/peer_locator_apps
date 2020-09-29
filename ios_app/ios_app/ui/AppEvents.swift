@@ -3,7 +3,7 @@ import UIKit
 import Combine
 
 enum AppEvent {
-    case toFg, didLaunch
+    case toFg, didLaunch, none
 }
 
 protocol AppEvents {
@@ -11,7 +11,7 @@ protocol AppEvents {
 
 }
 class AppEventsImpl: AppEvents {
-    private let eventsSubject = PassthroughSubject<AppEvent, Never>()
+    private let eventsSubject = CurrentValueSubject<AppEvent, Never>(.none)
     lazy var events: AnyPublisher<AppEvent, Never> = eventsSubject.eraseToAnyPublisher()
 
     private var willEnterFgCancellable: AnyCancellable?
