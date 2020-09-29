@@ -45,7 +45,6 @@ struct RemotePairingRoleSelectionView: View {
 
     private func destinationView(destination: RemotePairingRoleDestination) -> some View {
         switch destination {
-        case .create: return AnyView(MeetingCreatedView(viewModelProvider: viewModelProvider))
         case .join: return AnyView(RemotePairingJoinerView(viewModelProvider: viewModelProvider))
         case .none: return AnyView(Spacer().fixedSize()) // not used
         }
