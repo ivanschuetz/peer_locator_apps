@@ -44,9 +44,6 @@ class RemoteSessionServiceImpl: RemoteSessionService {
     init(sessionApi: SessionApi, localSessionManager: LocalSessionManager) {
         self.sessionApi = sessionApi
         self.localSessionManager = localSessionManager
-
-        // TODO remove
-        localSessionManager.clear()
     }
 
     func createSession() -> Result<Session, ServicesError> {
