@@ -163,10 +163,11 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
 
-        if verboseLogThrottler % 50 == 0 {
+        if verboseLogThrottler / 200 == 0 {
             log.v("Discovered peripheral: \(peripheral)", .ble)
-            verboseLogThrottler = verboseLogThrottler + 1
+            verboseLogThrottler = 0
         }
+        verboseLogThrottler = verboseLogThrottler + 1
 
         guard let centralManager = centralManager else {
             // This probably should be a fatal error, but leaving it in case it happens e.g. when exiting the app.
