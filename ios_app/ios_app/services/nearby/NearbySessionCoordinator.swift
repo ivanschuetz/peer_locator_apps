@@ -3,6 +3,9 @@ import Combine
 
 protocol NearbySessionCoordinator {}
 
+/**
+ * Triggers sending of Nearby token to peer and processes received Nearby token.
+ */
 class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
     private var sendNearbyTokenCancellable: Cancellable?
     private var receivedNearbyTokenCancellable: Cancellable?
@@ -28,8 +31,10 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
         // if the session was not invalidated, this should be a Noop (TODO confirm)
         // as we'd be sending the already active discovery token and peer will ignore it.
         sendNearbyTokenCancellable = validatedPeerEvent.event.combineLatest(appCameToFg)
-            .withLatestFrom(currentSession.session)
-            .sink { sessionState in
+            .handleEvents(receiveOutput: { _, _ in log.v("Received valid peer and app fg event", .nearby) })
+            .combineLatest(currentSession.session)
+            .handleEvents(receiveOutput: { _, _ in log.v("Received valid peer, app fg and session event", .nearby) })
+            .sink { (_, sessionState) in
                 if sessionState.isReady() {
                     log.d("Starting periodic sending of nearby token to peer", .nearby)
                     tokenSender.startSending()
@@ -77,46 +82,5 @@ private func validate(token: SerializedSignedNearbyToken, localSessionManager: L
     case .failure(let e):
         log.e("Critical: Couldn't get current session: \(e). Can't validate nearby token", .nearby)
         return .invalid
-    }
-}
-
-// This will probably not work well when supporting multiple peers.
-protocol ValidatedPeerEvent {
-    var event: AnyPublisher<(), Never> { get }
-}
-
-class ValidatedBlePeerEvent: ValidatedPeerEvent {
-    let event: AnyPublisher<(), Never>
-
-    init(validDeviceService: DetectedBleDeviceFilterService) {
-        // "Device came in max range (which is ble range)" = "meeting started"
-        event = validDeviceService.device
-            .map { $0.id } // discard distance
-            // TODO review. For now we process only the first discovered valid device (should be fine?)
-            // note also that if we didn't do this, i.e. sent an event on each validation it would be problematic
-            // when we implement periodic validation. We're interested here specifically in "came in range",
-            // not "determined that the device is valid".
-            .removeDuplicates()
-            .handleEvents(receiveOutput: { log.d("Discovered valid device, will send nearby discovery token: \($0)", .nearby) })
-            .map { _ in () }
-            .eraseToAnyPublisher()
-    }
-}
-
-// Simulator: since validation runs through ble, we can't use it. So we fake a valid event when the session is ready.
-// Ideally we'd make the validation work with multipeer service. No time right now.
-class AlwaysValidPeerEvent: ValidatedPeerEvent {
-    private let eventSubject = PassthroughSubject<(), Never>()
-    lazy var event: AnyPublisher<(), Never> = eventSubject.eraseToAnyPublisher()
-
-    private var cancellables: Set<AnyCancellable> = []
-
-    init(currentSession: CurrentSessionService) {
-        currentSession.session.sink { [weak self] sessionState in
-            if sessionState.isReady() {
-                self?.eventSubject.send(())
-            }
-        }
-        .store(in: &cancellables)
     }
 }

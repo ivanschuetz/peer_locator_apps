@@ -99,12 +99,6 @@ class Dependencies {
                 sessionIsReady: try container.resolve()
             )
         }
-        container.register(.eagerSingleton) {
-            PeerValidationActivatorImpl(
-                bleValidation: try container.resolve(),
-                sessionIsReady: try container.resolve()
-            ) as PeerValidationActivator
-        }
 
         #if arch(x86_64)
         container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
@@ -152,6 +146,12 @@ class Dependencies {
                                    nearbyPairing: try container.resolve(), bleValidation: try container.resolve(),
                                    bleDeviceDetector: try container.resolve(), idService: try container.resolve(),
                                    colocatedPairing: try container.resolve())
+        }
+        container.register(.eagerSingleton) {
+            PeerValidationActivatorImpl(
+                bleValidation: try container.resolve(),
+                sessionIsReady: try container.resolve()
+            ) as PeerValidationActivator
         }
         #endif
     }

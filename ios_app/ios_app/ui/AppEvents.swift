@@ -12,7 +12,9 @@ protocol AppEvents {
 }
 class AppEventsImpl: AppEvents {
     private let eventsSubject = CurrentValueSubject<AppEvent, Never>(.none)
-    lazy var events: AnyPublisher<AppEvent, Never> = eventsSubject.eraseToAnyPublisher()
+    lazy var events: AnyPublisher<AppEvent, Never> = eventsSubject
+        .handleEvents(receiveOutput: { log.d("App event: \($0)", .ui) })
+        .eraseToAnyPublisher()
 
     private var willEnterFgCancellable: AnyCancellable?
     private var didLaunchCancellable: AnyCancellable?

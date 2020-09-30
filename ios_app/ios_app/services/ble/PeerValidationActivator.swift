@@ -1,6 +1,9 @@
 import Foundation
 import Combine
 
+/**
+ * Triggers validation request each x secs
+ */
 protocol PeerValidationActivator {
     func activate()
     func deactivate()
