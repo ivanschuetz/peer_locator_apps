@@ -91,10 +91,18 @@ extension BleValidationImpl: BlePeripheralDelegateReadOnly {
 
 extension BleValidationImpl: BleCentralDelegate {
 
-    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-//        log.d("Ble validation discovered peripheral: \(peripheral)", .ble)
+    func onConnectPeripheral(_ peripheral: CBPeripheral) {
+        log.d("Ble validation connected with peripheral: \(peripheral)", .ble)
         self.peripheral = peripheral
     }
+
+    func onDidFailToConnectToPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDisconnectPeripheral(_ peripheral: CBPeripheral) {
+        self.peripheral = nil
+    }
+
+    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {}
 
     func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral, error: Error?) -> Bool {
         log.d("Ble validation discovered peripheral's characteristics (\(characteristics.count))", .ble)

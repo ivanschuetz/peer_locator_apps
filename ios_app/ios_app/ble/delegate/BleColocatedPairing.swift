@@ -62,9 +62,17 @@ extension BleColocatedPairingImpl: BlePeripheralDelegateWriteOnly {
 
 extension BleColocatedPairingImpl: BleCentralDelegate {
 
-    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
+    func onConnectPeripheral(_ peripheral: CBPeripheral) {
         self.peripheral = peripheral
     }
+
+    func onDidFailToConnectToPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDisconnectPeripheral(_ peripheral: CBPeripheral) {
+        self.peripheral = nil
+    }
+
+    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {}
 
     func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral,
                                   error: Error?) -> Bool {

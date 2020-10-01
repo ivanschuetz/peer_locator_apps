@@ -48,7 +48,7 @@ class BleNearbyPairing: NearbyPairing {
 
     private var discoveredCharacteristic = CurrentValueSubject<CBCharacteristic?, Never>(nil)
 
-    private let peripheral = PassthroughSubject<CBPeripheral, Never>()
+    private let connectedPeripherals = PassthroughSubject<CBPeripheral, Never>()
     private let writeToken = PassthroughSubject<SerializedSignedNearbyToken, Never>()
 
     private var writeTokenCancellable: AnyCancellable?
@@ -56,22 +56,24 @@ class BleNearbyPairing: NearbyPairing {
     private var retry: RetryData<SerializedSignedNearbyToken>?
 
     init(bleValidator: BleDeviceValidatorService) {
-        validatedPeripheral = peripheral.withLatestFrom(bleValidator.validDevices) { peripheral, validDevices in
-            (peripheral, validDevices)
-        }
-        .compactMap { peripheral, validDevices -> (CBPeripheral)? in
-            log.v("Validating peripheral: \(peripheral.identifier)", .nearby)
-            if validDevices.keys.contains(peripheral.identifier) {
-                log.v("Peripheral is valid", .nearby)
-                return peripheral
-            } else {
-                log.v("Peripheral is not valid", .nearby)
-                return nil
+        validatedPeripheral = connectedPeripherals
+            // Collect all the connected peripherals (i.e. peripherals exposing our service/characteristic)
+            // to filter valid one
+            .scan([UUID: CBPeripheral](), { dict, peripheral in
+                var mutDict = dict
+                mutDict[peripheral.identifier] = peripheral
+                return mutDict
+            })
+            .combineLatest(bleValidator.validDevices) { peripherals, validDevices in
+                (peripherals, validDevices)
             }
-        }
-        .eraseToAnyPublisher()
+            .compactMap { peripherals, validDevices -> CBPeripheral? in
+                filterValidPeripheral(connectedPeripherals: peripherals, validDeviceUuids: Array(validDevices.keys))
+            }
+            .eraseToAnyPublisher()
 
         writeTokenCancellable = writeToken
+            // It's not an issue if peripheral is not available yet. Write nearby token is triggered periodically.
             .withLatestFrom(validatedPeripheral) { token, peripheral in (token, peripheral) }
             .withLatestFrom(discoveredCharacteristic) { tuple, characteristic in
                 (tuple.0, tuple.1, characteristic) }
@@ -99,6 +101,18 @@ class BleNearbyPairing: NearbyPairing {
     }
 }
 
+private func filterValidPeripheral(connectedPeripherals: [UUID: CBPeripheral], validDeviceUuids: [UUID]) -> CBPeripheral? {
+    log.v("Validating peripherals: \(connectedPeripherals.keys)", .nearby)
+    for validDeviceUuid in validDeviceUuids {
+        if let peripheral = connectedPeripherals[validDeviceUuid] {
+            log.v("One of the connected peripherals is valid: \(peripheral.identifier)", .nearby)
+            return peripheral
+        }
+    }
+    log.v("None of the connected peripherals \(connectedPeripherals) are valid", .nearby)
+    return nil
+}
+
 extension BleNearbyPairing: BlePeripheralDelegateWriteOnly {
 
     var characteristic: CBMutableCharacteristic {
@@ -118,9 +132,17 @@ extension BleNearbyPairing: BlePeripheralDelegateWriteOnly {
 
 extension BleNearbyPairing: BleCentralDelegate {
 
-    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        self.peripheral.send(peripheral)
+    func onConnectPeripheral(_ peripheral: CBPeripheral) {
+        connectedPeripherals.send(peripheral)
     }
+
+    func onDidFailToConnectToPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDisconnectPeripheral(_ peripheral: CBPeripheral) {
+        // Our peripheral is a passthrough subject. Nothing to clear here.
+    }
+
+    func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {}
 
     func onDiscoverCaracteristics(_ characteristics: [CBCharacteristic], peripheral: CBPeripheral,
                                   error: Error?) -> Bool {

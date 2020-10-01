@@ -15,6 +15,12 @@ class BleDeviceDetectorImpl: BleDeviceDetector {
 
 extension BleDeviceDetectorImpl {
 
+    func onConnectPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDidFailToConnectToPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDisconnectPeripheral(_ peripheral: CBPeripheral) {}
+
     func onDiscoverPeripheral(_ peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
 //        log.v("Detected a peripheral: \(peripheral.identifier), rssi: \(rssi)", .ble)
         discoveredSubject.send(BleDetectedDevice(uuid: peripheral.identifier,

@@ -180,6 +180,8 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         log.v("Central did connect to peripheral", .ble)
         peripheral.delegate = self
 
+        delegates.forEach { $0.onConnectPeripheral(peripheral) }
+
         // Called after explicit connection request or on state restoration (app was killed by system)
         // (given that when the app was killed, there was a pending connection request)
         // note on restoring case: the app is relaunched in the background only to handle this request
@@ -187,10 +189,14 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        // Note: this can be _any_ peripheral (gadgets etc.) not sure a retry here is meaningful
-        // if it happens to be our peer, it is, but there's no way to know here.
+        // Note: this can be unrelated app users, not sure a retry here is meaningful -- edit: probably yes, failure shouldn't be common.
+        // also edit: this retry could be implemented here, as doesn't require validation.
         // TODO research: when is this called? does ble maybe do some sort of retry? should we do it?
         log.w("Central did fail to connect to peripheral: \(String(describing: error))", .ble)
+        // TODO this, then would be called only if the retry fails
+        // -- show to user only as a warning, as we don't know if the peripheral belongs to the peer
+        // note that during MVP the likelihood of other app users being our peer is relatively high, so warning seem right for now at least.
+        delegates.forEach { $0.onDidFailToConnectToPeripheral(peripheral) }
     }
 
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
@@ -279,10 +285,12 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        delegates.forEach { _ = $0.onDisconnectPeripheral(peripheral) }
         // Trigger a connection request if peripheral goes out of range to re-connect automatically when it's in range again.
         // (connection requests don't time out.)
         // https://apple.co/3l09b1i
         log.d("Peripheral disconnected. Requesting connection again.", .ble)
+        
         central.connect(peripheral, options: [:])
     }
 }

@@ -9,6 +9,12 @@ protocol TokenServiceDelegate {
 
 // TODO remove this, of course it's nonsense. Just to make it compile quickly.
 extension MultipeerTokenServiceImpl: BleCentralDelegate {
+    func onConnectPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDidFailToConnectToPeripheral(_ peripheral: CBPeripheral) {}
+
+    func onDisconnectPeripheral(_ peripheral: CBPeripheral) {}
+
     var characteristic: CBMutableCharacteristic {
         CBMutableCharacteristic(
             type: CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376513"),
