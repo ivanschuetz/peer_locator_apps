@@ -39,7 +39,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
             if let pm = pm, state == .poweredOn {
                 self?.addServiceIfNotAdded(peripheralManager: pm)
             } else {
-                log.v("Peripheral status: \(state), pm: \(String(describing: pm)). Not adding service.", .ble)
+                log.v("Peripheral status: \(state), pm: \(String(describing: pm)). Not adding service.", .blep)
             }
         }
 
@@ -47,7 +47,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
             .withLatestFrom(status)
             .sink { [weak self] state in
             if state != .poweredOn {
-                log.d("Initializing peripheral manager", .ble)
+                log.d("Initializing peripheral manager", .blep)
                 let peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
                    CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
                ])
@@ -62,7 +62,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     }
 
     func requestStart() {
-        log.v("Peripheral requestStart()", .ble)
+        log.v("Peripheral requestStart()", .blep)
         // On start we create the peripheral, since this is what triggers enable ble dialog if it's disabled.
         // we also could create a temporary CBPeripheralManager to trigger this and create ours during init
         // but then IIRC we don't get poweredOn delegate call TODO revisit/confirm
@@ -70,18 +70,18 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     }
 
     func stop() {
-        log.i("Peripheral stopping advertising, peripheralManager is set?: \(peripheralManager != nil)", .ble)
+        log.i("Peripheral stopping advertising, peripheralManager is set?: \(peripheralManager != nil)", .blep)
         peripheralManager?.stopAdvertising()
         peripheralManager = nil
     }
 
     private func addServiceIfNotAdded(peripheralManager: CBPeripheralManager) {
         if !peripheralManager.isAdvertising {
-            log.i("Starting peripheral: adding service", .ble)
+            log.i("Starting peripheral: adding service", .blep)
             // Advertising is started in the didAdd service callback
             peripheralManager.add(createService())
         } else {
-            log.i("Starting peripheral: peripheral is already advertising. Doing nothing.", .ble)
+            log.i("Starting peripheral: peripheral is already advertising. Doing nothing.", .blep)
         }
     }
 
@@ -90,9 +90,9 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     }
 
     private func startAdvertising() {
-        log.d("Will start peripheral", .ble)
+        log.d("Will start peripheral", .blep)
         guard let peripheralManager = peripheralManager else {
-            log.e("Start advertising: no peripheral manager set. Exit.", .ble)
+            log.e("Start advertising: no peripheral manager set. Exit.", .blep)
             return
         }
         
@@ -108,7 +108,7 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
         )
         let characteristics = delegates.map { $0.characteristic }
         log.d("Peripheral has \(delegates.count) delegates. Created service with characteristics: \(characteristics)",
-              .ble)
+              .blep)
         service.characteristics = characteristics
         return service
     }
@@ -118,52 +118,52 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
 extension BlePeripheralImpl: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         let state = peripheral.state.toBleState()
-        log.d("Peripheral ble state: \(state)", .ble)
+        log.d("Peripheral ble state: \(state)", .blep)
         statusSubject.send((state, peripheral))
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
         log.d("Peripheral added service: \(service.uuid), characteristics: " +
-            "\(String(describing: service.characteristics?.count))", .ble)
+            "\(String(describing: service.characteristics?.count))", .blep)
         startAdvertising()
     }
 
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
         let errorStr = error.map { " Error: \($0)" } ?? ""
-        log.v("Peripheral started advertising.\(errorStr)", .ble)
+        log.v("Peripheral started advertising.\(errorStr)", .blep)
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         if !delegates.evaluate({ $0.handleEvent(.read(uuid: request.characteristic.uuid,
                                                       request: request,
                                                       peripheral: peripheral)) }) {
-            log.e("Not handled read request: \(request)", .ble)
+            log.e("Not handled read request: \(request)", .blep)
         }
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-        log.d("Peripheral received write requests (\(requests.count))", .ble)
+        log.d("Peripheral received write requests (\(requests.count))", .blep)
 
         guard requests.count > 1 else {
-            log.e("Multiple write requests TODO is this normal? Exit", .ble)
+            log.e("Multiple write requests TODO is this normal? Exit", .blep)
             return
         }
         guard let request = requests.first else {
-            log.e("Write requests empty TODO is this normal? Exit", .ble)
+            log.e("Write requests empty TODO is this normal? Exit", .blep)
             return
         }
         guard let data = request.value else {
-            log.e("Request has no value. Probably error (TODO confim). Exit.", .ble)
+            log.e("Request has no value. Probably error (TODO confim). Exit.", .blep)
             return
         }
 
         if !delegates.evaluate({ $0.handleEvent(.write(uuid: request.characteristic.uuid, data: data)) }) {
-            log.e("Not handled read request: \(request)", .ble)
+            log.e("Not handled read request: \(request)", .blep)
         }
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
-        log.d("Peripheral will restore state", .ble, .bg)
+        log.d("Peripheral will restore state", .blep, .bg)
     }
 }
 

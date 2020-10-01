@@ -85,7 +85,7 @@ class BleCentralImpl: NSObject, BleCentral {
     }
 
     func requestStart() {
-        log.v("Central requestStart()", .ble)
+        log.v("Central requestStart()", .blec)
         // On start we create the central, since this is what triggers enable ble dialog if it's disabled.
         // we also could create a temporary CBPeripheralManager to trigger this and create ours during init
         // but then IIRC we don't get poweredOn delegate call TODO revisit/confirm
@@ -97,12 +97,12 @@ class BleCentralImpl: NSObject, BleCentral {
 
     func stop() {
         guard let centralManager = centralManager else {
-            log.w("Stop central: there's no central set. Exit.", .ble)
+            log.w("Stop central: there's no central set. Exit.", .blec)
             return
         }
 
         if centralManager.isScanning {
-            log.d("Stopping central (was scanning)", .ble)
+            log.d("Stopping central (was scanning)", .blec)
             centralManager.stopScan()
         }
 
@@ -111,22 +111,22 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private func startScanning() {
         guard let centralManager = centralManager else {
-            log.e("Start scanning: there's no central set. Exit.", .ble)
+            log.e("Start scanning: there's no central set. Exit.", .blec)
             return
         }
 
         if !centralManager.isScanning {
-            log.i("Starting central to scan for peripherals", .ble)
+            log.i("Starting central to scan for peripherals", .blec)
             centralManager.scanForPeripherals(withServices: [.serviceCBUUID], options: [
                 CBCentralManagerScanOptionAllowDuplicatesKey: NSNumber(booleanLiteral: true)
             ])
         } else {
-            log.i("Starting central: central is already scanning. Doing nothing", .ble)
+            log.i("Starting central: central is already scanning. Doing nothing", .blec)
         }
     }
 
     private func resetPeripheral(_ peripheral: CBPeripheral) {
-        log.d("Resetting periperal. State: \(peripheral.state)", .ble)
+        log.d("Resetting periperal. State: \(peripheral.state)", .blec)
         if peripheral.state == .connecting || peripheral.state == .connected {
             centralManager?.cancelPeripheralConnection(peripheral)
         }
@@ -135,7 +135,7 @@ class BleCentralImpl: NSObject, BleCentral {
     }
 
     private func startDiscovery(_ peripheral: CBPeripheral) {
-        log.d("Central discovering services for peripheral: \(peripheral.identifier)", .ble)
+        log.d("Central discovering services for peripheral: \(peripheral.identifier)", .blec)
 
         // Don't discover services/characteristics again if they're cached (restored peripheral)
         // TODO check that the local peripheral here is the same as the restored peripheral
@@ -148,31 +148,31 @@ class BleCentralImpl: NSObject, BleCentral {
                 if let alreadyDiscoveredCharacteristics = service.characteristics {
                     switch alreadyDiscoveredCharacteristics.count {
                     case 3:
-                        log.d("Restored peripheral has cached service and characteristics.", .ble)
+                        log.d("Restored peripheral has cached service and characteristics.", .blec, .bg)
                         // TODO maybe confirm too that the 3 characteristics are our characteristics.
                         // (low prio, unlikely to not be the case)
                         onRetrieveCharacteristics(characteristics: alreadyDiscoveredCharacteristics,
                                                   peripheral: peripheral, error: nil)
                     case 0:
                         // TODO check if this is true
-                        log.e("Maybe invalid state? If there are no characteristics it should be nil?", .ble)
+                        log.e("Maybe invalid state? If there are no characteristics it should be nil?", .blec, .bg)
                     default:
-                        log.e("Invalid characteristics count \(alreadyDiscoveredCharacteristics.count): " +
-                                "\(alreadyDiscoveredCharacteristics)", .ble)
+                        log.e("Invalid restored characteristics count \(alreadyDiscoveredCharacteristics.count): " +
+                                "\(alreadyDiscoveredCharacteristics)", .blec, .bg)
                     }
                 } else {
                     log.d("Restored peripheral has cached service and no cached characteristics. " +
-                          "Triggering characteristics discovery.", .ble)
+                          "Triggering characteristics discovery.", .blec, .bg)
                     peripheral.discoverCharacteristics(nil, for: service)
                 }
 
             } else {
                 log.e("Invalid state?: Restored peripheral has cached services, but not ours. " +
-                    "Triggering a new service discovery", .ble)
+                    "Triggering a new service discovery", .blec, .bg)
                 peripheral.discoverServices([CBUUID.serviceCBUUID])
             }
         } else {
-            log.d("Peripheral has no cached service. Triggering service discovery.", .ble)
+            log.d("Peripheral has no cached service. Triggering service discovery.", .blec, .bg)
             peripheral.discoverServices([CBUUID.serviceCBUUID])
         }
     }
@@ -183,22 +183,23 @@ class BleCentralImpl: NSObject, BleCentral {
     private func onRetrieveCharacteristics(characteristics: [CBCharacteristic], peripheral: CBPeripheral, error: Error?) {
         //        // Debugging
         //        for characteristic in characteristics {
-        //            log.v("Did read  characteristic: \(characteristic)", .ble)
+        //            log.v("Did read  characteristic: \(characteristic)", .blec)
         //            if characteristic.properties.contains(.read) {
-        //                log.v("\(characteristic.uuid): properties contains .read", .ble)
+        //                log.v("\(characteristic.uuid): properties contains .read", .blec)
         //            }
         //        }
 
-                // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
-                // no need to do write (other that for possible ACKs later)
+        // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
+        // no need to do write (other that for possible ACKs later)
+
         if characteristics.count != 3 {
             // TODO can this happen?
-            log.e("Suspicious characteristics count. Should be 3: \(characteristics.count). Exit.", .ble)
+            log.e("Suspicious characteristics count. Should be 3: \(characteristics.count). Exit.", .blec)
             return
         }
 
         if !delegates.evaluate({ $0.onDiscoverCaracteristics(characteristics, peripheral: peripheral, error: error)}) {
-            log.e("One or more characteristics were not handled", .ble)
+            log.e("One or more characteristics were not handled", .blec)
         }
     }
 }
@@ -206,7 +207,7 @@ class BleCentralImpl: NSObject, BleCentral {
 extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         let state = central.state.toBleState()
-        log.d("Central ble state: \(state)", .ble)
+        log.d("Central ble state: \(state)", .blec)
         statusSubject.send(state)
     }
 
@@ -216,7 +217,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
                         advertisementData: [String: Any], rssi: NSNumber) {
 
         if verboseLogThrottler / 200 == 0 {
-            log.v("Discovered peripheral: \(peripheral)", .ble)
+            log.v("Discovered peripheral: \(peripheral)", .blec)
             verboseLogThrottler = 0
         }
         verboseLogThrottler = verboseLogThrottler + 1
@@ -224,7 +225,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         guard let centralManager = centralManager else {
             // This probably should be a fatal error, but leaving it in case it happens e.g. when exiting the app.
             // Keep an eye on this on cloud logs.
-            log.e("Critical (race condition?): discovered a peripheral but central isn't set. Exit.", .ble)
+            log.e("Critical (race condition?): discovered a peripheral but central isn't set. Exit.", .blec)
             return
         }
 
@@ -234,13 +235,13 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
         if peripheral.state != .connected && peripheral.state != .connecting {
             // TODO connection count limit?
-            log.v("Connecting to peripheral", .ble)
+            log.v("Connecting to peripheral", .blec)
             centralManager.connect(peripheral)
         }
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        log.v("Central did connect to peripheral", .ble)
+        log.v("Central did connect to peripheral", .blec)
         peripheral.delegate = self
 
         delegates.forEach { $0.onConnectPeripheral(peripheral) }
@@ -255,7 +256,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         // Note: this can be unrelated app users, not sure a retry here is meaningful -- edit: probably yes, failure shouldn't be common.
         // also edit: this retry could be implemented here, as doesn't require validation.
         // TODO research: when is this called? does ble maybe do some sort of retry? should we do it?
-        log.w("Central did fail to connect to peripheral: \(String(describing: error))", .ble)
+        log.w("Central did fail to connect to peripheral: \(String(describing: error))", .blec)
         // TODO this, then would be called only if the retry fails
         // -- show to user only as a warning, as we don't know if the peripheral belongs to the peer
         // note that during MVP the likelihood of other app users being our peer is relatively high, so warning seem right for now at least.
@@ -263,9 +264,9 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
-        log.d("Central will restore state: \(dict)", .ble, .bg)
+        log.d("Central will restore state: \(dict)", .blec, .bg)
         if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
-            log.d("Restored peripherals: \(peripherals)", .ble, .bg)
+            log.d("Restored peripherals: \(peripherals)", .blec, .bg)
 
             // When restoring state (e.g. restart from Xcode while there's an active peripheral connection),
             // we get here this peripheral, with state already .connected. So .didConnect will not be called
@@ -285,22 +286,22 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 extension BleCentralImpl: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let error = error {
-            log.e("Error discovering services: \(error)", .ble)
+            log.e("Error discovering services: \(error)", .blec)
         }
 
         guard let services = peripheral.services else { return }
 
         if services.isEmpty {
-            log.e("Error? Peripheral: \(peripheral.identifier) has no services.", .ble)
+            log.e("Error? Peripheral: \(peripheral.identifier) has no services.", .blec)
         }
 
         guard let service = services.filter({ $0.uuid == CBUUID.serviceCBUUID }).first else {
             // This should be an error, because we use our service uuid as discovery filter, so it should be present.
-            log.e("Discovered peripheral doesn't have our service. It has services: \(services)", .ble)
+            log.e("Discovered peripheral doesn't have our service. It has services: \(services)", .blec)
             return
         }
 
-        log.v("Central did discover service.", .ble)
+        log.v("Central did discover service.", .blec)
         peripheral.discoverCharacteristics(nil, for: service)
 
 //        // If it's a restored peripheral, don't discover services again if it already did.
@@ -314,20 +315,8 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-//        // Debugging
-//        guard let characteristics = service.characteristics else { return }
-//        for characteristic in characteristics {
-//            log.v("Did read  characteristic: \(characteristic)", .ble)
-//            if characteristic.properties.contains(.read) {
-//                log.v("\(characteristic.uuid): properties contains .read", .ble)
-//            }
-//        }
-
-        // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
-        // no need to do write (other that for possible ACKs later)
-
         guard let characteristics = service.characteristics else {
-            log.e("Should not happen? service has no characteristics", .ble)
+            log.e("Should not happen? service has no characteristics", .blec)
             return
         }
 
@@ -343,7 +332,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
     }
 
     func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        log.w("Peripheral invalidated services: \(invalidatedServices). Resetting...", .ble)
+        log.w("Peripheral invalidated services: \(invalidatedServices). Resetting...", .blec)
         // This was a bit weird: one of the devices didn't seem to have the peripheral activated
         // (no .poweredOn (the peripheral is even manually stopped at the beginning), also after app re-install)
         // the other would still discover it, but without any services. Unclear why this happens.
@@ -361,7 +350,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
         // Trigger a connection request if peripheral goes out of range to re-connect automatically when it's in range again.
         // (connection requests don't time out.)
         // https://apple.co/3l09b1i
-        log.d("Peripheral disconnected. Requesting connection again.", .ble)
+        log.d("Peripheral disconnected. Requesting connection again.", .blec)
         
         central.connect(peripheral, options: [:])
     }
@@ -391,7 +380,7 @@ extension CBManagerState {
         case .unknown: return .unknown
         case .unsupported: return .unsupported
         @unknown default:
-            log.w("Unhandled new CB state: \(self). Defaulting to .unknown", .ble)
+            log.w("Unhandled new CB state: \(self). Defaulting to .unknown", .blec)
             return .unknown
         }
     }
