@@ -165,7 +165,6 @@ extension BleCentralImpl: CBCentralManagerDelegate {
             return
         }
 
-        peripheral.delegate = self
         delegates.forEach { $0.onDiscoverPeripheral(peripheral, advertisementData: advertisementData, rssi: rssi) }
 
         peripheralReferenceToPreventWarning = peripheral
@@ -179,7 +178,9 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         log.v("Central did connect to peripheral", .ble)
-        // Called directly after explicit connection request or on state restoration (app was killed by system)
+        peripheral.delegate = self
+
+        // Called after explicit connection request or on state restoration (app was killed by system)
         // (given that when the app was killed, there was a pending connection request)
         // note on restoring case: the app is relaunched in the background only to handle this request
         discoverServices(peripheral)
@@ -196,6 +197,14 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         log.d("Central will restore state: \(dict)", .ble, .bg)
         if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
             log.d("Restored peripherals: \(peripherals)", .ble, .bg)
+
+            // When restoring state (e.g. restart from Xcode while there's an active peripheral connection),
+            // we get here this peripheral, with state already .connected. So .didConnect will not be called
+            // so we set the delegate here.
+            for peripheral in peripherals {
+                peripheral.delegate = self
+            }
+
             // TODO Do we need to do anything here? clarify:
             // will didDiscover always be called too? if yes, we get the peripheral there, set the delegate and broadcast,
             // so not needed to do anything here
@@ -203,7 +212,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         }
     }
 }
-    
+
 extension BleCentralImpl: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let error = error {
