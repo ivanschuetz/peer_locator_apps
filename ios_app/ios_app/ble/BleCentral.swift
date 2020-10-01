@@ -275,6 +275,14 @@ extension BleCentralImpl: CBPeripheralDelegate {
         // We've to manually trigger a discovery again (we do this in resetPeripheral) to get the updated services.
         resetPeripheral(peripheral)
     }
+
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        // Trigger a connection request if peripheral goes out of range to re-connect automatically when it's in range again.
+        // (connection requests don't time out.)
+        // https://apple.co/3l09b1i
+        log.d("Peripheral disconnected. Requesting connection again.", .ble)
+        central.connect(peripheral, options: [:])
+    }
 }
 
 class BleCentralNoop: NSObject, BleCentral {
