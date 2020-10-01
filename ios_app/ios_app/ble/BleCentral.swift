@@ -154,6 +154,8 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     private func cancelRestoredPeripherals(central: CBCentralManager) {
+        log.d("Cancelling restored peripherals connection \(restoredPeripherals.count)", .ble)
+
         restoredPeripherals.forEach({
             central.cancelPeripheralConnection($0)
         })
@@ -190,6 +192,9 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         log.v("Central did connect to peripheral", .ble)
+        // Called directly after explicit connection request or on state restoration (app was killed by system)
+        // (given that when the app was killed, there was a pending connection request)
+        // note on restoring case: the app is relaunched in the background only to handle this request
         discoverServices(peripheral)
     }
 

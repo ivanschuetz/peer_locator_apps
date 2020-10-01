@@ -26,8 +26,14 @@ class AppEventsImpl: AppEvents {
         }
 
         didLaunchCancellable = NotificationCenter.default.publisher(
-            for: UIApplication.didFinishLaunchingNotification).sink { [weak self] _ in
-            self?.eventsSubject.send(.didLaunch)
+            for: UIApplication.didFinishLaunchingNotification).sink { [weak self] par in
+                // Note: we don't access central/peripheral restoration identifiers here
+                // (described in https://apple.co/3l09b1i section "Reinstantiate Your Central and Peripheral Managers")
+                // as we've only one identifier respectively and we want them to be always active
+                // (note, though, that the later will not necessarily be always the case: we wanted to activate ble
+                // on-demand only. For now not doing this, to simplify things)
+                log.d("Did finish launching, par: \(par)", .ui)
+                self?.eventsSubject.send(.didLaunch)
         }
     }
 
