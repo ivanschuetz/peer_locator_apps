@@ -31,6 +31,7 @@ class BleDeviceValidatorServiceImpl: BleDeviceValidatorService {
                     .filter({ _, value in value.isValid })
                     .mapValues { $0.bleId }
             }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
