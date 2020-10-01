@@ -14,3 +14,9 @@ extension Sequence {
         return anyIsTrue
     }
 }
+
+extension Sequence where Element: Equatable {
+    func containsAll(things: Self) -> Bool {
+        things.allSatisfy { contains($0) }
+    }
+}

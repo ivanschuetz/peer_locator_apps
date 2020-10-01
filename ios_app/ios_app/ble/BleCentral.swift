@@ -131,12 +131,75 @@ class BleCentralImpl: NSObject, BleCentral {
             centralManager?.cancelPeripheralConnection(peripheral)
         }
         peripheral.delegate = nil
-        discoverServices(peripheral)
+        startDiscovery(peripheral)
     }
 
-    private func discoverServices(_ peripheral: CBPeripheral) {
+    private func startDiscovery(_ peripheral: CBPeripheral) {
         log.d("Central discovering services for peripheral: \(peripheral.identifier)", .ble)
-        peripheral.discoverServices([CBUUID.serviceCBUUID])
+
+        // Don't discover services/characteristics again if they're cached (restored peripheral)
+        // TODO check that the local peripheral here is the same as the restored peripheral
+        // (i.e. that it has cached services/characteristics, when applicable)
+        // https://apple.co/3l09b1i "Update Your Initialization Process" section
+
+        if let alreadyDiscoveredServices = peripheral.services {
+            if let service = alreadyDiscoveredServices.first(where: { $0.uuid == CBUUID.serviceCBUUID }) {
+
+                if let alreadyDiscoveredCharacteristics = service.characteristics {
+                    switch alreadyDiscoveredCharacteristics.count {
+                    case 3:
+                        log.d("Restored peripheral has cached service and characteristics.", .ble)
+                        // TODO maybe confirm too that the 3 characteristics are our characteristics.
+                        // (low prio, unlikely to not be the case)
+                        onRetrieveCharacteristics(characteristics: alreadyDiscoveredCharacteristics,
+                                                  peripheral: peripheral, error: nil)
+                    case 0:
+                        // TODO check if this is true
+                        log.e("Maybe invalid state? If there are no characteristics it should be nil?", .ble)
+                    default:
+                        log.e("Invalid characteristics count \(alreadyDiscoveredCharacteristics.count): " +
+                                "\(alreadyDiscoveredCharacteristics)", .ble)
+                    }
+                } else {
+                    log.d("Restored peripheral has cached service and no cached characteristics. " +
+                          "Triggering characteristics discovery.", .ble)
+                    peripheral.discoverCharacteristics(nil, for: service)
+                }
+
+            } else {
+                log.e("Invalid state?: Restored peripheral has cached services, but not ours. " +
+                    "Triggering a new service discovery", .ble)
+                peripheral.discoverServices([CBUUID.serviceCBUUID])
+            }
+        } else {
+            log.d("Peripheral has no cached service. Triggering service discovery.", .ble)
+            peripheral.discoverServices([CBUUID.serviceCBUUID])
+        }
+    }
+
+    /**
+     * Common entry point for "normal" discovery and retrieval from restored peripheral
+     */
+    private func onRetrieveCharacteristics(characteristics: [CBCharacteristic], peripheral: CBPeripheral, error: Error?) {
+        //        // Debugging
+        //        for characteristic in characteristics {
+        //            log.v("Did read  characteristic: \(characteristic)", .ble)
+        //            if characteristic.properties.contains(.read) {
+        //                log.v("\(characteristic.uuid): properties contains .read", .ble)
+        //            }
+        //        }
+
+                // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
+                // no need to do write (other that for possible ACKs later)
+        if characteristics.count != 3 {
+            // TODO can this happen?
+            log.e("Suspicious characteristics count. Should be 3: \(characteristics.count). Exit.", .ble)
+            return
+        }
+
+        if !delegates.evaluate({ $0.onDiscoverCaracteristics(characteristics, peripheral: peripheral, error: error)}) {
+            log.e("One or more characteristics were not handled", .ble)
+        }
     }
 }
 
@@ -185,7 +248,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         // Called after explicit connection request or on state restoration (app was killed by system)
         // (given that when the app was killed, there was a pending connection request)
         // note on restoring case: the app is relaunched in the background only to handle this request
-        discoverServices(peripheral)
+        startDiscovery(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -231,10 +294,23 @@ extension BleCentralImpl: CBPeripheralDelegate {
             log.e("Error? Peripheral: \(peripheral.identifier) has no services.", .ble)
         }
 
-        for service in services {
-            log.v("Central did discover service: \(service)", .ble)
-            peripheral.discoverCharacteristics(nil, for: service)
+        guard let service = services.filter({ $0.uuid == CBUUID.serviceCBUUID }).first else {
+            // This should be an error, because we use our service uuid as discovery filter, so it should be present.
+            log.e("Discovered peripheral doesn't have our service. It has services: \(services)", .ble)
+            return
         }
+
+        log.v("Central did discover service.", .ble)
+        peripheral.discoverCharacteristics(nil, for: service)
+
+//        // If it's a restored peripheral, don't discover services again if it already did.
+//        // TODO check that the local peripheral here is the same as the restored peripheral
+//        // (i.e. that it has services, if we restart after discovery)
+//        // https://apple.co/3l09b1i "Update Your Initialization Process" section
+//        let alreadyDiscoveredService = peripheral.services?.contains { $0.uuid == CBUUID.serviceCBUUID } ?? false
+//        if !alreadyDiscoveredService {
+//            peripheral.discoverServices([CBUUID.serviceCBUUID])
+//        }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
@@ -255,11 +331,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
             return
         }
 
-        log.d("Central did discover characteristics: \(characteristics.count)", .ble)
-
-        if !delegates.evaluate({ $0.onDiscoverCaracteristics(characteristics, peripheral: peripheral, error: error)}) {
-            log.e("One or more characteristics were not handled", .ble)
-        }
+        onRetrieveCharacteristics(characteristics: characteristics, peripheral: peripheral, error: error)
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
