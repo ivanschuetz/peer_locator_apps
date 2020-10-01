@@ -42,8 +42,6 @@ class BleCentralImpl: NSObject, BleCentral {
 
     private var discoveredByUuid: [UUID: BleId] = [:]
 
-    private var restoredPeripherals: [CBPeripheral] = []
-
     private var delegates: [BleCentralDelegate] = []
 
     private let createCentralSubject = PassthroughSubject<(), Never>()
@@ -147,21 +145,10 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         let state = central.state.toBleState()
         log.d("Central ble state: \(state)", .ble)
         statusSubject.send(state)
-
-        if central.state == .poweredOn {
-            cancelRestoredPeripherals(central: central)
-        }
     }
 
-    private func cancelRestoredPeripherals(central: CBCentralManager) {
-        log.d("Cancelling restored peripherals connection \(restoredPeripherals.count)", .ble)
-
-        restoredPeripherals.forEach({
-            central.cancelPeripheralConnection($0)
-        })
-        restoredPeripherals = []
-    }
-
+    // TODO investigate background behavior:
+    // is this called while on bg? if not, maybe there's no point in bg support at all? (but contact tracing app - it should work)
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
 
@@ -207,15 +194,16 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
         log.d("Central will restore state: \(dict)", .ble, .bg)
-        // Remember restored peripherals to cancel the connections when the central is powered on
-        // TODO review: do we really need this?
         if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
             log.d("Restored peripherals: \(peripherals)", .ble, .bg)
-            self.restoredPeripherals = peripherals
+            // TODO Do we need to do anything here? clarify:
+            // will didDiscover always be called too? if yes, we get the peripheral there, set the delegate and broadcast,
+            // so not needed to do anything here
+            // keep in mind to check "restored by system while in bg" which seems the main use case for willRestoreState (TODO confirm this too)
         }
     }
 }
-
+    
 extension BleCentralImpl: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let error = error {
