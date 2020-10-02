@@ -202,6 +202,20 @@ class BleCentralImpl: NSObject, BleCentral {
             log.e("One or more characteristics were not handled", .blec)
         }
     }
+
+    /**
+     * Common entry point for "normal" connection and restored connected peripheral
+     */
+    private func onPeripheralConnected(_ peripheral: CBPeripheral) {
+        peripheral.delegate = self
+        delegates.forEach { $0.onConnectPeripheral(peripheral) }
+
+        // Called after explicit connection request or on state restoration (app was killed by system)
+        // (given that when the app was killed, there was a pending connection request)
+        // note on restoring case: the app is relaunched in the background only to handle this request
+        startDiscovery(peripheral)
+    }
+
 }
 
 extension BleCentralImpl: CBCentralManagerDelegate {
@@ -242,14 +256,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         log.v("Central did connect to peripheral", .blec)
-        peripheral.delegate = self
-
-        delegates.forEach { $0.onConnectPeripheral(peripheral) }
-
-        // Called after explicit connection request or on state restoration (app was killed by system)
-        // (given that when the app was killed, there was a pending connection request)
-        // note on restoring case: the app is relaunched in the background only to handle this request
-        startDiscovery(peripheral)
+        onPeripheralConnected(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -272,7 +279,9 @@ extension BleCentralImpl: CBCentralManagerDelegate {
             // we get here this peripheral, with state already .connected. So .didConnect will not be called
             // so we set the delegate here.
             for peripheral in peripherals {
-                peripheral.delegate = self
+                if peripheral.state == .connected {
+                    onPeripheralConnected(peripheral)
+                }
             }
 
             // TODO Do we need to do anything here? clarify:
