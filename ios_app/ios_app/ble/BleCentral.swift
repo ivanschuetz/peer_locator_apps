@@ -216,8 +216,8 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
 
-        if verboseLogThrottler / 200 == 1 {
-            log.v("Discovered peripheral: \(peripheral), counter: \(verboseLogThrottler)", .blec)
+        if verboseLogThrottler / 400 == 1 {
+            log.v("Discovered peripheral: \(peripheral), rssi: \(rssi)", .blec)
             verboseLogThrottler = 0
         }
         verboseLogThrottler = verboseLogThrottler + 1
