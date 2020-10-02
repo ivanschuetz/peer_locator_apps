@@ -43,6 +43,7 @@ struct MeetingCreatedView: View {
                 // TODO don't allow to show modal if there's no link
                 .sheet(isPresented: $showShareSheet) {
                     // TODO no optional (viewModel.link)
+                    // TODO sometimes it doesn't work. maybe disable for now, it's confusing anyway with copy button.
                     ShareSheet(activityItems: [viewModel.linkUrl])
                 }
                 .padding(.bottom, 10)
