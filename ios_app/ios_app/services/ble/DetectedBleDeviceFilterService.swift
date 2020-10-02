@@ -47,6 +47,14 @@ class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
     }
 }
 
+// TODO probably this has to be abstracted to just "(discovered)Peer"
+// come back to this after nearby switching intergrated
+struct BlePeer {
+    let deviceUuid: UUID
+    let id: BleId
+    let distance: Double
+}
+
 extension BleDetectedDevice {
     func toPeer(bleId: BleId) -> BlePeer {
         let powerLevelMaybe = (advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber)?.intValue

@@ -92,16 +92,8 @@ class Dependencies {
         container.register(.eagerSingleton) {
             BlePeerDataValidatorImpl(crypto: try container.resolve()) as BlePeerDataValidator
         }
-        container.register(.eagerSingleton) {
-            ActivateBleWhenSessionReady(
-                bleManager: try container.resolve(),
-                bleEnabler: try container.resolve(),
-                sessionIsReady: try container.resolve()
-            )
-        }
 
         #if arch(x86_64)
-        container.register(.eagerSingleton) { SimulatorBleManager() as BleManager }
         let multipeerTokenService = container.register(.eagerSingleton) {
             MultipeerTokenServiceImpl()
         }
@@ -112,28 +104,16 @@ class Dependencies {
         container.register(.singleton) { AlwaysValidPeerEvent(currentSession: try container.resolve())
             as ValidatedPeerEvent }
         #else
-        container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve()) as BleCentral }
+        container.register(.eagerSingleton) { BleCentralImpl(idService: try container.resolve(),
+                                                             appEvents: try container.resolve()) as BleCentral }
 
         container.register(.eagerSingleton) {
-            BlePeripheralImpl(idService: try container.resolve()) as BlePeripheral
+            BlePeripheralImpl(idService: try container.resolve(),
+                              appEvents: try container.resolve()) as BlePeripheral
         }
-        container.register(.eagerSingleton) { BleManagerImpl(
-            peripheral: try container.resolve(),
-            central: try container.resolve()
-        ) as BleManager }
-
-        container.register(.singleton) {
-            BleEnablerImpl(activateBleWhenAppComesToFg: try container.resolve()) as BleEnabler
-        }
-        container.register(.singleton) { BleActivatorImpl(bleEnabler: try container.resolve(),
-                                                          bleManager: try container.resolve()) as BleActivator }
         container.register(.singleton) { BleDeviceDetectorImpl() as BleDeviceDetector }
         container.register(.singleton) { BleNearbyPairing(bleValidator: try container.resolve()) as NearbyPairing }
         container.register(.singleton) { BleColocatedPairingImpl() as BleColocatedPairing }
-        container.register(.eagerSingleton) { ActivateBleWhenAppComesToFgImpl(
-            appEvents: try container.resolve(),
-            bleManager: try container.resolve()
-        ) as ActivateBleWhenAppComesToFg }
         container.register(.eagerSingleton) {
             BleStateObservableImpl(bleCentral: try container.resolve(),
                                    blePeripheral: try container.resolve()) as BleStateObservable
@@ -242,7 +222,6 @@ class Dependencies {
             peerMediator: try container.resolve(),
             uiNotifier: try container.resolve(),
             sessionService: try container.resolve(),
-            bleManager: try container.resolve(),
             localSessionManager: try container.resolve()
         ) as ColocatedSessionService }
 
@@ -272,8 +251,7 @@ class Dependencies {
         container.register { MeetingViewModel(peerService: try container.resolve(),
                                               sessionManager: try container.resolve(),
                                               bleEnabler: try container.resolve(),
-                                              bleState: try container.resolve(),
-                                              bleManager: try container.resolve()) }
+                                              bleState: try container.resolve()) }
         container.register { PairingTypeViewModel() }
         container.register { RootViewModel(sessionService: try container.resolve(),
                                            uiNotifier: try container.resolve()) }
@@ -288,7 +266,6 @@ class Dependencies {
         container.register { SettingsViewModel() }
         container.register { ColocatedPairingRoleSelectionViewModel(sessionService: try container.resolve(),
                                                                     bleState: try container.resolve(),
-                                                                    bleActivator: try container.resolve(),
                                                                     uiNotifier: try container.resolve()) }
 
         container.register { ColocatedPairingPasswordViewModel(sessionService: try container.resolve()) }

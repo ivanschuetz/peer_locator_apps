@@ -68,9 +68,6 @@ class MeetingViewModel: ObservableObject {
 
     func requestEnableBle() {
         bleEnabler.showEnableDialogIfDisabled()
-        // Try to start immediately. If ble is not enabled, showEnableDialogIfDisabled will show the enable dialog,
-        // and when app comes to fg again, ActivateBleWhenAppComesToFg will try to start again.
-        bleManager.start()
     }
 
     deinit {

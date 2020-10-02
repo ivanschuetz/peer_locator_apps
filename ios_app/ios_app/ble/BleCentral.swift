@@ -12,9 +12,6 @@ protocol BleCentral {
 
     func register(delegates: [BleCentralDelegate])
 
-    // Starts central if status is powered on. If request is sent before status is on, it will be
-    // processed when status in on.
-    func requestStart()
     func stop()
 }
 
@@ -38,14 +35,11 @@ class BleCentralImpl: NSObject, BleCentral {
     private var colocatedPairingCharacteristic: CBCharacteristic?
 
 //    private let startTrigger = PassthroughSubject<(), Never>()
-    private var startCancellable: AnyCancellable?
+    private var cancellables: Set<AnyCancellable> = []
 
     private var discoveredByUuid: [UUID: BleId] = [:]
 
     private var delegates: [BleCentralDelegate] = []
-
-    private let createCentralSubject = PassthroughSubject<(), Never>()
-    private var createCentralCancellable: AnyCancellable?
 
     // development
     private var verboseLogThrottler = 0
@@ -57,42 +51,32 @@ class BleCentralImpl: NSObject, BleCentral {
     // TODO investigate
     private var peripheralReferenceToPreventWarning: CBPeripheral?
 
-    init(idService: BleIdService) {
+    init(idService: BleIdService, appEvents: AppEvents) {
         self.idService = idService
         super.init()
 
-        startCancellable = status.sink { [weak self] state in
-            if state == .poweredOn {
-                self?.startScanning()
-            }
-        }
-
-        createCentralCancellable = createCentralSubject
-            .withLatestFrom(status)
-            .sink { [weak self] state in
-            if state != .poweredOn {
+        appEvents.events
+            .filter { $0 == .didLaunch }
+            .sink { [weak self] _ in
+                log.d("Initializing central manager", .blep)
                 self?.centralManager = CBCentralManager(delegate: self, queue: nil, options: [
                     CBCentralManagerOptionRestoreIdentifierKey: appDomain,
                     CBCentralManagerOptionShowPowerAlertKey: NSNumber(booleanLiteral: true)
                 ])
+        }
+        .store(in: &cancellables)
+
+        status.sink { [weak self] state in
+            if state == .poweredOn {
+                self?.startScanning()
             }
         }
+        .store(in: &cancellables)
     }
 
     // Note: has to be called before requestStart()
     func register(delegates: [BleCentralDelegate]) {
         self.delegates = delegates
-    }
-
-    func requestStart() {
-        log.v("Central requestStart()", .blec)
-        // On start we create the central, since this is what triggers enable ble dialog if it's disabled.
-        // we also could create a temporary CBPeripheralManager to trigger this and create ours during init
-        // but then IIRC we don't get poweredOn delegate call TODO revisit/confirm
-        // Actually TODO: using the same mechanism for central and peripheral may be what opens shortly 2 permission dialogs?
-        // was this different when initializing them at start? if not, there doesn't seem to be anything we can do
-        // as both have to be initialized (simulataneouly). Maybe check stack overflow.
-        createCentralSubject.send(())
     }
 
     func stop() {
@@ -215,7 +199,6 @@ class BleCentralImpl: NSObject, BleCentral {
         // note on restoring case: the app is relaunched in the background only to handle this request
         startDiscovery(peripheral)
     }
-
 }
 
 extension BleCentralImpl: CBCentralManagerDelegate {
@@ -225,8 +208,6 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         statusSubject.send(state)
     }
 
-    // TODO investigate background behavior:
-    // is this called while on bg? if not, maybe there's no point in bg support at all? (but contact tracing app - it should work)
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi: NSNumber) {
 

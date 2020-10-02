@@ -7,6 +7,7 @@ enum ColocatedPairingRoleDestination {
     case create, join, none
 }
 
+// TODO review ble enabled logic, probably need changes not that we changed to activate during launch.
 class ColocatedPairingRoleSelectionViewModel: ObservableObject {
     @Published var destination: ColocatedPairingRoleDestination = .none
     @Published var navigationActive: Bool = false
@@ -14,7 +15,6 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
 
     private let bleState: BleStateObservable
     private let sessionService: ColocatedSessionService
-    private let bleActivator: BleActivator
     private let uiNotifier: UINotifier
 
     private let createSessionSubject: PassthroughSubject = PassthroughSubject<(), Never>()
@@ -27,12 +27,10 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
 
     private var navigateToCancellable: AnyCancellable?
 
-    init(sessionService: ColocatedSessionService, bleState: BleStateObservable, bleActivator: BleActivator,
-         uiNotifier: UINotifier) {
+    init(sessionService: ColocatedSessionService, bleState: BleStateObservable, uiNotifier: UINotifier) {
         self.sessionService = sessionService
         self.bleState = bleState
         self.uiNotifier = uiNotifier
-        self.bleActivator = bleActivator
 
         createSessionCancellable = createSessionSubject.withLatestFrom(bleState.allReady.removeDuplicates())
             .sink { [weak self] bleReady in
@@ -90,7 +88,6 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
         } else {
             log.d("Bluetooth is not ready, activating...", .ui, .ble)
             pendingDestination.send(destination)
-            bleActivator.activate()
         }
     }
 

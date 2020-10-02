@@ -8,7 +8,6 @@ protocol BlePeripheral {
     // Note: has to be called before requestStart()
     func register(delegates: [BlePeripheralDelegate])
     
-    func requestStart()
     func stop()
 }
 
@@ -19,54 +18,44 @@ class BlePeripheralImpl: NSObject, BlePeripheral {
     private let idService: BleIdService
 
     private let statusSubject = CurrentValueSubject<(BleState, CBPeripheralManager?), Never>((.poweredOff, nil))
-    private var stateCancellable: AnyCancellable?
-    private var startCancellable: AnyCancellable?
+    private var cancellables: Set<AnyCancellable> = []
 
     private var delegates: [BlePeripheralDelegate] = []
 
-    private let createPeripheralSubject = PassthroughSubject<(), Never>()
     private var createPeripheralCancellable: AnyCancellable?
 
     lazy var status: AnyPublisher<BleState, Never> = statusSubject
         .map { state, _ in state }
         .eraseToAnyPublisher()
 
-    init(idService: BleIdService) {
+    init(idService: BleIdService, appEvents: AppEvents) {
         self.idService = idService
         super.init()
 
-        stateCancellable = statusSubject.sink { [weak self] state, pm in
+        appEvents.events
+            .filter { $0 == .didLaunch }
+            .sink { [weak self] _ in
+                log.d("Initializing peripheral manager", .blep)
+                let peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
+                   CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
+               ])
+                self?.peripheralManager = peripheralManager
+        }
+        .store(in: &cancellables)
+
+        statusSubject.sink { [weak self] state, pm in
             if let pm = pm, state == .poweredOn {
                 self?.addServiceIfNotAdded(peripheralManager: pm)
             } else {
                 log.v("Peripheral status: \(state), pm: \(String(describing: pm)). Not adding service.", .blep)
             }
         }
-
-        createPeripheralCancellable = createPeripheralSubject
-            .withLatestFrom(status)
-            .sink { [weak self] state in
-            if state != .poweredOn {
-                log.d("Initializing peripheral manager", .blep)
-                let peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [
-                   CBPeripheralManagerOptionRestoreIdentifierKey: appDomain
-               ])
-                self?.peripheralManager = peripheralManager
-            }
-        }
+        .store(in: &cancellables)
     }
 
     // Note: has to be called before requestStart()
     func register(delegates: [BlePeripheralDelegate]) {
         self.delegates = delegates
-    }
-
-    func requestStart() {
-        log.v("Peripheral requestStart()", .blep)
-        // On start we create the peripheral, since this is what triggers enable ble dialog if it's disabled.
-        // we also could create a temporary CBPeripheralManager to trigger this and create ours during init
-        // but then IIRC we don't get poweredOn delegate call TODO revisit/confirm
-        createPeripheralSubject.send(())
     }
 
     func stop() {

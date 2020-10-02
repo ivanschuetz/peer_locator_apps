@@ -2,7 +2,6 @@ import Foundation
 import Combine
 
 protocol ColocatedSessionService {
-    func startPairingSession()
     func generatePassword() -> ColocatedPeeringPassword
 }
 
@@ -12,7 +11,6 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
     private let peerMediator: ColocatedPeerMediator
     private let uiNotifier: UINotifier
     private let sessionService: CurrentSessionService
-    private let bleManager: BleManager
     private let passwordProvider: ColocatedPasswordProvider
     private let localSessionManager: LocalSessionManager
 
@@ -25,13 +23,12 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
     init(meetingValidation: BleValidation, colocatedPairing: BleColocatedPairing,
          passwordProvider: ColocatedPasswordProvider, passwordService: ColocatedPairingPasswordService,
          peerMediator: ColocatedPeerMediator, uiNotifier: UINotifier, sessionService: CurrentSessionService,
-         bleManager: BleManager, localSessionManager: LocalSessionManager) {
+         localSessionManager: LocalSessionManager) {
         self.meetingValidation = meetingValidation
         self.colocatedPairing = colocatedPairing
         self.peerMediator = peerMediator
         self.uiNotifier = uiNotifier
         self.sessionService = sessionService
-        self.bleManager = bleManager
         self.passwordProvider = passwordProvider
         self.localSessionManager = localSessionManager
 
@@ -59,11 +56,6 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             log.e("Error seding public key to peer: \(error)", .cp)
             uiNotifier.show(.error("Bluetooth communication error. Please try again."))
         }
-    }
-
-    func startPairingSession() {
-        log.i("Starting colocated pairing session", .cp)
-        bleManager.start()
     }
 
     func generatePassword() -> ColocatedPeeringPassword {

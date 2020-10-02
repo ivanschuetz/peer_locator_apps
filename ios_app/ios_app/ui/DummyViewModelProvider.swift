@@ -6,8 +6,7 @@ class DummyViewModelProvider: ViewModelProvider {
         let peerService = DetectedPeerServiceImpl(nearby: NearbyNoop(), bleIdService: BleIdServiceNoop(),
                                                   detectedBleDeviceService: NoopDetectedDeviceFilterService())
         return MeetingViewModel(peerService: peerService, sessionManager: NoopRemoteSessionManager(),
-                                bleEnabler: NoopBleEnabler(), bleState: NoopBleStateObservable(),
-                                bleManager: BleManagerNoop())
+                                bleEnabler: NoopBleEnabler(), bleState: NoopBleStateObservable())
     }
 
     func session() -> PairingTypeViewModel {
@@ -45,7 +44,6 @@ class DummyViewModelProvider: ViewModelProvider {
     func colocatedPairingRole() -> ColocatedPairingRoleSelectionViewModel {
         ColocatedPairingRoleSelectionViewModel(sessionService: NoopColocatedSessionService(),
                                                bleState: NoopBleStateObservable(),
-                                               bleActivator: NoopBleActivator(),
                                                uiNotifier: NoopUINotifier())
     }
 
