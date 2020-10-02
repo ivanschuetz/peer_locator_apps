@@ -41,20 +41,24 @@ struct MeetingView: View {
             Button("Please enable bluetooth to connect with peer") {
                 viewModel.requestEnableBle()
             }
+            .multilineTextAlignment(.center)
             .padding(.bottom, 50)
             ActionDeleteButton("Delete session") {
                 viewModel.deleteSession()
             }
         }
+        .defaultOuterHPadding()
     }
 
     private func connectedView() -> some View {
         VStack(alignment: .center) {
-            Triangle()
-                .fill(Color.icon)
-                .frame(width: 60, height: 60)
-                .padding(.bottom, 30)
-                .rotationEffect(viewModel.directionAngle)
+            if viewModel.isAccurate {
+                Triangle()
+                    .fill(Color.icon)
+                    .frame(width: 60, height: 60)
+                    .padding(.bottom, 30)
+                    .rotationEffect(viewModel.directionAngle)
+                }
             Text(viewModel.distance)
                 .font(.system(size: 50, weight: .heavy))
                 .foregroundColor(colorScheme == .dark ? .white : .black)

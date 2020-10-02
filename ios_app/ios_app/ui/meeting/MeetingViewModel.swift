@@ -9,6 +9,7 @@ enum MeetingMainViewContent {
 class MeetingViewModel: ObservableObject {
     @Published var distance: String = ""
     @Published var directionAngle: Angle = Angle(radians: 0)
+    @Published var isAccurate: Bool = false
     @Published var mainViewContent: MeetingMainViewContent = .connected
     @Published var showSettingsModal: Bool = false
 
@@ -16,13 +17,11 @@ class MeetingViewModel: ObservableObject {
 
     private let sessionManager: RemoteSessionManager
     private let bleEnabler: BleEnabler
-    private let bleManager: BleManager
 
     init(peerService: DetectedPeerService, sessionManager: RemoteSessionManager, bleEnabler: BleEnabler,
-         bleState: BleStateObservable, bleManager: BleManager) {
+         bleState: BleStateObservable) {
         self.sessionManager = sessionManager
         self.bleEnabler = bleEnabler
-        self.bleManager = bleManager
 
         peerCancellable = peerService.peer
             .combineLatest(bleState.bleEnabled)
@@ -44,14 +43,22 @@ class MeetingViewModel: ObservableObject {
         guard bleEnabled else {
             return .enableBle
         }
-        
+
         if let peer = peerMaybe {
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
             // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
-            distance = formattedDistance.map { "\($0)m" } ?? "?"
+            distance = formattedDistance.map {
+                if peer.dir != nil {
+                    return "\($0)m"
+                } else {
+                    return "~ \($0)m"
+                }
+            } ?? "?"
             if let dir = peer.dir {
                 directionAngle.radians = toAngle(dir: dir)
             }
+            isAccurate = peer.dir != nil
+
             return .connected
         } else {
             return .unavailable
