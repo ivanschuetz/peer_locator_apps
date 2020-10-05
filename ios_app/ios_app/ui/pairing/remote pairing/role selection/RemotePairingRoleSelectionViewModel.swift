@@ -49,8 +49,12 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
         case .result(.failure(let e)):
             // TODO message specific for networking errors.
             log.e("Current session error: \(e)", .session, .ui)
-            uiNotifier.show(.error("Error creating create session. Please try again."))
-
+            switch e {
+            case .general:
+                uiNotifier.show(.error("Error creating session. Please try again."))
+            case .networking(let msg):
+                uiNotifier.show(.error(msg))
+            }
             observeSession.send(false)
             showLoading = false
 

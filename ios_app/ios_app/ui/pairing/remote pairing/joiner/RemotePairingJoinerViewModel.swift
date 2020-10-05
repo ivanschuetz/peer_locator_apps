@@ -44,7 +44,12 @@ class RemotePairingJoinerViewModel: ObservableObject {
         case .result(.failure(let e)):
             let msg = "Couldn't retrieve session: \(e)"
             log.e(msg, .ui)
-
+            switch e {
+            case .general:
+                uiNotifier.show(.error("Error joining session. Please try again."))
+            case .networking(let msg):
+                uiNotifier.show(.error(msg))
+            }
             observeSession.send(false)
             showLoading = false
 

@@ -10,13 +10,16 @@ use core_foundation::{
 use libc::c_char;
 use log::*;
 use mpsc::Receiver;
-use ploc_common::extensions::VecExt;
+use ploc_common::{errors::ServicesError, extensions::VecExt};
 use serde::Serialize;
 use std::{
     str::FromStr,
     sync::mpsc::{self, Sender},
     thread,
 };
+
+// TODO (post mvp) better error passing to app, ideally success/error should be 2 different structures, with a common root (which has status)
+// depending on status, parse nested structure to expected success type or general error type.
 
 #[repr(C)]
 pub struct FFISessionResult {
@@ -82,7 +85,10 @@ pub unsafe extern "C" fn ffi_create_key_pair() -> FFIKeyPairResult {
             let private_str = "".to_owned();
             let public_str = "".to_owned();
             FFIKeyPairResult {
-                status: 0,
+                status: match e {
+                    ServicesError::Networking(_) => 2,
+                    _ => 0
+                },
                 private_key: private_str.to_CFStringRef_and_forget(),
                 public_key: public_str.to_CFStringRef_and_forget(),
             }
@@ -117,9 +123,11 @@ pub unsafe extern "C" fn ffi_create_session(
             error!("Error creating session: {:?}", e);
             let session_str = "";
             let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
-
             FFISessionResult {
-                status: 0,
+                status: match e {
+                    ServicesError::Networking(_) => 2,
+                    _ => 0
+                },
                 session_json: cf_string_ref,
             }
         }
@@ -155,7 +163,10 @@ pub unsafe extern "C" fn ffi_join_session(
             let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 
             FFISessionResult {
-                status: 0,
+                status: match e {
+                    ServicesError::Networking(_) => 2,
+                    _ => 0
+                },
                 session_json: cf_string_ref,
             }
         }
@@ -175,7 +186,10 @@ pub unsafe extern "C" fn ffi_ack(uuid: *const c_char, stored_participants: i32) 
         Err(e) => {
             error!("Error acking: {:?}", e);
             FFIAckResult {
-                status: 0,
+                status: match e {
+                    ServicesError::Networking(_) => 2,
+                    _ => 0
+                },
                 is_ready: false,
             }
         }
@@ -207,7 +221,10 @@ pub unsafe extern "C" fn ffi_participants(session_id: *const c_char) -> FFIParti
             let cf_string_ref = session_str.to_owned().to_CFStringRef_and_forget();
 
             FFIParticipantsResult {
-                status: 0,
+                status: match e {
+                    ServicesError::Networking(_) => 2,
+                    _ => 0
+                },
                 session_json: cf_string_ref,
             }
         }
@@ -223,7 +240,10 @@ pub unsafe extern "C" fn ffi_delete(peer_id: *const c_char) -> FFIDeleteResult {
         Ok(_) => FFIDeleteResult { status: 1 },
         Err(e) => {
             error!("Error marking as deleted: {:?}", e);
-            FFIDeleteResult { status: 0 }
+            FFIDeleteResult { status: match e {
+                ServicesError::Networking(_) => 2,
+                _ => 0
+            } }
         }
     }
 }

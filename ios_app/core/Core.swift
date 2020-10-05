@@ -37,7 +37,8 @@ class CoreImpl: SessionApi, Bootstrapper {
         let res = ffi_create_session(sessionId.value, publicKey.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
-        default: return .failure(.general("Create session error: \(res)"))
+        case 2: return .failure(.networking("Networking error. Please try again later."))
+        default: return .failure(.general("Error creating session: \(res)"))
         }
     }
 
@@ -46,7 +47,8 @@ class CoreImpl: SessionApi, Bootstrapper {
         let res = ffi_join_session(id.value, publicKey.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
-        default: return .failure(.general("Join session error: \(res)"))
+        case 2: return .failure(.networking("Networking error. Please try again later."))
+        default: return .failure(.general("Error joining session: \(res)"))
         }
     }
 
@@ -55,7 +57,8 @@ class CoreImpl: SessionApi, Bootstrapper {
         let res = ffi_ack(peerId.value, Int32(storedPeers))
         switch res.status {
         case 1: return .success(res.is_ready)
-        default: return .failure(.general("Ack error: \(res)"))
+        case 2: return .failure(.networking("Networking error. Please try again later."))
+        default: return .failure(.general("Error acking session: \(res)"))
         }
     }
 
@@ -63,7 +66,8 @@ class CoreImpl: SessionApi, Bootstrapper {
         let res = ffi_participants(sessionId.value)
         switch res.status {
         case 1: return decode(sessionJson: res.session_json)
-        default: return .failure(.general("Fetch peers error: \(res)"))
+        case 2: return .failure(.networking("Networking error. Please try again later."))
+        default: return .failure(.general("Error fetching peers: \(res)"))
         }
     }
 
@@ -71,7 +75,8 @@ class CoreImpl: SessionApi, Bootstrapper {
         let res = ffi_delete(peerId.value)
         switch res.status {
         case 1: return .success(())
-        default: return .failure(.general("Mark peer as deleted error: \(res)"))
+        case 2: return .failure(.networking("Networking error. Please try again later."))
+        default: return .failure(.general("Error marking as deleted: \(res)"))
         }
     }
 
