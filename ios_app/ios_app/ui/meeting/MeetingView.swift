@@ -59,10 +59,17 @@ struct MeetingView: View {
                     .padding(.bottom, 30)
                     .rotationEffect(viewModel.directionAngle)
                 }
-            Text(viewModel.distance)
-                .font(.system(size: 50, weight: .heavy))
-                .foregroundColor(colorScheme == .dark ? .white : .black)
-                .padding(.bottom, 50)
+            HStack {
+                if viewModel.isAccurate {
+                    Text("~")
+                        .font(.system(size: 50, weight: .heavy))
+                        .foregroundColor(colorScheme == .dark ? .gray : .gray)
+                }
+                Text(viewModel.distance)
+                    .font(.system(size: 50, weight: .heavy))
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
+            }
+            .padding(.bottom, 50)
             ActionDeleteButton("Delete session") {
                 showConfirmDeleteAlert = true
             }

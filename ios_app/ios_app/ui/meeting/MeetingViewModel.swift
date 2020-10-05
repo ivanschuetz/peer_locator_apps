@@ -47,13 +47,7 @@ class MeetingViewModel: ObservableObject {
         if let peer = peerMaybe {
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
             // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
-            distance = formattedDistance.map {
-                if peer.dir != nil {
-                    return "\($0)m"
-                } else {
-                    return "~ \($0)m"
-                }
-            } ?? "?"
+            distance = formattedDistance.map { "\($0)m" } ?? "?"
             if let dir = peer.dir {
                 directionAngle.radians = toAngle(dir: dir)
             }
