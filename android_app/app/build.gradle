@@ -28,12 +28,7 @@ android {
         ]
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "0.1.0-dev14"
-    }
-
     buildFeatures {
-        compose true
     }
 
     sourceSets {
@@ -74,17 +69,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
 
     implementation 'com.google.code.gson:gson:2.8.6'
-
-    // Jetpack Compose
-    implementation "androidx.ui:ui-tooling:$ui_version"
-    implementation "androidx.ui:ui-layout:$ui_version"
-    implementation "androidx.ui:ui-material:$ui_version"
-    implementation "androidx.ui:ui-livedata:$ui_version"
 }
 
 def rustBasePath = "../.."
 def archTriplets = [
-    'armeabi-v7a': 'arm-linux-androideabi',
+        // error with a Rust library, not sure why.
+//    'armeabi-v7a': 'arm-linux-androideabi',
     'arm64-v8a': 'aarch64-linux-android',
     'x86_64': 'x86_64-linux-android',
     'x86': 'i686-linux-android'

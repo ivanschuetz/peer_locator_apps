@@ -1,7 +1,6 @@
 package com.match.android.ui.home
 
 import android.graphics.PointF
-import androidx.compose.Immutable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 
-@Immutable
 data class HomeViewState(val myId: String, val discovered: List<String>)
 
 class HomeViewModel(
