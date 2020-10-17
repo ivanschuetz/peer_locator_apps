@@ -128,8 +128,8 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
             }
         case .invalidated:
             // This may happen when device is sent to background during a session, ble writes nearby token
-            // just after the background timeout invalidates the nearby session.
-            // With the current implementation this seems unlikely though. TODO revisit.
+            // after the background timeout invalidates the nearby session.
+            // Doesn't seem critical as we trigger a new token write each x seconds.
             log.w("Trying to set peer on invalidated session. Doing nothing.", .nearby)
         case .inactive:
             log.e("Invalid state: trying to set peer while session is not active", .nearby)
@@ -148,7 +148,7 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
                 callback((session, token.toNearbyToken()))
             } else {
                 if isNearbySupported() {
-                    // TODO can this happen? Docs currently don't say when it's nil:
+                    // TODO(pmvp) can this happen? Docs currently don't say when it's nil:
                     // https://developer.apple.com/documentation/nearbyinteraction/nisession/3564775-discoverytoken
                     log.e("Unexpected: device is supported but nearby session returned no discovery token", .nearby)
                     // If we can't create our token there doesn't seem to be a point in having a session, so nil.
@@ -162,7 +162,7 @@ class NearbyImpl: NSObject, Nearby, ObservableObject {
 
     private func runSession(session: NISession, peerToken: NearbyToken) {
         session.run(peerToken)
-        sessionStateSubject.send(.started) // TODO does nearby have a callback for this?
+        sessionStateSubject.send(.started)
     }
 
     /**

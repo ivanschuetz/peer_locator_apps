@@ -6,10 +6,6 @@ struct RootView: View {
 
     private let viewModelProvider: ViewModelProvider
 
-    // TODO review states+view models: view models are eagerly instantiated, so we've e.g. a session created
-    // view model active while we may never show session created + this prevents us from showing invalid state messages
-    // in session created when session is not ready. Instantiate view models lazily (and ensure cleared when leaving)?
-    // or maybe use only one view model for everything?
     init(viewModelProvider: ViewModelProvider) {
         self.viewModel = viewModelProvider.root()
         self.viewModelProvider = viewModelProvider

@@ -138,11 +138,11 @@ extension BlePeripheralImpl: CBPeripheralManagerDelegate {
             return
         }
         guard let request = requests.first else {
-            log.e("Write requests empty TODO is this normal? Exit", .blep)
+            log.e("Write requests empty. Exit", .blep)
             return
         }
         guard let data = request.value else {
-            log.e("Request has no value. Probably error (TODO confim). Exit.", .blep)
+            log.e("Request has no value. Probably error. Exit.", .blep)
             return
         }
 

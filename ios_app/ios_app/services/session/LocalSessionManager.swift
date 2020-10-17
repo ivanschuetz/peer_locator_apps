@@ -1,6 +1,7 @@
 import Foundation
 
 protocol LocalSessionManager {
+    // Overwrites local session if existent
     func initLocalSession(iCreatedIt: Bool,
                           sessionIdGenerator: () -> SessionId) -> Result<Session, ServicesError>
 

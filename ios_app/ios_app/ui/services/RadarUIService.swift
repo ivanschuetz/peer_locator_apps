@@ -1,4 +1,4 @@
-// TODO remove file
+// Outdated. Maybe we use this again, if we add radar.
 
 //import Foundation
 //import Combine

@@ -66,17 +66,14 @@ class PeerDistanceNotificationService {
     private func onPeerClose(_ peer: DetectedPeer) {
         log.i("Peer close! showing notification", .notifications)
         notificationsBlockedSubject.send(true)
-        timeToShowNotificationAgainTimer = Timer.scheduledTimer(timeInterval: timeToShowNotificationAgain,
-                                                                target: self, selector: #selector(fireTimer),
-                                                                userInfo: nil, repeats: false)
+        timeToShowNotificationAgainTimer = Timer.scheduledTimer(withTimeInterval: timeToShowNotificationAgain,
+                                                                repeats: false) { [weak self] _ in
+            log.d("Unblocking peer close notification after \(timeToShowNotificationAgain)s", .notifications)
+            self?.timeToShowNotificationAgainTimer = nil
+            self?.notificationsBlockedSubject.send(false)
+        }
         timeToShowNotificationAgainTimer?.tolerance = 1
         showIsCloseNotification(peer: peer)
-    }
-
-    @objc private func fireTimer() {
-        log.d("Unblocking peer close notification after \(timeToShowNotificationAgain)s", .notifications)
-        timeToShowNotificationAgainTimer = nil
-        notificationsBlockedSubject.send(false)
     }
 
     private func showIsCloseNotification(peer: DetectedPeer) {

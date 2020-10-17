@@ -1,7 +1,6 @@
 import SwiftUI
 import Combine
 import Foundation
-import NearbyInteraction // leaky abstraction: TODO map nearby simd_float3 to own type
 
 struct MeetingView: View {
     @ObservedObject private var viewModel: MeetingViewModel

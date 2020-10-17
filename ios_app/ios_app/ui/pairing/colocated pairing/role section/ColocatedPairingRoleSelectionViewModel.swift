@@ -7,7 +7,7 @@ enum ColocatedPairingRoleDestination {
     case create, join, none
 }
 
-// TODO review ble enabled logic, probably need changes not that we changed to activate during launch.
+// TODO(pmvp) review ble enabled logic, probably need changes not that we changed to activate during launch.
 class ColocatedPairingRoleSelectionViewModel: ObservableObject {
     @Published var destination: ColocatedPairingRoleDestination = .none
     @Published var navigationActive: Bool = false
@@ -42,7 +42,7 @@ class ColocatedPairingRoleSelectionViewModel: ObservableObject {
                 self?.navigateIfBluettothEnabled(destination: .join, bleReady: bleReady)
             }
 
-        // TODO critical: this mostly doesn't work the first time after installing the app (either with ble disabled or enabled)
+        // TODO(pmvp) critical: this mostly doesn't work the first time after installing the app (either with ble disabled or enabled)
         // The last message here is "Ble not ready (... destination: .create ...) Doing nothing." and never executes sink,
         // though we get "Ble components ready: true" from BleStateObservable shortly after.
         // it usually works when stepping through the observers with the debugger.

@@ -9,8 +9,7 @@ class PeerSoundsImpl: PeerSounds {
 
     init(peerService: DetectedPeerService, soundPlayer: SoundPlayer) {
         let peerObservable = peerService.peer
-            // TODO RunLoop.main maybe wrong here? probably for UI updates?
-            .throttle(for: 5, scheduler: RunLoop.main, latest: false)
+            .throttle(for: 5, scheduler: RunLoop.current, latest: false)
 
         distSoundCancellable = peerObservable
             .compactMap { $0?.dist.map { sound(for: $0) } }
@@ -71,7 +70,7 @@ private enum Hour {
     case h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11
 }
 
-// TODO test that this doesn't return > 360 (radians)
+// TODO(pmvp) test that this doesn't return > 360 (radians)
 private func radiansTodegrees(_ number: Double) -> Double {
     return number * 180 / .pi
 }

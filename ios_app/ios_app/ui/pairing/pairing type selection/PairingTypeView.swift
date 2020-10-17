@@ -10,7 +10,7 @@ struct PairingTypeView: View {
         self.viewModelProvider = viewModelProvider
     }
 
-    // TODO show a note somewhere that there can be only 2 peers
+    // TODO(pmvp) show a note somewhere that there can be only 2 peers
     // maybe a notification after creating the session
     // "your meeting was created! link: x, note that max. 2 devices can register"
 
@@ -23,7 +23,7 @@ struct PairingTypeView: View {
             Text("Are you and your peer in the same location now?")
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 30)
-            // TODO question mark with expl: "same location: <100m appart"
+            // TODO(pmvp) question mark with expl: "same location: <100m appart"
             ActionButton("Yes") {
                 viewModel.onColocatedTap()
             }

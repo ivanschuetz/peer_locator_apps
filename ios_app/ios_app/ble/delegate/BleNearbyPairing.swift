@@ -120,7 +120,9 @@ extension BleNearbyPairing: BlePeripheralDelegateWriteOnly {
             type: characteristicUuid,
             properties: [.write],
             value: nil,
-            // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
+            // Note that we don't use encryption (.writeEncryptionRequired / .readEncryptionRequired)
+            // (also in all the other characteristics)
+            // as our goal is to connect unknown (not trusted) devices
             permissions: [.writeable]
         )
     }

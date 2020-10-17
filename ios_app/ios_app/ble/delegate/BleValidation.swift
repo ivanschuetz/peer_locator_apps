@@ -37,15 +37,8 @@ class BleValidationImpl: BleValidation {
         self.idService = idService
     }
 
-    // Currently this is called only upon discovering characteristic
-    // TODO we need to trigger validation again (probably using timer)
-    // if user is validated during colocated pairing, we remember uuid as valid
-    // what if uuid changes before the actual meeting? ok, we will detect a new peripheral/uuid and validate that one
-    // so we've 2 valid uuids stored -> the user will be validated.
-    // but anyway, this is not ideal security. We should re-validate each x seconds to prevent replay attacks.
-    // this is not needed pre-mvp though.
-    // TODO at least test that things work (user is validated) if uuid changes.
-    // and test in general colocated to meeting transition, with separation in between
+    // TODO(pmvp) check if/when peer device uuid can change and if yes, how our validation/timer behaves.
+    // TODO(pmvp) and test colocated to meeting transition, with separation in between
     // (including e.g. toggling bluetooth)
     func validatePeer() -> Bool {
         guard let peripheral = peripheral else {
@@ -80,11 +73,11 @@ extension BleValidationImpl: BlePeripheralDelegateReadOnly {
             peripheral.respond(to: request, withResult: .success)
 
         } else {
-            // TODO review handling
+            // TODO(pmvp) review handling
             // This state is valid as peripheral and central are active during colocated pairing too,
             // where normally there's no session yet
-            // TODO probably we should block reading session data during colocated pairing / non-active session
-            log.v("Peripheral session id was read and there was no session (TODO see comment)")
+            // TODO(pmvp) probably we should block reading session data during colocated pairing / non-active session
+            log.v("Peripheral session id was read and there was no session (see comment)")
         }
     }
 }
@@ -130,11 +123,13 @@ extension BleValidationImpl: BleCentralDelegate {
                 handleReadError(error)
             } else {
                 if let value = characteristic.value {
-                    // Unwrap: We send BleId, so we always expect BleId
-                    let id = BleId(data: value)!
+                    guard let id = BleId(data: value) else {
+                        log.e("Unexpected: Couldn't parse data: \(value) to ble id", .ble)
+                        return false
+                    }
                     log.d("Central forwarding validation data", .ble)
-                    readSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id,
-                                             distance: -1)) // TODO distance: handle this?
+                    // TODO(next) use new struct (not BlePeer). We don't have distance here.
+                    readSubject.send(BlePeer(deviceUuid: peripheral.identifier, id: id, distance: -1))
                 } else {
                     let msg = "Verification characteristic had no value"
                     log.e(msg, .ble)

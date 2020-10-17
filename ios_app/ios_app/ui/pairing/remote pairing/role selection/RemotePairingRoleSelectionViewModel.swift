@@ -47,7 +47,6 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
             showLoading = false
 
         case .result(.failure(let e)):
-            // TODO message specific for networking errors.
             log.e("Current session error: \(e)", .session, .ui)
             switch e {
             case .general:
@@ -58,7 +57,6 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
             observeSession.send(false)
             showLoading = false
 
-            // TODO handle
         case .progress:
             showLoading = true
         }
@@ -88,7 +86,7 @@ class RemotePairingRoleSelectionViewModel: ObservableObject {
     }
 }
 
-// TODO operator for:
+// TODO(pmvp) operator for:
 //.withLatestFrom(observeSession, resultSelector: { sessionRes, switchValue in
 //    (sessionRes, switchValue)
 //})

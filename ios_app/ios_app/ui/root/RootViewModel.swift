@@ -109,7 +109,7 @@ private func toViewState(sessionRes: SessionState) -> RootViewState? {
             return .noMeeting
         }
     case .result(.failure):
-        return .noMeeting // TODO error view state
+        return .noMeeting // TODO(next) error view state
     case .progress: return nil
     }
 }

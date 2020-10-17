@@ -12,7 +12,7 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        // TODO probably do formatting in the extension, not the app -> if user has not extension
+        // TODO(frozen - not using extension for now) probably do formatting in the extension, not the app -> if user has not extension
         // formatting is a waste
 
         let prefs = PreferencesImpl()
@@ -24,7 +24,7 @@ struct Provider: TimelineProvider {
         // oops, it seems to refresh at most each 5 minutes. so not usable for our app.
         guard let nextDate = Calendar.current.date(byAdding: .second, value: 10, to: now) else {
             // This shouldn't happen. But not letting it crash because widget has timestamp so not critical.
-            // TODO what happens with crashes in widgets? If it doesn't bother the user, we should let it crash
+            // TODO(frozen - not using extension for now) what happens with crashes in widgets? If it doesn't bother the user, we should let it crash
             // to get reports
             log.e("Couldn't create date. Now: \(now)", .widget)
             return
@@ -40,7 +40,11 @@ struct Provider: TimelineProvider {
         }
         log.d("Widget read peer data from prefs: \(String(describing: peerForWidgetStr))", .widget)
 
-        let peerForWidget: PeerForWidget = json.fromJson(json: peerForWidgetStr)
+        guard let peerForWidget: PeerForWidget = json.fromJson(json: peerForWidgetStr).asOptional() else {
+            log.e("Can't generate timeline: Couldn't process json: \(peerForWidgetStr)", .widget)
+            return
+        }
+
         let distStr = NumberFormatters.oneDecimal.string(from: peerForWidget.distance).map { "\($0)m" }
 
         let viewData = ViewData(distance: distStr ?? "", recordedTime: peerForWidget.recordedTime)

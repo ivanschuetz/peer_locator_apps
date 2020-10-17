@@ -3,7 +3,6 @@ import Combine
 import CoreBluetooth
 
 protocol BleEnabler {
-    // TODO review: are we calling this at the correct times?
     func showEnableDialogIfDisabled()
 }
 

@@ -84,7 +84,7 @@ class Dependencies {
         container.register(.singleton) { DetectedBleDeviceFilterServiceImpl(
             deviceDetector: try container.resolve(),
             deviceValidator: try container.resolve()
-        ) as DetectedBleDeviceFilterService }
+        ) as DetectedBlePeerFilterService }
         container.register(.eagerSingleton) {
             BleValidationDataMediatorImpl(crypto: try container.resolve(),
                                           json: try container.resolve()) as BleValidationDataMediator

@@ -10,7 +10,7 @@ class ColocatedPairingJoinerViewModel: ObservableObject {
 
     // [investigating camera bug] -> sometimes (especially on ipad?) the first time we open the camera
     // it closes immediately. An initial print revealed that the binding was firing multiple times.
-    // couldn't reproduce (tried 3-4 times) after adding logs. TODO test again.
+    // couldn't reproduce (tried 3-4 times) after adding logs. TODO(pmvp) test again.
 
     init(passwordService: ColocatedPairingPasswordService, uiNotifier: UINotifier) {
         self.passwordService = passwordService

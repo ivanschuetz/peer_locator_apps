@@ -43,11 +43,12 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
 
     func startSending() {
         cancelTimer()
-        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(onTimerTick),
-                                     userInfo: nil, repeats: true)
+
+        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+            log.v("Timer tick: sending nearby token to peer...", .nearby)
+            self?.sendNearbyTokenToPeer()
+        }
         timer?.tolerance = 1
-        //        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(onTimerTick),
-        //                                     userInfo: nil, repeats: true)
         sendNearbyTokenToPeer()
     }
 
@@ -57,16 +58,14 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
         // TODO review this, test on devices.
         log.d("Nearby session active. Start timer to stop sending token.", .nearby)
         cancelKeepSendingAfterSessionActiveTimer()
-        keepSendingAfterSessionActiveTimer = Timer.scheduledTimer(
-            timeInterval: 30, target: self, selector: #selector(onkeepSendingAfterSessionActiveTimer),
-            userInfo: nil, repeats: false)
-        keepSendingAfterSessionActiveTimer?.tolerance = 1
-    }
-
-    @objc private func onkeepSendingAfterSessionActiveTimer() {
-        cancelKeepSendingAfterSessionActiveTimer()
-        log.d("Keep sending nearby token timer fired. Stop sending token.", .nearby)
-        stopSending()
+        DispatchQueue.main.async {
+            self.keepSendingAfterSessionActiveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { [weak self] _ in
+                self?.cancelKeepSendingAfterSessionActiveTimer()
+                log.d("Keep sending nearby token timer fired. Stop sending token.", .nearby)
+                self?.stopSending()
+            }
+            self.keepSendingAfterSessionActiveTimer?.tolerance = 1
+        }
     }
 
     private func cancelKeepSendingAfterSessionActiveTimer() {
@@ -82,11 +81,6 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
     private func cancelTimer() {
         timer?.invalidate()
         timer = nil
-    }
-
-    @objc private func onTimerTick() {
-        log.v("Timer tick: sending nearby token to peer...", .nearby)
-        sendNearbyTokenToPeer()
     }
 
     // TODO aside of this "retry" implement also low level ble retry
@@ -108,9 +102,14 @@ class NearbyTokenSenderImpl: NearbyTokenSender {
         case .success(let mySessionData):
             if let mySessionData = mySessionData {
                 log.i("Sending nearby discovery token to peer: \(token)", .nearby)
-                nearbyPairing.sendDiscoveryToken(
-                    token: tokenProcessor.prepareToSend(token: token, privateKey: mySessionData.privateKey)
-                )
+
+                if let token = tokenProcessor.prepareToSend(token: token,
+                                                            privateKey: mySessionData.privateKey).asOptional() {
+                    nearbyPairing.sendDiscoveryToken(token: token)
+                } else {
+                    log.e("Can't send nearby discovery token.", .nearby)
+                }
+                
             } else {
                 // We're observing a validated peer, and validating is not possible without
                 // having our own private key stored, so it _should_ be invalid state. but:

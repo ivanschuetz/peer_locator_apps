@@ -1,8 +1,11 @@
 import Foundation
 
 protocol NearbyTokenProcessor {
-    func prepareToSend(token: NearbyToken, privateKey: PrivateKey) -> SerializedSignedNearbyToken
-    func validate(token: SerializedSignedNearbyToken, publicKey: PublicKey) -> NearbyTokenValidationResult
+    func prepareToSend(token: NearbyToken,
+                       privateKey: PrivateKey) -> Result<SerializedSignedNearbyToken, ServicesError>
+    
+    func validate(token: SerializedSignedNearbyToken,
+                  publicKey: PublicKey) -> Result<NearbyTokenValidationResult, ServicesError>
 }
 
 class NearbyTokenProcessorImpl: NearbyTokenProcessor {
@@ -14,23 +17,26 @@ class NearbyTokenProcessorImpl: NearbyTokenProcessor {
         self.json = json
     }
 
-    func prepareToSend(token: NearbyToken, privateKey: PrivateKey) -> SerializedSignedNearbyToken {
+    func prepareToSend(token: NearbyToken, privateKey: PrivateKey) -> Result<SerializedSignedNearbyToken, ServicesError> {
         let signature = crypto.sign(privateKey: privateKey, payload: token.data)
         let signedToken = SignedNearbyToken(token: token, sig: signature)
-        return SerializedSignedNearbyToken(data: json.toJsonData(encodable: signedToken))
-    }
-
-    func validate(token serializedToken: SerializedSignedNearbyToken,
-                  publicKey: PublicKey) -> NearbyTokenValidationResult {
-        let token = deserialize(token: serializedToken)
-        if validate(token: deserialize(token: serializedToken), publicKey: publicKey) {
-            return .valid(token: NearbyToken(data: token.data))
-        } else {
-            return .invalid
+        return json.toJsonData(encodable: signedToken).map {
+            SerializedSignedNearbyToken(data: $0)
         }
     }
 
-    private func deserialize(token: SerializedSignedNearbyToken) -> SignedNearbyToken {
+    func validate(token serializedToken: SerializedSignedNearbyToken,
+                  publicKey: PublicKey) -> Result<NearbyTokenValidationResult, ServicesError> {
+        deserialize(token: serializedToken).map { token in
+            if validate(token: token, publicKey: publicKey) {
+                return .valid(token: NearbyToken(data: token.data))
+            } else {
+                return .invalid
+            }
+        }
+    }
+
+    private func deserialize(token: SerializedSignedNearbyToken) -> Result<SignedNearbyToken, ServicesError> {
         json.fromJsonData(json: token.data)
     }
 

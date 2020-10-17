@@ -42,7 +42,6 @@ class MeetingCreatedViewModel: ObservableObject {
 
         case .result(.failure(let e)):
             // If there are issues retrieving session this screen normally shouldn't be presented
-            // TODO ensure that only one message of a type shows at a time
             let msg = "Couldn't retrieve session: \(e). NOTE: shouldn't happen in this screen."
             log.e(msg, .ui)
             showLoading = false

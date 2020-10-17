@@ -16,7 +16,7 @@ class BlePeerDataValidatorImpl: BlePeerDataValidator {
 
         log.v("Will validate peer payload: \(payload) with peer: \(peer)")
 
-        // TODO unwrap safe here?
+        // Unwrap: we know sig is hex encoded
         let signData = Data(fromHexEncodedString: payload.sig)!
 
         return crypto.validate(payload: payloadToSign, signature: signData, publicKey: peer.publicKey)

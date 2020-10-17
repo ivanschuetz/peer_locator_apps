@@ -40,10 +40,11 @@ struct MeetingCreatedView: View {
                 }
 
                 .padding(.bottom, 30)
-                // TODO don't allow to show modal if there's no link
+                // TODO(next) remove share button
+                // TODO(frozen until share button reenabled) don't allow to show modal if there's no link
                 .sheet(isPresented: $showShareSheet) {
-                    // TODO no optional (viewModel.link)
-                    // TODO sometimes it doesn't work. maybe disable for now, it's confusing anyway with copy button.
+                    // TODO(frozen until share button reenabled) no optional (viewModel.link)
+                    // TODO(frozen until share button reenabled) sometimes it doesn't work. maybe disable for now, it's confusing anyway with copy button.
                     ShareSheet(activityItems: [viewModel.linkUrl])
                 }
                 .padding(.bottom, 10)

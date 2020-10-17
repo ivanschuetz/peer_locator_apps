@@ -12,9 +12,9 @@ protocol ValidatedPeerEvent {
 class ValidatedBlePeerEvent: ValidatedPeerEvent {
     let event: AnyPublisher<(), Never>
 
-    init(validDeviceService: DetectedBleDeviceFilterService) {
+    init(validDeviceService: DetectedBlePeerFilterService) {
         // "Device came in max range (which is ble range)" = "meeting started"
-        event = validDeviceService.device
+        event = validDeviceService.blePeer
             .map { $0.id } // discard distance
             // TODO review. For now we process only the first discovered valid device (should be fine?)
             // note also that if we didn't do this, i.e. sent an event on each validation it would be problematic

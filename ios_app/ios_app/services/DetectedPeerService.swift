@@ -4,7 +4,6 @@ import Combine
 /**
  * Broadcasts merged ble and nearby inputs, while ensuring that the peer is validated.
  */
-// TODO we also have p2pservice now: isn't it the same thing? merge?
 protocol DetectedPeerService {
     // peer == nil -> out of range (which includes peer has ble off)
     var peer: AnyPublisher<DetectedPeer?, Never> { get }
@@ -19,14 +18,14 @@ class DetectedPeerServiceImpl: DetectedPeerService {
     private let nearby: Nearby
     private let bleIdService: BleIdService
 
-    init(nearby: Nearby, bleIdService: BleIdService, detectedBleDeviceService: DetectedBleDeviceFilterService) {
+    init(nearby: Nearby, bleIdService: BleIdService, detectedBleDeviceService: DetectedBlePeerFilterService) {
         self.nearby = nearby
         self.bleIdService = bleIdService
 
         // Peer went out of range detection
         let sessionTimeOut = Timer.publish(every: 5, on: .current, in: .common).autoconnect()
 
-        let blePeer: AnyPublisher<DetectedPeer, Never> = detectedBleDeviceService.device
+        let blePeer: AnyPublisher<DetectedPeer, Never> = detectedBleDeviceService.blePeer
             // Split the stream in chunks
             .scan([]) { acc, peer -> [BlePeer] in
                 if acc.count < bleMeasurementsChunkSize {
@@ -45,8 +44,8 @@ class DetectedPeerServiceImpl: DetectedPeerService {
                 }
             }
             .map { blePeer in
-                // TODO generate peer's name when creating/joining session, allow user to override (the peer)
-                DetectedPeer(name: "TODO BLE peer name",
+                // TODO(pmvp) generate peer's name when creating/joining session, allow user to override (the peer)
+                DetectedPeer(name: "<peer name>",
                      dist: Float(blePeer.distance),
                      loc: nil,
                      dir: nil,
@@ -103,12 +102,12 @@ class DetectedPeerServiceImpl: DetectedPeerService {
             }
             .map { peer, _ in peer }
             // If the timeout fires (x secs without having been cancelled), fire nil event (means: not connected / out of range)
-            // TODO uncomment when solved how to restart timer.
+            // TODO(next) uncomment when solved how to restart timer.
 //            .merge(with: sessionTimeOut.map { _ in nil })
             .handleEvents(receiveOutput: { peer in
                 if peer != nil {
                     sessionTimeOut.upstream.connect().cancel()
-                    // TODO how to restart?
+                    // TODO(next) how to restart?
 //                    sessionTimeOut.upstream.connect().
                 }
             })

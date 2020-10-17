@@ -14,7 +14,6 @@ class NotificationsDelegate: NSObject, UNUserNotificationCenterDelegate {
         -> Void) {
 
         // Used to display notification while app is in FG
-        // TODO maybe in-app notification/popup?
         completionHandler([
             .badge,
             .alert,

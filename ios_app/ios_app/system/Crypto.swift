@@ -66,22 +66,27 @@ class CryptoImpl: Crypto {
     //        let sharedSecret: SharedSecret = try! p5121PrivateKey.sharedSecretFromKeyAgreement(with: othersp5121PublicKey)
     //    }
 
-    func keyFromPassword(_ password: String) -> SymmetricKey {
-        // TODO check if unwrap safe
-        let hash = SHA256.hash(data: password.data(using: .utf8)!)
+    func keyFromPassword(_ password: String) -> Result<SymmetricKey, ServicesError> {
+        guard let data = password.data(using: .utf8) else {
+            return .failure(.general("Couldn't decode password: \(password)"))
+        }
+        let hash = SHA256.hash(data: data)
         // Convert the SHA256 to a string. This will be a 64 byte string
         let hashString = hash.map { String(format: "%02hhx", $0) }.joined()
         // Convert to 32 bytes
         let subString = String(hashString.prefix(32))
         // Convert the substring to data
-        let keyData = subString.data(using: .utf8)!
-
+        guard let keyData = subString.data(using: .utf8) else {
+            return .failure(.general("Couldn't convert substring to data: \(subString)"))
+        }
         // Create the key use keyData as the seed
-        return SymmetricKey(data: keyData)
+        return .success(SymmetricKey(data: keyData))
     }
 
     func encrypt(str: String, password: String) -> Result<String, ServicesError> {
-        return encrypt(str: str, key: keyFromPassword(password))
+        keyFromPassword(password).flatMap {
+            encrypt(str: str, key: $0)
+        }
     }
 
     private func encrypt(str: String, key: SymmetricKey) -> Result<String, ServicesError> {
@@ -108,9 +113,10 @@ class CryptoImpl: Crypto {
     }
 
     func decrypt(str: String, password: String) -> Result<String, ServicesError> {
-        return decrypt(str: str, key: keyFromPassword(password))
+        keyFromPassword(password).flatMap {
+            decrypt(str: str, key: $0)
+        }
     }
-
 
     private func decrypt(str: String, key: SymmetricKey) -> Result<String, ServicesError> {
         // Convert the base64 string into a Data object

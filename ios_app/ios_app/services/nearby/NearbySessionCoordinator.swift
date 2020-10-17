@@ -47,12 +47,15 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
             log.i("Received nearby token from peer, starting session", .nearby)
             switch validate(token: serializedToken, localSessionManager: localSessionManager,
                             tokenProcessor: tokenProcessor) {
-            case .valid(let token):
+            case .success(.valid(let token)):
                 log.i("Nearby token validation succeeded. Starting nearby session", .nearby)
                 nearby.setPeer(token: token)
-            case .invalid:
+            case .success(.invalid):
                 log.e("Nearby token validation failed. Can't start nearby session", .nearby)
                 uiNotifier.show(.error("Can't start high-accuracy tracking: peer invalid"))
+            case .failure(let e):
+                log.e("Nearby token validation returned an error: \(e). Can't start nearby session", .nearby)
+                uiNotifier.show(.error("Unknown error starting high-accuracy tracking"))
             }
         }
     }
@@ -63,10 +66,10 @@ class NearbySessionCoordinatorImpl: NearbySessionCoordinator {
 // retrieve session data, or maybe even perform sign/validation with current session data?
 // (keep in mind multiple session suspport in the future)
 private func validate(token: SerializedSignedNearbyToken, localSessionManager: LocalSessionManager,
-                      tokenProcessor: NearbyTokenProcessor) -> NearbyTokenValidationResult {
-    let valiationRes: Result<NearbyTokenValidationResult, ServicesError> = localSessionManager.withSession { session in
+                      tokenProcessor: NearbyTokenProcessor) -> Result<NearbyTokenValidationResult, ServicesError> {
+    localSessionManager.withSession { session in
         if let peer = session.peer {
-            return .success(tokenProcessor.validate(token: token, publicKey: peer.publicKey))
+            return tokenProcessor.validate(token: token, publicKey: peer.publicKey)
         } else {
             // If we get peer's token to be validated it means we should be in an active session
             // Currently can happen, though, as we don't stop the token observable when
@@ -74,13 +77,5 @@ private func validate(token: SerializedSignedNearbyToken, localSessionManager: L
             log.e("Invalid state: No peer stored (see comment). Can't validate nearby token", .nearby, .session)
             return .success(.invalid)
         }
-    }
-
-    switch valiationRes {
-    case .success(let res):
-        return res
-    case .failure(let e):
-        log.e("Critical: Couldn't get current session: \(e). Can't validate nearby token", .nearby)
-        return .invalid
     }
 }

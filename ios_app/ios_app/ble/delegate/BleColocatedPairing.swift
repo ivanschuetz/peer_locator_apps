@@ -26,7 +26,7 @@ class BleColocatedPairingImpl: BleColocatedPairing {
 
     private var retry: RetryData<SerializedEncryptedPublicKey>?
 
-    // TODO confirm: is the peripheral reliably available here? Probably we should use reactive
+    // TODO(pmvp) confirm: is the peripheral reliably available here? Probably we should use reactive
     // instead, with poweredOn + write?
     func write(publicKey: SerializedEncryptedPublicKey) -> Bool {
         guard let peripheral = peripheral else {
@@ -50,7 +50,6 @@ extension BleColocatedPairingImpl: BlePeripheralDelegateWriteOnly {
             type: characteristicUuid,
             properties: [.write],
             value: nil,
-            // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
             permissions: [.writeable]
         )
     }

@@ -26,7 +26,7 @@ class PeerValidationActivatorImpl: PeerValidationActivator {
                     log.i("Session activated, starting peer validation", .ble)
                     self?.activate()
                 } else {
-                    // TODO maybe stop validation when peers are successfully exchanging data?
+                    // TODO(pmvp) maybe stop validation when peers are successfully exchanging data?
                     // the behavior re: what to do if the periodic validation fails after peers are exchanging data, is currently undefined. In the future we _need_ this validation, but then we'll also have a spec.
                     log.i("Session deactivated, stopping peer validation", .ble)
                     self?.deactivate()

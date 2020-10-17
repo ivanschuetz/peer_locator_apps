@@ -50,13 +50,11 @@ struct KeyPair {
 struct Session: Codable, Equatable {
     let id: SessionId
     let privateKey: PrivateKey
-    // TODO (low prio): review: the own public key seems not necessary to store at the moment
-    // it may help for debugging? Maybe remove in the future.
     let publicKey: PublicKey
-    let peerId: PeerId
-    let createdByMe: Bool
-    let peer: Peer?
-    let isReady: Bool
+    let peerId: PeerId // My own peer id
+    let createdByMe: Bool // Whether I created the session (opposed to join)
+    let peer: Peer? // Peer. Nil if they've not joined the session yet
+    let isReady: Bool // Whether both peers have ack-ed the public key of the other
 
     func withPeer(_ peer: Peer) -> Session {
         Session(
@@ -91,7 +89,7 @@ struct SessionLink {
     let url: URL
 
     init?(url: URL) {
-        // TODO more validation?
+        // TODO(pmvp) more validation?
         if url.host == nil {
             return nil
         }

@@ -63,7 +63,10 @@ class KeyChainImpl: KeyChain {
     }
 
     func putEncodable<T: Encodable>(key: KeyChainKey, value: T) -> Result<(), ServicesError> {
-        putString(key, value: json.toJson(encodable: value))
+        switch json.toJson(encodable: value) {
+        case .success(let str): return putString(key, value: str)
+        case .failure(let e): return .failure(e)
+        }
     }
 
     func getDecodable<T: Decodable>(key: KeyChainKey) -> Result<T?, ServicesError> {
@@ -71,7 +74,7 @@ class KeyChainImpl: KeyChain {
         switch res {
         case .success(let str):
             if let str = str {
-                return .success(json.fromJson(json: str))
+                return json.fromJson(json: str)
             } else {
                 return .success(nil)
             }

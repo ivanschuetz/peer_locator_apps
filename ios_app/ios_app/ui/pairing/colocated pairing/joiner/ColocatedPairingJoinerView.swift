@@ -18,7 +18,7 @@ struct ColocatedPairingJoinerView: View {
             }
             Text("Open the camera to read your peer's QR code")
 
-            // TODO exit options/failure handling: e.g. "peer isn't showing a qr code"
+            // TODO(pmvp) exit options/failure handling: e.g. "peer isn't showing a qr code"
         }
         .sheet(isPresented: $viewModel.showScanner) {
             CodeScannerView(codeTypes: [.qr],

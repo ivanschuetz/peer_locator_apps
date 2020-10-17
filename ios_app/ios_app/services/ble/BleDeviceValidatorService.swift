@@ -10,7 +10,7 @@ protocol BleDeviceValidatorService {
 }
 
 class BleDeviceValidatorServiceImpl: BleDeviceValidatorService {
-    // TODO check out of memory, since we store now all detected devices. Max capacity dictionary?
+    // TODO(pmvp) check out of memory, since we store now all detected devices. Max capacity dictionary?
     // Note also scan operator below.
     private let validationResults: AnyPublisher<[UUID: DetectedDeviceValidationResult], Never>
 
@@ -63,7 +63,7 @@ private func updateValidPeers(validationResults: [UUID: DetectedDeviceValidation
     // when we implement periodic validation probably we have to pass a flag to force validation.
     // clearing the dictionary would probably not be good, as it would interrupt the distance measurements.
 
-    // TODO commenting for now, as we implemented periodic validation, and of course this will cache
+    // TODO(pmvp) commenting for now, as we implemented periodic validation, and of course this will cache
     // invalid state forever. We need to improve the mechanism.
     // Note that it's not overly critical pre-mvp, as validation happens only each 5 secs and most people testing
     // will not have a lot of devices with the app installed around. It also doesn't seem critical for release.

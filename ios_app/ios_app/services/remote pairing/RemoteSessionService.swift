@@ -1,19 +1,7 @@
 import Foundation
 
 protocol RemoteSessionService {
-    /**
-     * Initializes a local and backend session.
-     */
     func createSession() -> Result<Session, ServicesError>
-
-    /**
-     * Joins an existing backend session. This consists of the following steps:
-     * - Initializing a local session (creates key pair) if it doesn't exist already.
-     * TODO clarify why it would already exist? is this needed?
-     * - Calling join session backend service.
-     * - Storing the peer's public key returned by call.
-     * - Acking to the backend that the public key was stored.
-     */
     func joinSession(id: SessionId) -> Result<Session, ServicesError>
 
     /**
@@ -50,14 +38,10 @@ class RemoteSessionServiceImpl: RemoteSessionService {
 //        guard !hasActiveSession() else {
 //            return .failure(.general("Can't create session: there's already one."))
 //        }
-        // TODO why load or create? I remember there was a reason for this but maybe not valid anymore
-        // it seems cleaner to just always create, probably deleting an existing session if present ("worst case", with error log),
-        // and ensure that normally there's not already an active session here, i.e. error handlers etc. delete when needed, UI
-        // doesn't allow to double tap etc.
-        loadOrCreateSession(isCreate: true,
-                            sessionIdGenerator: { SessionId(
-                                value: UUID().uuidString.removeAllImmutable(where: { $0 == "-" })
-                            ) }).flatMap { session in
+        localSessionManager.initLocalSession(iCreatedIt: true,
+                                             sessionIdGenerator: { SessionId(
+                                                value: UUID().uuidString.removeAllImmutable(where: { $0 == "-" })
+                                             ) }).flatMap { session in
             switch sessionApi
                 .createSession(sessionId: session.id, publicKey: session.publicKey) {
             case .success(let backendSession):
@@ -71,7 +55,7 @@ class RemoteSessionServiceImpl: RemoteSessionService {
                 }
                 return .failure(e)
             }
-        }
+         }
     }
 
     func joinSession(id sessionId: SessionId) -> Result<Session, ServicesError> {
@@ -128,11 +112,12 @@ class RemoteSessionServiceImpl: RemoteSessionService {
     }
 
     private func markDeleted(session: Session) -> Result<(), ServicesError> {
-        // TODO keep retrying if fails. It's important that the session is deleted.
         let peerId = session.peerId
-
         let res = sessionApi.delete(peerId: peerId)
-        log.d("Mark deleted result: \(res) for peer id: \(peerId)")
+        switch res {
+        case .success: log.d("Mark deleted success for peer id: \(peerId)", .session)
+        case .failure(let e): log.e("Didn't succeed deleting session: \(e)", .session)
+        }
         return res
     }
 
@@ -200,9 +185,12 @@ class RemoteSessionServiceImpl: RemoteSessionService {
 private extension BackendSession {
     func determinePeer(session: Session) -> Peer? {
         guard keys.count < 3 else {
-            // TODO crash when joining a session multiple times:
+            // TODO(next) crash when joining a session multiple times:
             // (with only one simulator) 1) create, 2) join, enter id, 3) delete session 4) join again, enter id, 5) crash
-            fatalError("Invalid state: there are more than 2 peers in the session: \(self)")
+            // As a quick fix maybe just show a notification, and navigate to start (and clear local session?)
+//            fatalError("Invalid state: there are more than 2 peers in the session: \(self)")
+            log.e("Invalid state: there are more than 2 peers in the session: \(self)", .session)
+            return nil
         }
 
         if let peer = session.peer {

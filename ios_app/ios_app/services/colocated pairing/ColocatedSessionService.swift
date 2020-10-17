@@ -32,7 +32,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         self.passwordProvider = passwordProvider
         self.localSessionManager = localSessionManager
 
-        // TODO error handling during close pairing:
+        // TODO(pmvp) error handling during close pairing:
         // - received corrupted data
         // - timeout writing
         // -> investigate if ble handles this for us somehow
@@ -51,7 +51,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             }
 
         errorWritingPublicKeyCancellable = colocatedPairing.errorSendingKey.sink { error in
-            // TODO dialog offering to retry? and/or exit->create/join session again? or toggle the device's ble, restart the app?
+            // TODO(pmvp) dialog offering to retry? and/or exit->create/join session again? or toggle the device's ble, restart the app?
             // note that this will be triggered after the automatic low level retry (when implemented)
             log.e("Error seding public key to peer: \(error)", .cp)
             uiNotifier.show(.error("Bluetooth communication error. Please try again."))
@@ -59,10 +59,10 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
     }
 
     func generatePassword() -> ColocatedPeeringPassword {
-        // TODO this side effect is quick and dirty, probably better way to reset this?
+        // TODO(pmvp) this side effect is quick and dirty, probably better way to reset this?
         shouldReplyWithMyKey.send(true)
 
-        // TODO random, qr code
+        // TODO(pmvp)  random, qr code
         return ColocatedPeeringPassword(value: "123")
     }
 
@@ -72,7 +72,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         } else {
             log.e("Invalid state? peer sent us their public key but we haven't stored a pw.", .cp)
             uiNotifier.show(.error("Unknown error. Please try again"))
-            // TODO better handling
+            // TODO(pmvp)  better handling
         }
     }
 
@@ -86,7 +86,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             return
         }
 
-        // TODO "transactionally". Currently we store first the peers, if success then our session data...
+        // TODO(pmvp) "transactionally". Currently we store first the peers, if success then our session data...
         // we should store them ideally together. Prob after refactor that merges session data and peers.
         switch localSessionManager.savePeer(peer) {
         case .success:
@@ -99,7 +99,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
             // more quick "happy path"... directly after receiving peer's key, validate TODO review
             _ = meetingValidation.validatePeer()
 
-            // TODO we probably should ACK having peer's keys (like we do with the backend)
+            // TODO(pmvp) we probably should ACK having peer's keys (like we do with the backend)
             // otherwise one peer may show success while the other doesn't have the peer key, which is critical
             // (for colocated mostly not, as they'd notice immediately, but still, at least for correctness)
             // ack like everything else would probably need a retry too
@@ -124,7 +124,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
         // The one receiving the password deeplink sends the public key immediately, so when we receive
         // peer's public key we don't send it again.
         shouldReplyWithMyKey.send(false)
-        // TODO probably should be set to false only if initializeMySessionDataAndSendPublicKey succeeds,
+        // TODO(pmvp)  probably should be set to false only if initializeMySessionDataAndSendPublicKey succeeds,
         // check flow
         log.d("Received password from peer. Will send my data.", .cp)
         initializeMySessionDataAndSendPublicKey(password: password)
@@ -137,7 +137,7 @@ class ColocatedSessionServiceImpl: ColocatedSessionService {
                 peerMediator.prepare(myPublicKey: session.publicKey, password: password)
             }
 
-        // TODO better error handling: if something with session creation or encrypting fails, it means the app is unusable?
+        // TODO(pmvp)  better error handling: if something with session creation or encrypting fails, it means the app is unusable?
         // as we can't pair. crash? big error message? send error logs to cloud?
         switch result {
         case .success(let encryptedPublicKey):

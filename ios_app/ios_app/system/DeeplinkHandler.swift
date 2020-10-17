@@ -24,7 +24,6 @@ class DeeplinkHandlerImpl: DeeplinkHandler {
         if let passwordLink = ColocatedPeeringPasswordLink(value: link) {
             colocatedPasswordService.processPassword(passwordLink.extractPassword())
         } else if let sessionLink = SessionLink(url: link) {
-            // TODO SessionLink failable init, validates that it has session id
             sessionManager.join(sessionId: sessionLink.sessionId)
         } else {
             log.e("Unknown deeplink: \(link)", .deeplink)

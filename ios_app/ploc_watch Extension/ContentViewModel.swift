@@ -14,7 +14,10 @@ class ContentViewModel: ObservableObject {
         self.sessionDataDispatcher = sessionDataDispatcher
         peerCancellable = sessionDataDispatcher.peer.sink { [weak self] peer in
             let formattedDistance = peer.dist.flatMap { NumberFormatters.oneDecimal.string(from: $0) }
-            // TODO is "?" ok for missing distance? when can this happen? should fallback to bluetooth
+            // TODO(pmvp) is "?" ok for missing distance? when can this happen? should fallback to bluetooth
+            // moving to pmvp: let's test first with other people to see if it happens.
+            // we could fallback to ble distance, but that's probably not a good experience, as there would be
+            // unexpected jumps. So "?" or similar may be fine.
             self?.distance = formattedDistance.map { "\($0)m" } ?? "?"
             if let dir = peer.dir {
                 self?.directionAngle.radians = toAngle(dir: dir)

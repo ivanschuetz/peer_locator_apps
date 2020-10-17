@@ -6,11 +6,7 @@ protocol Bootstrapper {
 }
 
 protocol SessionApi {
-
-    // TODO: review api here: when creating, there can't be peers yet, so it
-    // doesn't make sense to return public keys
     func createSession(sessionId: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError>
-
     func joinSession(id: SessionId, publicKey: PublicKey) -> Result<BackendSession, ServicesError>
     func ackAndRequestSessionReady(peerId: PeerId, storedPeers: Int) -> Result<Bool, ServicesError>
     func peers(sessionId: SessionId) -> Result<BackendSession, ServicesError>
@@ -85,8 +81,10 @@ class CoreImpl: SessionApi, Bootstrapper {
 
         log.d("Deserializing core result: \(resultString)")
 
-        // TODO: review safety of utf-8 force unwrap
-        let data = resultString.data(using: .utf8)!
+        guard let data = resultString.data(using: .utf8) else {
+            return .failure(.general("Couldn't convert to utf8: \(resultString)"))
+        }
+        
         let decoder = JSONDecoder()
 
         do {

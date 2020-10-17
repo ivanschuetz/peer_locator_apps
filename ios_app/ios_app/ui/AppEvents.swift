@@ -37,8 +37,6 @@ class AppEventsImpl: AppEvents {
         }
     }
 
-    // TODO is this needed? these singleton dependencies are destroyed only when the app is destroyed
-    // so removing observer seems unnecessary
     deinit {
         let notificationCenter = NotificationCenter.default
         notificationCenter.removeObserver(

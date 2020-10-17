@@ -7,7 +7,7 @@ protocol TokenServiceDelegate {
     func receivedToken(token: SerializedSignedNearbyToken)
 }
 
-// TODO remove this, of course it's nonsense. Just to make it compile quickly.
+// TODO(pmvp) remove this, of course it's nonsense. Just to make it compile quickly.
 extension MultipeerTokenServiceImpl: BleCentralDelegate {
     func onConnectPeripheral(_ peripheral: CBPeripheral) {}
 
@@ -20,7 +20,6 @@ extension MultipeerTokenServiceImpl: BleCentralDelegate {
             type: CBUUID(string: "0be778a3-2096-46c8-82c9-3a9d63376513"),
             properties: [.write],
             value: nil,
-            // TODO what is .writeEncryptionRequired / .readEncryptionRequired? does it help us?
             permissions: [.writeable]
         )
     }

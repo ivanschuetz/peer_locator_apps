@@ -1,6 +1,5 @@
 import Foundation
 
-// TODO probably has to be abstracted to include Nearby id too
 protocol BleIdService {
     func id() -> BleId?
     func validate(bleId: BleId) -> Bool
@@ -28,19 +27,19 @@ class BleIdServiceImpl: BleIdService {
                 // This state is valid as devices can be close and with ble services (central/peripheral) on
                 // without session data: we are in this state during colocated pairing
                 // id == nil here means essentially "not yet paired".
-                // TODO probably we should block reading session data during colocated pairing / non-active session
-                log.v("There's no session data. Can't generate Ble id (TODO see comment)", .ble)
+                // TODO(pmvp) probably we should block reading session data during colocated pairing / non-active session
+                log.v("There's no session data. Can't generate Ble id (see comment)", .ble)
                 return nil
             }
         case .failure(let e):
-            // TODO handling
+            // TODO(pmvp) handling
             log.e("Critical: couldn't retrieve my session data: (\(e)). Can't generate Ble id", .ble)
             return nil
         }
     }
 
     func validate(bleId: BleId) -> Bool {
-        // TODO consider commenting this when going to production
+        // TODO(pmvp) consider commenting this when going to production
         // it's very unlikely that there will be iphones with x86, but it's a serious security risk.
         #if arch(x86_64)
         if String(data: bleId.data, encoding: .utf8) == "fakesimulatorid" {
@@ -71,14 +70,19 @@ class BleIdServiceImpl: BleIdService {
     }
 
     private func validate(bleId: BleId, peer: Peer) -> Bool {
-        let signedPeerPayload: SignedPeerPayload = validationDataMediator.process(bleId: bleId)
-        return peerValidator.validate(payload: signedPeerPayload, peer: peer)
+        switch validationDataMediator.process(bleId: bleId) {
+        case .success(let signedPeerPayload):
+            return peerValidator.validate(payload: signedPeerPayload, peer: peer)
+        case .failure(let e):
+            log.e("Error processing ble id: \(e). Returning validation false", .ble)
+            return false
+        }
     }
 }
 
 struct SignedPeerPayload: Codable {
     let data: String // random
-    let sig: String
+    let sig: String // hex encoded TODO(pmvp) create type for hex encoded string for a bit more type safety
 }
 
 class BleIdServiceNoop: BleIdService {

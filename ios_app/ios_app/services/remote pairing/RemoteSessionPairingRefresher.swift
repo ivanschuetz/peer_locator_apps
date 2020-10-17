@@ -41,15 +41,16 @@ class RemoteSessionPairingRefresher {
                 stopRefreshTimer()
             }
         case .failure(let e):
-            log.e("Critical: error retrieving session. Can't refresh state. Error: \(e)", .session)
-            // TODO handling? stop timer and tell user to retry manually (how)? or re-create/join session? crash app?
-            stopRefreshTimer()
+            // Note that we don't stop the timer. It could work the next time (e.g. if it's a server timeout error)
+            // This could spam the logs for other kind of errors. TODO(pmvp) Revisit.
+            log.e("Error retrieving session. Can't refresh state. Error: \(e)", .session)
             break
         }
     }
 
     private func startRefreshTimer() {
-        // TODO use for all timers. Sometimes they don't start without this.
+        // DispatchQueue.main.async needed sometimes (like here) when starting timer. Otherwise it just doesn't.
+        // forgot to add StackOverflow link.
         DispatchQueue.main.async {
             if let timer = self.refreshTimer, timer.isValid {
                 log.w("Suspicious? starting session refresh timer while there's one active already. Ignoring.", .ble)

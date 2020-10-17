@@ -6,28 +6,26 @@ import CoreBluetooth
  * Broadcasts validated ble peer.
  * Acts as a filter of the "raw" detected ble peer, which has not been validated.
  */
-// TODO rename DetectedBlePeerFilterService
-protocol DetectedBleDeviceFilterService {
-    // TODO rename blePeer
-    var device: AnyPublisher<BlePeer, Never> { get }
+protocol DetectedBlePeerFilterService {
+    var blePeer: AnyPublisher<BlePeer, Never> { get }
 }
 
-// TODO handling of invalid peer?
+// TODO(pmvp) handling of invalid peer?
 // note validated means: they're exposing data in our service and characteristic uuid
 // if serv/char uuid are not variable, this can mean anyone using our app
 // if they're per-session, it means intentional impostor or some sort of error (?)
-// TODO think: should the signed data be the session id?
+// TODO(pmvp) think: should the signed data be the session id?
 // if serv/char uuid not variable, this would allow us to identify the session
 // but: other people can see if 2 people are meeting
 // if serv/char variable, it would still help somewhat but also not ideal privacy
 // best priv is variable serv/char + asymmetric encrypted data (peers offer different payload)
-// TODO review whetehr this privacy level is needed at this stage
+// TODO(pmvp) review whetehr this privacy level is needed at this stage
 
-class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
-    let device: AnyPublisher<BlePeer, Never>
+class DetectedBleDeviceFilterServiceImpl: DetectedBlePeerFilterService {
+    let blePeer: AnyPublisher<BlePeer, Never>
 
     init(deviceDetector: BleDeviceDetector, deviceValidator: BleDeviceValidatorService) {
-        device = deviceDetector.discovered.withLatestFrom(deviceValidator.validDevices) { device, validDevices in
+        blePeer = deviceDetector.discovered.withLatestFrom(deviceValidator.validDevices) { device, validDevices in
             (device, validDevices)
         }
         .compactMap { device, validDevices -> (BleDetectedDevice, BleId)? in
@@ -47,8 +45,6 @@ class DetectedBleDeviceFilterServiceImpl: DetectedBleDeviceFilterService {
     }
 }
 
-// TODO probably this has to be abstracted to just "(discovered)Peer"
-// come back to this after nearby switching intergrated
 struct BlePeer {
     let deviceUuid: UUID
     let id: BleId
@@ -76,7 +72,7 @@ private func estimateDistance(rssi: Double, powerLevelMaybe: Int?) -> Double {
 
 private func powerLevel(powerLevelMaybe: Int?) -> Double {
     // It seems we have to hardcode this, at least for Android
-    // TODO do we have to differentiate between device brands? maybe we need a "handshake" where device
+    // TODO(pandroid) do we have to differentiate between device brands? maybe we need a "handshake" where device
     // communicates it's power level via custom advertisement or gatt?
     return powerLevelMaybe.map { Double($0) } ?? -80 // measured with Android (pixel 3)
 }
@@ -99,7 +95,7 @@ private func estimatedDistance(rssi: Double, powerLevel: Double) -> Double {
         return -1
     }
     let pw = powerLevelToUse(powerLevel)
-    return pow(10, (pw - rssi) / 20)  // TODO environment factor
+    return pow(10, (pw - rssi) / 20)  // TODO(pandroid) environment factor
 }
 
 struct BleDetectedDevice {
@@ -108,6 +104,6 @@ struct BleDetectedDevice {
     let rssi: NSNumber
 }
 
-class NoopDetectedDeviceFilterService: DetectedBleDeviceFilterService {
-    let device = Just(BlePeer(deviceUuid: UUID(), id: BleId(str: "123")!, distance: 10.2)).eraseToAnyPublisher()
+class NoopDetectedDeviceFilterService: DetectedBlePeerFilterService {
+    let blePeer = Just(BlePeer(deviceUuid: UUID(), id: BleId(str: "123")!, distance: 10.2)).eraseToAnyPublisher()
 }

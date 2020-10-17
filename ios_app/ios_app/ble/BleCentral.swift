@@ -133,8 +133,7 @@ class BleCentralImpl: NSObject, BleCentral {
                     switch alreadyDiscoveredCharacteristics.count {
                     case 3:
                         log.d("Restored peripheral has cached service and characteristics.", .blec, .bg)
-                        // TODO maybe confirm too that the 3 characteristics are our characteristics.
-                        // (low prio, unlikely to not be the case)
+                        // It's our service, so we assume that the 3 characteristics are our expected characteristics.
                         onRetrieveCharacteristics(characteristics: alreadyDiscoveredCharacteristics,
                                                   peripheral: peripheral, error: nil)
                     case 0:
@@ -173,11 +172,7 @@ class BleCentralImpl: NSObject, BleCentral {
         //            }
         //        }
 
-        // TODO since we will not use the advertisement data (TODO confirm), both devices can use read requests
-        // no need to do write (other that for possible ACKs later)
-
         if characteristics.count != 3 {
-            // TODO can this happen?
             log.e("Suspicious characteristics count. Should be 3: \(characteristics.count). Exit.", .blec)
             return
         }
@@ -229,7 +224,7 @@ extension BleCentralImpl: CBCentralManagerDelegate {
         peripheralReferenceToPreventWarning = peripheral
 
         if peripheral.state != .connected && peripheral.state != .connecting {
-            // TODO connection count limit?
+            // TODO(pmvp) connection count limit?
             log.v("Connecting to peripheral", .blec)
             centralManager.connect(peripheral)
         }
@@ -241,13 +236,15 @@ extension BleCentralImpl: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        // Note: this can be unrelated app users, not sure a retry here is meaningful -- edit: probably yes, failure shouldn't be common.
-        // also edit: this retry could be implemented here, as doesn't require validation.
-        // TODO research: when is this called? does ble maybe do some sort of retry? should we do it?
+        // Connection failure is unusual, see docs:
+        // "This method is invoked when a connection initiated by {@link connectPeripheral:options:} has failed to
+        // complete. As connection attempts do not timeout, the failure of a connection is atypical and usually indicative of a transient issue."
+        //
+        // Since it's unusual and transient, we do a retry, even if peripheral here can be anybody
+        // TODO(pmvp) connect retry
+        // TODO(next) show user a warning. Specially important pre-mvp as the peripheral is more likely to be peer.
+        //
         log.w("Central did fail to connect to peripheral: \(String(describing: error))", .blec)
-        // TODO this, then would be called only if the retry fails
-        // -- show to user only as a warning, as we don't know if the peripheral belongs to the peer
-        // note that during MVP the likelihood of other app users being our peer is relatively high, so warning seem right for now at least.
         delegates.forEach { $0.onDidFailToConnectToPeripheral(peripheral) }
     }
 
@@ -265,10 +262,8 @@ extension BleCentralImpl: CBCentralManagerDelegate {
                 }
             }
 
-            // TODO Do we need to do anything here? clarify:
-            // will didDiscover always be called too? if yes, we get the peripheral there, set the delegate and broadcast,
-            // so not needed to do anything here
-            // keep in mind to check "restored by system while in bg" which seems the main use case for willRestoreState (TODO confirm this too)
+            // TODO(pmvp) test state restoration more, document exact order/flow (with did connect/discover, etc.)
+            // keep in mind to check "restored by system while in bg" which seems the main use case for willRestoreState
         }
     }
 }
@@ -295,7 +290,7 @@ extension BleCentralImpl: CBPeripheralDelegate {
         peripheral.discoverCharacteristics(nil, for: service)
 
 //        // If it's a restored peripheral, don't discover services again if it already did.
-//        // TODO check that the local peripheral here is the same as the restored peripheral
+//        // TODO(pmvp) check that the local peripheral here is the same as the restored peripheral
 //        // (i.e. that it has services, if we restart after discovery)
 //        // https://apple.co/3l09b1i "Update Your Initialization Process" section
 //        let alreadyDiscoveredService = peripheral.services?.contains { $0.uuid == CBUUID.serviceCBUUID } ?? false
