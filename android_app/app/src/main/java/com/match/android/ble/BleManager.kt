@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
-data class ObservedDevice(val id: BleId, val distance: Float)
+data class ObservedDevice(val id: BleId, val distance: Double)
 
 interface BleManager {
     val advertiserObservable: BroadcastChannel<BleId>

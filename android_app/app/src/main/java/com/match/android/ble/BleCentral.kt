@@ -108,8 +108,7 @@ class BleCentralImpl(private val context: Context) : BleCentral {
             // iOS wrote an identifier
             val id = BleId(it)
             log.d("Ble id was written: $id", BLE)
-            // TODO RSSI
-            observer?.onDiscovered(ObservedDevice(id, 12f))
+            // TODO
         }).apply {
             clearServices()
             addService(service)
@@ -137,11 +136,18 @@ class BleCentralImpl(private val context: Context) : BleCentral {
 
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            val bleId = result?.scanRecord?.extractBleId()
+
+            if (result == null) return
+            val scanRecord = result.scanRecord ?: return
+
+            val bleId = scanRecord.extractBleId()
+
             if (bleId != null) {
-                // We detected an Android identifier
-                // TODO RSSI
-                observer?.onDiscovered(ObservedDevice(bleId, 12f))
+                // TODO isAndroid: do we need this? if yes we probably have to
+                // TODO add a flag to adv. data (or e.g. advertise the service)
+                val distance = DistanceCalculator.estimateDistance(result.rssi,
+                    result.scanRecord?.txPowerLevel, false)
+                observer?.onDiscovered(ObservedDevice(bleId, distance))
             }
         }
     }
