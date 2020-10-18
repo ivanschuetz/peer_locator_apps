@@ -27,7 +27,6 @@ import com.match.android.ble.BleUuids.CHARACTERISTIC_UUID
 import com.match.android.ble.BleUuids.SERVICE_UUID
 import com.match.android.ble.extensions.openGattServerForWrites
 import com.match.android.services.BleId
-import com.match.android.system.log.LogTag
 import com.match.android.system.log.LogTag.BLE
 import com.match.android.system.log.log
 
